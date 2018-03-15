@@ -1,2 +1,2 @@
 # cs5410_final
-Game Dev Battle Royal
+Game Dev Battle Royale
