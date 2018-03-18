@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+  <link rel="stylesheet" href="assets/fonts/fontawesome-free-5.0.8/web-fonts-with-css/css/fontawesome-all.min.css">
+  <link href="https://fonts.googleapis.com/css?family=Press+Start+2P" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css?family=VT323" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <noscript>
+    This game is only available with JavaScript enabled
+  </noscript>
+  <div id="volume-toggle" class="on">
+    <i class="volume-on fa-3x fas fa-volume-up"></i><i class="volume-off fa-3x fas fa-volume-off"></i>
+  </div>
+  <div class="hidden" data-view="MenuView" id="game-menu">
+    <h1>Battle Royale</h1>
+    <!--See ButtonMenu.js implementation for controls-->
+    <button data-view-transition="GameLobbyView">Join Game Lobby</button>
+    <button data-view-transition="HighScoresView">High Scores</button>
+    <button data-view-transition="OptionsView">Options</button>
+    <button data-view-transition="CreditsView">Credits</button>
+  </div>
+  <div class="hidden" data-view="GameLobbyView" id="game-lobby">
+    <h2>Pre-game Lobby</h2>
+    <div id="lobby-chat-box">
+      <h3>Chat</h3>
+      <div class="chat-messages">
+        <div class="chat-message">
+          <span class="chat-user">user1</span>: <span class="chat-message">hello?</span>
+        </div>
+        <div class="chat-message">
+          <span class="chat-user">user2</span>: <span class="chat-message">Hey!</span>
+        </div>
+      </div>
+    </div>
+    <div id="lobby-players">
+      <h3>Players</h3>
+      <h5>3 of 10</h5>
+      <div class="people-in-lobby">
+        <div class="user-in-lobby">user1</div>
+        <div class="user-in-lobby">user2</div>
+        <div class="user-in-lobby">user3</div>
+      </div>
+    </div>
+    <div class="footer">
+      <button data-view-transition="MenuView">Main Menu</button>
+      <div id="game-lobby-status">Game needs 10 players</div>
+    </div>
+  </div>
+  <div class="hidden" data-view="HighScoresView" id="highscore-menu">
+    <h2>High Scores</h2>
+    <!--See ButtonMenu.js implementation for controls-->
+    <button data-view-transition="MenuView">Main Menu</button>
+  </div>
+  <div class="hidden" data-view="OptionsView" id="options-menu">
+    <h2>Options</h2>
+    <!--See ButtonMenu.js implementation for controls-->
+    <button data-view-transition="MenuView">Main Menu</button>
+  </div>
+  <div class="hidden" data-view="CreditsView" id="credits-menu">
+    <p>
+      Gameplay: Andrew Aposhian, Sam Christiansen, Nicholas Guyaux, John Johnson - made for USU CS 5410
+    </p>
+    <p>
+      Gameplay Music: Eric Skiff - Underclocked (underunderclocked mix) - Resistor Anthems - Available at <a href="http://EricSkiff.com/music">http://EricSkiff.com/music</a>
+    </p>
+    <p>
+      Menu Music: Eric Skiff - Come and Find Me - B mix - Resistor Anthems - Available at <a href="http://EricSkiff.com/music">http://EricSkiff.com/music</a>
+    </p>
+    <p>
+      Sound Effects: LittleRobotSoundFactory - Available at <a href="https://freesound.org/people/LittleRobotSoundFactory/">https://freesound.org/people/LittleRobotSoundFactory/</a>
+    </p>
+    <p>
+      Font: CodeMan38 - Press Start 2P - Available at <a href="https://fonts.google.com/specimen/Press+Start+2P">https://fonts.google.com/specimen/Press+Start+2P</a>
+    </p>
+    <p>
+      Background: Dimitrie Hoekstra - GPlay  - Available <a href="https://www.toptal.com/designers/subtlepatterns/gplay/">here</a>.
+    </p>
+    <button class="selected" data-view-transition="MenuView">Main Menu</button>
+  </div>
+  <!-- Start Scripts -->
+  <!-- /js/lib/ -->
+  <script src="js/lib/$.js"></script>
+  <script src="js/lib/Events.js"></script>
+  <script src="js/lib/ViewSwitcher.js"></script>
+  <script src="js/lib/KeyboardHandler.js"></script>
+  <script src="js/lib/ButtonMenu.js"></script>
+  <script src="js/lib/ViewStarters.js"></script>
+  <script src="js/lib/throttle.js"></script>
+  <script src="js/lib/AudioAsset.js"></script>
+  <script src="js/lib/AudioPool.js"></script>
+  <!-- /js/views/ -->
+  <script src="js/views/MenuView.js"></script>
+  <script src="js/views/GameLobbyView.js"></script>
+  <!-- / -->
+  <script src="app.js"></script>
+  <!-- End Scripts -->
+</body>
+</html>
