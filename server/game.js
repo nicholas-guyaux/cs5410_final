@@ -1,7 +1,8 @@
 // This code was adapted from code originally written by Dr. Dean Mathias
 
 const present = require('present');
-const Player = require('./player');
+const GameState = require('./gamestate');
+const Player = require('./components/player');
 const NetworkIds = require('../shared/network-ids');
 const Queue = require('../shared/queue.js');
 
@@ -9,7 +10,6 @@ let props = {
   quit: false
 };
 let inputQueue = Queue.create();
-let activeClients = {};
 
 function processInput(elapsedTime) {
   //
@@ -20,22 +20,22 @@ function processInput(elapsedTime) {
 
   while (!processMe.empty) {
     let input = processMe.dequeue();
-    let client = activeClients[input.clientId];
+    let client = GameState.activeClients[input.clientId];
     client.lastMessageId = input.message.id;
 
     // TODO: Handle all message types from client
     switch (input.message.type) {
       case NetworkIds.INPUT_MOVE:
-        // client.player.move(input.message.elapsedTime);
+        // client.state.player.move(input.message.elapsedTime);
         break;
       case NetworkIds.INPUT_ROTATE_LEFT:
-        // client.player.rotateLeft(input.message.elapsedTime);
+        // client.state.player.rotateLeft(input.message.elapsedTime);
         break;
       case NetworkIds.INPUT_ROTATE_RIGHT:
-        // client.player.rotateRight(input.message.elapsedTime);
+        // client.state.player.rotateRight(input.message.elapsedTime);
         break;
       case NetworkIds.INPUT_FIRE:
-        // createMissile(input.clientId, client.player);
+        // createMissile(input.clientId, client.state.player);
         break;
     }
   }
@@ -76,37 +76,28 @@ function initializeSocketIO(httpServer) {
 
   //------------------------------------------------------------------
   //
-  // Notifies the already connected clients about the arrival of this
-  // new client. Plus, tell the newly connected client about the
-  // other players already connected.
+  // Bidirectional notification: notifies the newly connected client of 
+  // all other clients and notifies all other clients of the newly connected 
+  // client.
   //
   //------------------------------------------------------------------
-  function notifyConnect(socket, newPlayer) {
-    for (let clientId in activeClients) {
-      let client = activeClients[clientId];
-      if (newPlayer.clientId !== clientId) {
-        //
-        // Tell existing about the newly connected player
-        client.socket.emit(NetworkIds.CONNECT_OTHER, {
-          // TODO: Include all the data needed from a player on notify
-          clientId: newPlayer.clientId,
-          direction: newPlayer.direction,
-          position: newPlayer.position,
-          rotateRate: newPlayer.rotateRate,
-          speed: newPlayer.speed,
-          size: newPlayer.size
+  function notifyConnect(newClient) {
+    for (let clientId in GameState.activeClients) {
+      if (!GameState.activeClients.hasOwnProperty(clientId)) {
+        continue;
+      }
+      let existingClient = GameState.activeClients[clientId];
+
+      if (newClient.socket.id !== clientId) {
+        existingClient.socket.emit(NetworkIds.CONNECT_OTHER, {
+          // TODO: Include all the data needed from a client on notify
+          clientId: newClient.socket.id,
+          player: newClient.state.player
         });
-        
-        //
-        // Tell the new player about the already connected player
-        socket.emit(NetworkIds.CONNECT_OTHER, {
-          // TODO: Include all the data needed from a player on notify
-          clientId: client.player.clientId,
-          direction: client.player.direction,
-          position: client.player.position,
-          rotateRate: client.player.rotateRate,
-          speed: client.player.speed,
-          size: client.player.size
+        newClient.socket.emit(NetworkIds.CONNECT_OTHER, {
+          // TODO: Include all the data needed from a client on notify
+          clientId: existingClient.socket.id,
+          player: existingClient.state.player
         });
       }
     }
@@ -119,8 +110,11 @@ function initializeSocketIO(httpServer) {
   //
   //------------------------------------------------------------------
   function notifyDisconnect(playerId) {
-    for (let clientId in activeClients) {
-      let client = activeClients[clientId];
+    for (let clientId in GameState.activeClients) {
+      if (!GameState.activeClients.hasOwnProperty(clientId)) {
+        continue;
+      }
+      let client = GameState.activeClients[clientId];
       if (playerId !== clientId) {
         client.socket.emit(NetworkIds.DISCONNECT_OTHER, {
           clientId: playerId
@@ -134,21 +128,20 @@ function initializeSocketIO(httpServer) {
   io.on('connection', function(socket) {
     console.log('Connection established: ', socket.id);
 
-    let newPlayer = Player.create()
-    newPlayer.clientId = socket.id;
-    activeClients[socket.id] = {
+    let newPlayer = Player.create();
+    let newClient = {
       socket: socket,
-      player: newPlayer
+      state: {
+        player: newPlayer
+      }
     };
+    GameState.activeClients[socket.id] = newClient;
 
     //
     // Ack message emitted to new client with info about its new player
     socket.emit(NetworkIds.CONNECT_ACK, {
-      direction: newPlayer.direction,
-      position: newPlayer.position,
-      size: newPlayer.size,
-      rotateRate: newPlayer.rotateRate,
-      speed: newPlayer.speed
+      clientId: socket.id,
+      player: newPlayer
     });
 
     //
@@ -161,11 +154,11 @@ function initializeSocketIO(httpServer) {
     });
 
     socket.on('disconnect', function() {
-      delete activeClients[socket.id];
+      delete GameState.activeClients[socket.id];
       notifyDisconnect(socket.id);
     });
 
-    notifyConnect(socket, newPlayer);
+    notifyConnect(newClient);
   });
 }
 
