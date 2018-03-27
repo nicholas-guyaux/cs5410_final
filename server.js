@@ -1,8 +1,8 @@
 // This code was adapted from code originally written by Dr. Dean Mathias
 
-let http = require('http');
-let path = require('path');
-let fs = require('fs');
+const http = require('http');
+const path = require('path');
+const fs = require('fs');
 // let game = require('');
 
 let mimeTypes = {
