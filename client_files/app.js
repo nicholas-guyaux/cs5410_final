@@ -19,8 +19,13 @@
   }
 
   function main (e) {
+    window.player = {
+      name: 'John'
+    }
 
     miscSetup();
+    window.socket = null;
+
 
     // Create Simple Views that use a viewstarter template
     const CreditsView = ViewStarters.ButtonView('CreditsView', $('#credits-menu')[0], () => {
@@ -36,6 +41,13 @@
     window.MainView = ViewSwitcher();
     MainView.addViews(MenuView, CreditsView, HighScoresView, OptionsView, GameLobbyView);
     MainView.loadView(MenuView.name);
+
+    MainView.events.addEventListener('view-loaded', function () {
+      if(e.name === MenuView.name && MainView.socket !== null) {
+        socket.disconnect();
+        socket = null;
+      }
+    });
   }
 
   // will call main when the DOM has been fully loaded

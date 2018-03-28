@@ -29,6 +29,14 @@
       value: 'fire',
       writable: false
     },
+    'PLAYER_JOIN': {
+      value: 'player-join',
+      writable: false
+    },
+    'LOBBY_MSG': {
+      value: 'lobby-msg',
+      writable: false
+    },
     'CONNECT_ACK': {
       value: 'connect-ack',
       writable: false
