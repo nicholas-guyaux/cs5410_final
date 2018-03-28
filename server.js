@@ -3,7 +3,7 @@
 const http = require('http');
 const path = require('path');
 const fs = require('fs');
-// let game = require('');
+let game = require('./server/game');
 
 let mimeTypes = {
   '.js': 'text/javascript',
@@ -23,6 +23,8 @@ function handleRequest(req, res) {
   let lookup = (req.url === '/') ? '/index.html' : decodeURI(req.url);
   let file = lookup.substring(1, lookup.length);
 
+  file = path.join(__dirname, 'client_files', file);
+  
   fs.exists(file, function(exists) {
     // TODO: Prevent client from accessing server code
     if (exists) {
@@ -48,6 +50,6 @@ function handleRequest(req, res) {
 let server = http.createServer(handleRequest);
 
 server.listen(3000, function() {
-  // game.initialize(server);
+  game.initializeSocketIO(server);
   console.log('Server is listening on port 3000');
 });

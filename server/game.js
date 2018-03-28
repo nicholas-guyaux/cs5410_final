@@ -3,8 +3,8 @@
 const present = require('present');
 const GameState = require('./gamestate');
 const Player = require('./components/player');
-const NetworkIds = require('../shared/network-ids');
-const Queue = require('../shared/queue.js');
+const NetworkIds = require('../client_files/shared/network-ids');
+const Queue = require('../client_files/shared/queue.js');
 
 let props = {
   quit: false
@@ -128,11 +128,11 @@ function initializeSocketIO(httpServer) {
   io.on('connection', function(socket) {
     console.log('Connection established: ', socket.id);
 
-    let newPlayer = Player.create();
+    // let newPlayer = Player.create();
     let newClient = {
       socket: socket,
       state: {
-        player: newPlayer
+        // player: newPlayer
       }
     };
     GameState.activeClients[socket.id] = newClient;
@@ -141,7 +141,7 @@ function initializeSocketIO(httpServer) {
     // Ack message emitted to new client with info about its new player
     socket.emit(NetworkIds.CONNECT_ACK, {
       clientId: socket.id,
-      player: newPlayer
+      // player: newPlayer
     });
 
     //
@@ -153,6 +153,14 @@ function initializeSocketIO(httpServer) {
       });
     });
 
+    socket.on(NetworkIds.PLAYER_JOIN, data => {
+      newClient.state.player = data.player
+      console.log(data.player.name);
+      socket.emit(NetworkIds.PLAYER_JOIN, {
+        clients: Object.values(GameState.activeClients).map(x => x.state.player).filter(x => !!x.name)
+      })
+    });
+
     socket.on('disconnect', function() {
       delete GameState.activeClients[socket.id];
       notifyDisconnect(socket.id);
@@ -162,8 +170,7 @@ function initializeSocketIO(httpServer) {
   });
 }
 
-function initialize(httpServer) {
-  initializeSocketIO(httpServer);
+function initialize() {
   gameLoop(present(), 0);
 }
 
@@ -178,6 +185,7 @@ function terminate() {
 }
 
 module.exports = {
+  initializeSocketIO,
   initialize: initialize,
   terminate: terminate
 };
