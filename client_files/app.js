@@ -18,7 +18,7 @@
     });
   }
 
-  function main (e) {
+  window.main = (function (e) {
     window.player = {
       name: 'John'
     }
@@ -39,7 +39,7 @@
     });
     // setup the main view switcher
     window.MainView = ViewSwitcher();
-    MainView.addViews(MenuView, CreditsView, HighScoresView, OptionsView, GameLobbyView);
+    MainView.addViews(MenuView, CreditsView, HighScoresView, OptionsView, GameLobbyView, GameView);
     MainView.loadView(MenuView.name);
 
     MainView.events.addEventListener('view-loaded', function () {
@@ -48,9 +48,9 @@
         socket = null;
       }
     });
-  }
+  })
 
   // will call main when the DOM has been fully loaded
-  window.addEventListener('load', main);
+  //window.addEventListener('load', main);
 
 })(ViewSwitcher, MenuView);
