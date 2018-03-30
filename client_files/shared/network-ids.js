@@ -37,6 +37,14 @@
       value: 'lobby-msg',
       writable: false
     },
+    'GAME_COUNTDOWN': {
+      value: 'game-starting',
+      writeable: false
+    },
+    'GAME_SETUP': {
+      value: 'game-init',
+      writable: false
+    },
     'CONNECT_ACK': {
       value: 'connect-ack',
       writable: false

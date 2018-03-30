@@ -161,8 +161,23 @@ function initializeSocketIO(httpServer) {
       })
     });
 
+    socket.on(NetworkIds.LOBBY_MSG, data => {
+      for (let clientId in GameState.activeClients) {
+        if (!GameState.activeClients.hasOwnProperty(clientId)) {
+          continue;
+        }
+        let client = GameState.activeClients[clientId];
+        
+        client.socket.emit(NetworkIds.LOBBY_MSG, {
+          playerId: data.playerId,  
+          message: data.message      
+        });
+      }
+    });
+
     socket.on('disconnect', function() {
       delete GameState.activeClients[socket.id];
+      console.log('goodbye sucker');
       notifyDisconnect(socket.id);
     });
 
