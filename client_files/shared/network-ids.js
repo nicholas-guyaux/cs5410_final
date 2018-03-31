@@ -33,6 +33,10 @@
       value: 'player-join',
       writable: false
     },
+    'PLAYER_LEAVE': {
+      value:'player-leave',
+      writeable: false
+    },
     'LOBBY_MSG': {
       value: 'lobby-msg',
       writable: false

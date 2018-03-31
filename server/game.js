@@ -115,9 +115,13 @@ function initializeSocketIO(httpServer) {
         continue;
       }
       let client = GameState.activeClients[clientId];
-      if (playerId !== clientId) {
-        client.socket.emit(NetworkIds.DISCONNECT_OTHER, {
-          clientId: playerId
+      client.socket.emit(NetworkIds.PLAYER_LEAVE, {
+        clients: Object.values(GameState.activeClients).map(x => x.state.player).filter(x => !!x.name)
+      });
+      if (clientId !== playerId.id) {
+        client.socket.emit(NetworkIds.LOBBY_MSG, {
+          playerId: playerId.name,  
+          message: "Has left the lobby"      
         });
       }
     }
@@ -132,6 +136,8 @@ function initializeSocketIO(httpServer) {
     let newClient = {
       socket: socket,
       state: {
+        location: 'lobby',
+        player: ''
         // player: newPlayer
       }
     };
@@ -156,9 +162,22 @@ function initializeSocketIO(httpServer) {
     socket.on(NetworkIds.PLAYER_JOIN, data => {
       newClient.state.player = data.player
       console.log(data.player.name);
-      socket.emit(NetworkIds.PLAYER_JOIN, {
-        clients: Object.values(GameState.activeClients).map(x => x.state.player).filter(x => !!x.name)
-      })
+      
+      for (let clientId in GameState.activeClients) {
+        if (!GameState.activeClients.hasOwnProperty(clientId)) {
+          continue;
+        }
+        let client = GameState.activeClients[clientId];
+        client.socket.emit(NetworkIds.PLAYER_JOIN, {
+          clients: Object.values(GameState.activeClients).map(x => x.state.player).filter(x => !!x.name)
+        });
+        if (clientId !== socket.id) {
+          client.socket.emit(NetworkIds.LOBBY_MSG, {
+            playerId: newClient.state.player.name,  
+            message: "Has entered the lobby"      
+          });
+        }
+      }
     });
 
     socket.on(NetworkIds.LOBBY_MSG, data => {
@@ -176,9 +195,13 @@ function initializeSocketIO(httpServer) {
     });
 
     socket.on('disconnect', function() {
+      obj = {
+        id: socket.id,
+        name: GameState.activeClients[socket.id].state.player.name
+      }
       delete GameState.activeClients[socket.id];
       console.log('goodbye sucker');
-      notifyDisconnect(socket.id);
+      notifyDisconnect(obj);
     });
 
     notifyConnect(newClient);
