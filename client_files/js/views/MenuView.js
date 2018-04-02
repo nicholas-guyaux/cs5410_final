@@ -1,9 +1,17 @@
-const MenuView = (function GameView (AudioPool) {
+const MenuView = (function MenuView (AudioPool) {
   var buttonMenu = null;
+  let user = null;
 
   function render () {
     AudioPool.playMusic('menu');
     buttonMenu.activate();
+    if(client.user !== user) {
+      user = client.user;
+      $$('.insert-username-here').forEach(function (element) {
+        element.innerHTML = '';
+        element.appendChild(document.createTextNode(user.name));
+      })
+    }
   }
 
   function unrender () {

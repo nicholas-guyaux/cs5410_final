@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
-  <title>Document</title>
+  <title>Battle Royale</title>
   <link rel="stylesheet" href="assets/fonts/fontawesome-free-5.0.8/web-fonts-with-css/css/fontawesome-all.min.css">
   <link href="https://fonts.googleapis.com/css?family=Press+Start+2P" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css?family=VT323" rel="stylesheet">
@@ -17,13 +17,50 @@
   <div id="volume-toggle" class="on">
     <i class="volume-on fa-3x fas fa-volume-up"></i><i class="volume-off fa-3x fas fa-volume-off"></i>
   </div>
+  <div class="hidden" data-view="SignupView" id="signup-menu">
+    <h2>Sign up</h2>
+    <!--See ButtonMenu.js implementation for controls-->
+    <div>
+      <input id="signup-username" type="text" name="username" placeholder="username">
+    </div>
+    <div>
+      <input id="signup-email" type="text" name="email" placeholder="email">
+    </div>
+    <div>
+      <input id="signup-password" type="password" placeholder="password">
+    </div>
+    <div>
+      <button id="signup-button" class="selected">Sign up</button>
+    </div>
+    <h6>
+      Have an account? <a data-view-transition="LoginView">log in.</a>
+    </h6>
+  </div>
+  <div class="hidden" data-view="LoginView" id="login-menu">
+    <h2>Login</h2>
+    <!--See ButtonMenu.js implementation for controls-->
+    <div>
+      <input id="login-username" type="text" name="username/email" placeholder="username/email">
+    </div>
+    <div>
+      <input id="login-password" type="password" placeholder="password">
+    </div>
+    <div>
+      <button id="login-button" class="selected">login</button>
+    </div>
+    <h6>
+      Don't have an account? <a data-view-transition="SignupView">sign up.</a>
+    </h6>
+  </div>
   <div class="hidden" data-view="MenuView" id="game-menu">
     <h1>Battle Royale</h1>
     <!--See ButtonMenu.js implementation for controls-->
+    <h3>Welcome back <span class="insert-username-here"></span>!</h3>
     <button data-view-transition="GameLobbyView">Join Game Lobby</button>
     <button data-view-transition="HighScoresView">High Scores</button>
     <button data-view-transition="OptionsView">Options</button>
     <button data-view-transition="CreditsView">Credits</button>
+    <button id="logout" class="js-logout">Sign out</button>
   </div>
   <div class="hidden" data-view="GameLobbyView" id="game-lobby">
     <h2>Pre-game Lobby</h2>
@@ -85,6 +122,7 @@
   </div>
   <!-- Start Scripts -->
   <!-- /js/lib/ -->
+  <script src="js/lib/client.js"></script>
   <script src="js/lib/$.js"></script>
   <script src="js/lib/Events.js"></script>
   <script src="js/lib/ViewSwitcher.js"></script>
@@ -97,6 +135,8 @@
   <!-- /js/views/ -->
   <script src="js/views/MenuView.js"></script>
   <script src="js/views/GameLobbyView.js"></script>
+  <script src="js/views/LoginView.js"></script>
+  <script src="js/views/SignupView.js"></script>
   <!-- / -->
   <script src="app.js"></script>
   <!-- End Scripts -->

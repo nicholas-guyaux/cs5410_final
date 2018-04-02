@@ -34,8 +34,15 @@
     });
     // setup the main view switcher
     window.MainView = ViewSwitcher();
-    MainView.addViews(MenuView, CreditsView, HighScoresView, OptionsView, GameLobbyView);
-    MainView.loadView(MenuView.name);
+    MainView.addViews(MenuView, CreditsView, HighScoresView, OptionsView, GameLobbyView, LoginView, SignupView);
+    MainView.loadView(LoginView.name);
+
+    MainView.events.addEventListener('view-loaded', function () {
+      if(e.name === MenuView.name && MainView.socket !== null) {
+        socket.disconnect();
+        socket = null;
+      }
+    });
   }
 
   // will call main when the DOM has been fully loaded

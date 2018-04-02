@@ -1,4 +1,4 @@
-const GameLobbyView = (function GameView (AudioPool) {
+const GameLobbyView = (function GameLobbyView (AudioPool) {
   var buttonMenu = null;
 
   function render () {
