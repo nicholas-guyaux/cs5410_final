@@ -90,7 +90,7 @@ button.selected, button:hover, button:active {
   outline: none;
 }
 
-#game-menu, noscript, #credits-menu, #options-menu, #highscore-menu, #login-menu, #signup-menu {
+#game-menu, noscript, #credits-menu, #options-menu, #highscore-menu, #login-menu, #signup-menu, #splash-screen {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -136,4 +136,9 @@ button.selected, button:hover, button:active {
 
 .hidden {
   display: none !important;
+}
+
+#game-canvas {
+  width: 100%;
+  height: 100%;
 }
