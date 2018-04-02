@@ -19,8 +19,13 @@
   }
 
   function main (e) {
+    window.player = {
+      name: 'John'
+    }
 
     miscSetup();
+    window.socket = null;
+
 
     // Create Simple Views that use a viewstarter template
     const CreditsView = ViewStarters.ButtonView('CreditsView', $('#credits-menu')[0], () => {

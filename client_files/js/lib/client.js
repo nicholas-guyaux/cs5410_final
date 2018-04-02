@@ -62,7 +62,7 @@ const client = (function () {
       data: getSearchParams({
         token: user_token
       })
-    }).then(saveUser)
+    }).then(saveToken).then(saveUser)
   }
 
   function saveToken (data) {
