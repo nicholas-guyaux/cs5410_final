@@ -15,6 +15,7 @@ body {
   --menu-text-color: black;
   --menu-inverse-text-color: #eee;
   --menu-padding: 50px;
+  min-height: 100vh;
 }
 
 @keyframes pizzaz {
@@ -73,7 +74,7 @@ button {
   box-sizing: border-box;
 }
 
-input[type="text"] {
+input[type="text"], input[type="password"] {
   margin: 1em;
   font-size: 0.75rem;
   padding: 0.5em;
@@ -89,7 +90,7 @@ button.selected, button:hover, button:active {
   outline: none;
 }
 
-#game-menu, noscript, #credits-menu, #options-menu, #highscore-menu {
+#game-menu, noscript, #credits-menu, #options-menu, #highscore-menu, #login-menu, #signup-menu, #splash-screen {
   display: flex;
   align-items: center;
   justify-content: center;
