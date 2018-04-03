@@ -22,6 +22,10 @@ MyGame.loader = (function() {
       message: 'Utilities loaded',
       onComplete: null,
     }, {
+      scripts: ['js/lib/client.js'],
+      message: 'Library essentials loaded',
+      onComplete: null,
+    }, {
       scripts: ['js/lib/$.js'],
       message: 'Library essentials loaded',
       onComplete: null,
@@ -84,7 +88,10 @@ MyGame.loader = (function() {
       scripts: [
         'js/views/MenuView',
         'js/views/GameLobbyView',
-        'js/views/GameView'
+        'js/views/GameView',
+        'js/views/LoginView',
+        'js/views/SignupView',
+        'js/views/SplashView',
       ],
       message: 'Views loaded',
       onComplete: null,
