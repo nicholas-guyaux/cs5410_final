@@ -39,8 +39,8 @@
     });
     // setup the main view switcher
     window.MainView = ViewSwitcher();
-    MainView.addViews(MenuView, CreditsView, HighScoresView, OptionsView, GameLobbyView, GameView);
-    MainView.loadView(MenuView.name);
+    MainView.addViews(MenuView, CreditsView, HighScoresView, OptionsView, GameLobbyView, LoginView, SignupView, GameView, SplashView);
+    MainView.loadView(SplashView.name);
 
     MainView.events.addEventListener('view-loaded', function () {
       if(e.name === MenuView.name && MainView.socket !== null) {

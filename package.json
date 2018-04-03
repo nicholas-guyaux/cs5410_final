@@ -5,7 +5,8 @@
     "start": "node server.js"
   },
   "dependencies": {
-    "socket.io": "2.0.*",
-    "present": "1.0.0"
+    "jsonwebtoken": "8.2.0",
+    "present": "1.0.0",
+    "socket.io": "2.0.*"
   }
 }
