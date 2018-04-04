@@ -23,7 +23,7 @@ function processInput(elapsedTime) {
 
   while (!processMe.empty) {
     let input = processMe.dequeue();
-    let client = GameState.activeClients[input.clientId];
+    let client = GameState.lobbyClients[input.clientId];
     client.lastMessageId = input.message.id;
 
     // TODO: Handle all message types from client
@@ -85,11 +85,11 @@ function initializeSocketIO(httpServer) {
   //
   //------------------------------------------------------------------
   function notifyConnect(newClient) {
-    for (let clientId in GameState.activeClients) {
-      if (!GameState.activeClients.hasOwnProperty(clientId)) {
+    for (let clientId in GameState.lobbyClients) {
+      if (!GameState.lobbyClients.hasOwnProperty(clientId)) {
         continue;
       }
-      let existingClient = GameState.activeClients[clientId];
+      let existingClient = GameState.lobbyClients[clientId];
 
       if (newClient.socket.id !== clientId) {
         existingClient.socket.emit(NetworkIds.CONNECT_OTHER, {
@@ -104,13 +104,13 @@ function initializeSocketIO(httpServer) {
         });
       }
     }
-    if (GameState.activeClients.length >= numPlayersRequired && !gameInProgress) {
+    if (GameState.lobbyClients.length >= numPlayersRequired && !gameInProgress) {
       gameInProgress = true;
-      for (let clientId in GameState.activeClients) {
-        if (!GameState.activeClients.hasOwnProperty(clientId)) {
+      for (let clientId in GameState.lobbyClients) {
+        if (!GameState.lobbyClients.hasOwnProperty(clientId)) {
           continue;
         }
-        let existingClient = GameState.activeClients[clientId];
+        let existingClient = GameState.lobbyClients[clientId];
         existingClient.socket.emit(NetworkIds.START_GAME, {
           // TODO: Include all the data needed from a client on notify
           clientId: newClient.socket.id,
@@ -127,13 +127,13 @@ function initializeSocketIO(httpServer) {
   //
   //------------------------------------------------------------------
   function notifyDisconnect(playerId) {
-    for (let clientId in GameState.activeClients) {
-      if (!GameState.activeClients.hasOwnProperty(clientId)) {
+    for (let clientId in GameState.lobbyClients) {
+      if (!GameState.lobbyClients.hasOwnProperty(clientId)) {
         continue;
       }
-      let client = GameState.activeClients[clientId];
+      let client = GameState.lobbyClients[clientId];
       client.socket.emit(NetworkIds.PLAYER_LEAVE, {
-        clients: Object.values(GameState.activeClients).map(x => x.state.player).filter(x => !!x.name)
+        clients: Object.values(GameState.lobbyClients).map(x => x.state.player).filter(x => !!x.name)
       });
       if (clientId !== playerId.id) {
         client.socket.emit(NetworkIds.LOBBY_MSG, {
@@ -153,12 +153,10 @@ function initializeSocketIO(httpServer) {
     let newClient = {
       socket: socket,
       state: {
-        location: 'lobby',
         player: ''
-        // player: newPlayer
       }
     };
-    GameState.activeClients[socket.id] = newClient;
+    GameState.lobbyClients[socket.id] = newClient;
 
     //
     // Ack message emitted to new client with info about its new player
@@ -177,47 +175,48 @@ function initializeSocketIO(httpServer) {
     });
 
     socket.on(NetworkIds.PLAYER_JOIN, data => {
-      newClient.state.player = data.player
-      console.log(data.player.name);
+      newClient.state.player = data.player;
+      //console.log(data.player);
       
-      for (let clientId in GameState.activeClients) {
-        if (!GameState.activeClients.hasOwnProperty(clientId)) {
+      for (let clientId in GameState.lobbyClients) {
+        if (!GameState.lobbyClients.hasOwnProperty(clientId)) {
           continue;
         }
-        let client = GameState.activeClients[clientId];
+        let client = GameState.lobbyClients[clientId];
         client.socket.emit(NetworkIds.PLAYER_JOIN, {
-          clients: Object.values(GameState.activeClients).map(x => x.state.player).filter(x => !!x.name)
+          clients: Object.values(GameState.lobbyClients).map(x => x.state.player).filter(x => !!x.name)
         });
         if (clientId !== socket.id) {
           client.socket.emit(NetworkIds.LOBBY_MSG, {
             playerId: newClient.state.player.name,  
             message: "Has entered the lobby"      
           });
+          //console.log(newClient.state.player);
         }
       }
     });
 
     socket.on(NetworkIds.LOBBY_MSG, data => {
-      for (let clientId in GameState.activeClients) {
-        if (!GameState.activeClients.hasOwnProperty(clientId)) {
+      for (let clientId in GameState.lobbyClients) {
+        if (!GameState.lobbyClients.hasOwnProperty(clientId)) {
           continue;
         }
-        let client = GameState.activeClients[clientId];
+        let client = GameState.lobbyClients[clientId];
         
         client.socket.emit(NetworkIds.LOBBY_MSG, {
-          playerId: data.playerId,  
+          playerId: newClient.state.player,  
           message: data.message      
         });
       }
     });
 
     socket.on('disconnect', function() {
-      obj = {
+      var obj = {
         id: socket.id,
-        name: GameState.activeClients[socket.id].state.player.name
+        name: GameState.lobbyClients[socket.id].state.player.name
       }
-      delete GameState.activeClients[socket.id];
-      console.log('goodbye sucker');
+      delete GameState.lobbyClients[socket.id];
+      //console.log('goodbye sucker');
       notifyDisconnect(obj);
     });
 
