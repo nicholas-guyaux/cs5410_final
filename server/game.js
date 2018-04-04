@@ -154,7 +154,6 @@ function initializeSocketIO(httpServer) {
       socket: socket,
       state: {
         player: ''
-        // player: newPlayer
       }
     };
     GameState.lobbyClients[socket.id] = newClient;

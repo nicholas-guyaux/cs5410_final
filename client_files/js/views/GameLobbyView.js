@@ -16,7 +16,6 @@ const GameLobbyView = (function GameLobbyView (AudioPool) {
       socket.emit(NetworkIds.PLAYER_JOIN, {
         player: client.user
       });
-      //console.log(client.user);
     });
 
   
@@ -27,31 +26,26 @@ const GameLobbyView = (function GameLobbyView (AudioPool) {
       var lob = document.getElementById('lobby-players-box');
       lob.innerHTML = '';
       for (let playerId in data.clients) {
-        //console.log(data.clients[playerId].player.name);
         lob.innerHTML += '<div class="user-in-lobby">' + data.clients[playerId].name + '</div>';
       }
     });
 
     socket.on(NetworkIds.PLAYER_LEAVE, function (data) {
-      //console.log(data.clients);
       var lob = document.getElementById('lobby-count');
       lob.innerHTML = data.clients.length + ' of ' + requiredNumPlayers;
       var lob = document.getElementById('lobby-players-box');
       lob.innerHTML = '';
       for (let playerId in data.clients) {
-        //console.log(data.clients[playerId].player.name);
         lob.innerHTML += '<div class="user-in-lobby">' + data.clients[playerId].name + '</div>';
       }
     });
   
     socket.on(NetworkIds.LOBBY_MSG, function (data) {
-      //console.log(data);
       var div = document.getElementById('chat-messages-box');
       div.innerHTML += '<div class="chat-message"><span class="chat-user">' + data.playerId + '</span>: <span class="chat-message">' + data.message + '</span>';
     });
     AudioPool.playMusic('menu');
     keyboard.activate();
-    //buttonMenu.activate();
   }
 
   function unrender () {
