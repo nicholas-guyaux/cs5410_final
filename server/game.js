@@ -6,6 +6,9 @@ const Player = require('./components/player');
 const NetworkIds = require('../client_files/shared/network-ids');
 const Queue = require('../client_files/shared/queue.js');
 
+var numPlayersRequired = 10;
+var gameInProgress = false;
+
 let props = {
   quit: false
 };
@@ -101,6 +104,20 @@ function initializeSocketIO(httpServer) {
         });
       }
     }
+    if (GameState.activeClients.length >= numPlayersRequired && !gameInProgress) {
+      gameInProgress = true;
+      for (let clientId in GameState.activeClients) {
+        if (!GameState.activeClients.hasOwnProperty(clientId)) {
+          continue;
+        }
+        let existingClient = GameState.activeClients[clientId];
+        existingClient.socket.emit(NetworkIds.START_GAME, {
+          // TODO: Include all the data needed from a client on notify
+          clientId: newClient.socket.id,
+          player: newClient.state.player
+        });
+      }
+    }
   }
 
   //------------------------------------------------------------------
@@ -115,9 +132,13 @@ function initializeSocketIO(httpServer) {
         continue;
       }
       let client = GameState.activeClients[clientId];
-      if (playerId !== clientId) {
-        client.socket.emit(NetworkIds.DISCONNECT_OTHER, {
-          clientId: playerId
+      client.socket.emit(NetworkIds.PLAYER_LEAVE, {
+        clients: Object.values(GameState.activeClients).map(x => x.state.player).filter(x => !!x.name)
+      });
+      if (clientId !== playerId.id) {
+        client.socket.emit(NetworkIds.LOBBY_MSG, {
+          playerId: playerId.name,  
+          message: "Has left the lobby"      
         });
       }
     }
@@ -132,6 +153,8 @@ function initializeSocketIO(httpServer) {
     let newClient = {
       socket: socket,
       state: {
+        location: 'lobby',
+        player: ''
         // player: newPlayer
       }
     };
@@ -156,14 +179,46 @@ function initializeSocketIO(httpServer) {
     socket.on(NetworkIds.PLAYER_JOIN, data => {
       newClient.state.player = data.player
       console.log(data.player.name);
-      socket.emit(NetworkIds.PLAYER_JOIN, {
-        clients: Object.values(GameState.activeClients).map(x => x.state.player).filter(x => !!x.name)
-      })
+      
+      for (let clientId in GameState.activeClients) {
+        if (!GameState.activeClients.hasOwnProperty(clientId)) {
+          continue;
+        }
+        let client = GameState.activeClients[clientId];
+        client.socket.emit(NetworkIds.PLAYER_JOIN, {
+          clients: Object.values(GameState.activeClients).map(x => x.state.player).filter(x => !!x.name)
+        });
+        if (clientId !== socket.id) {
+          client.socket.emit(NetworkIds.LOBBY_MSG, {
+            playerId: newClient.state.player.name,  
+            message: "Has entered the lobby"      
+          });
+        }
+      }
+    });
+
+    socket.on(NetworkIds.LOBBY_MSG, data => {
+      for (let clientId in GameState.activeClients) {
+        if (!GameState.activeClients.hasOwnProperty(clientId)) {
+          continue;
+        }
+        let client = GameState.activeClients[clientId];
+        
+        client.socket.emit(NetworkIds.LOBBY_MSG, {
+          playerId: data.playerId,  
+          message: data.message      
+        });
+      }
     });
 
     socket.on('disconnect', function() {
+      obj = {
+        id: socket.id,
+        name: GameState.activeClients[socket.id].state.player.name
+      }
       delete GameState.activeClients[socket.id];
-      notifyDisconnect(socket.id);
+      console.log('goodbye sucker');
+      notifyDisconnect(obj);
     });
 
     notifyConnect(newClient);

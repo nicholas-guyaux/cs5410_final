@@ -33,8 +33,24 @@
       value: 'player-join',
       writable: false
     },
+    'PLAYER_LEAVE': {
+      value:'player-leave', 
+      writeable: false
+    },
     'LOBBY_MSG': {
       value: 'lobby-msg',
+      writable: false
+    },
+    'GAME_COUNTDOWN': {
+      value: 'game-starting',
+      writeable: false
+    },
+    'GAME_START': {
+      value: 'start_game',
+      writeable: false
+    },
+    'GAME_SETUP': {
+      value: 'game-init',
       writable: false
     },
     'CONNECT_ACK': {
