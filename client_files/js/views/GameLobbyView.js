@@ -1,6 +1,7 @@
 const GameLobbyView = (function GameView (AudioPool) {
   var buttonMenu = null;
 
+  var requiredNumPlayers = 10;
 
   
   function render () {
@@ -20,7 +21,7 @@ const GameLobbyView = (function GameView (AudioPool) {
     socket.on(NetworkIds.PLAYER_JOIN, function (data) {
       console.log(data.clients);
       var lob = document.getElementById('lobby-count');
-      lob.innerHTML = data.clients.length + ' of 10';
+      lob.innerHTML = data.clients.length + ' of ' + requiredNumPlayers;
       var lob = document.getElementById('lobby-players-box');
       lob.innerHTML = '';
       for (let playerId in data.clients) {
@@ -32,7 +33,7 @@ const GameLobbyView = (function GameView (AudioPool) {
     socket.on(NetworkIds.PLAYER_LEAVE, function (data) {
       console.log(data.clients);
       var lob = document.getElementById('lobby-count');
-      lob.innerHTML = data.clients.length + ' of 10';
+      lob.innerHTML = data.clients.length + ' of ' + requiredNumPlayers;
       var lob = document.getElementById('lobby-players-box');
       lob.innerHTML = '';
       for (let playerId in data.clients) {

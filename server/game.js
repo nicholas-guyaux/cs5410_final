@@ -6,6 +6,9 @@ const Player = require('./components/player');
 const NetworkIds = require('../client_files/shared/network-ids');
 const Queue = require('../client_files/shared/queue.js');
 
+var numPlayersRequired = 10;
+var gameInProgress = false;
+
 let props = {
   quit: false
 };
@@ -98,6 +101,20 @@ function initializeSocketIO(httpServer) {
           // TODO: Include all the data needed from a client on notify
           clientId: existingClient.socket.id,
           player: existingClient.state.player
+        });
+      }
+    }
+    if (GameState.activeClients.length >= numPlayersRequired && !gameInProgress) {
+      gameInProgress = true;
+      for (let clientId in GameState.activeClients) {
+        if (!GameState.activeClients.hasOwnProperty(clientId)) {
+          continue;
+        }
+        let existingClient = GameState.activeClients[clientId];
+        existingClient.socket.emit(NetworkIds.START_GAME, {
+          // TODO: Include all the data needed from a client on notify
+          clientId: newClient.socket.id,
+          player: newClient.state.player
         });
       }
     }

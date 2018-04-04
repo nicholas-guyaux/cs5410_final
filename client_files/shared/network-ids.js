@@ -34,7 +34,7 @@
       writable: false
     },
     'PLAYER_LEAVE': {
-      value:'player-leave',
+      value:'player-leave', 
       writeable: false
     },
     'LOBBY_MSG': {
@@ -43,6 +43,10 @@
     },
     'GAME_COUNTDOWN': {
       value: 'game-starting',
+      writeable: false
+    },
+    'GAME_START': {
+      value: 'start_game',
       writeable: false
     },
     'GAME_SETUP': {
