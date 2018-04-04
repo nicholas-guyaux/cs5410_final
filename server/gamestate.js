@@ -7,7 +7,8 @@
 //     player: player
 //   }
 // };
-let activeClients = {};
+let lobbyClients = {};
+let gameClients = {};
 
 // TODO: Wipes and preps the gamestate for a new game
 function newGame() {
@@ -16,5 +17,6 @@ function newGame() {
 
 module.exports = {
   newGame: newGame,
-  activeClients: activeClients
+  lobbyClients: lobbyClients,
+  gameClients: gameClients
 };

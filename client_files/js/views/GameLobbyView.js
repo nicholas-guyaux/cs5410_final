@@ -14,9 +14,11 @@ const GameLobbyView = (function GameLobbyView (AudioPool) {
     
     socket.on(NetworkIds.CONNECT_ACK, function (data) {
       socket.emit(NetworkIds.PLAYER_JOIN, {
-        player: player
+        player: client.user
       });
+      //console.log(client.user);
     });
+
   
     socket.on(NetworkIds.PLAYER_JOIN, function (data) {
       console.log(data.clients);
@@ -25,25 +27,25 @@ const GameLobbyView = (function GameLobbyView (AudioPool) {
       var lob = document.getElementById('lobby-players-box');
       lob.innerHTML = '';
       for (let playerId in data.clients) {
-        console.log(data.clients[playerId].name);
+        //console.log(data.clients[playerId].player.name);
         lob.innerHTML += '<div class="user-in-lobby">' + data.clients[playerId].name + '</div>';
       }
     });
 
     socket.on(NetworkIds.PLAYER_LEAVE, function (data) {
-      console.log(data.clients);
+      //console.log(data.clients);
       var lob = document.getElementById('lobby-count');
       lob.innerHTML = data.clients.length + ' of ' + requiredNumPlayers;
       var lob = document.getElementById('lobby-players-box');
       lob.innerHTML = '';
       for (let playerId in data.clients) {
-        console.log(data.clients[playerId].name);
+        //console.log(data.clients[playerId].player.name);
         lob.innerHTML += '<div class="user-in-lobby">' + data.clients[playerId].name + '</div>';
       }
     });
   
     socket.on(NetworkIds.LOBBY_MSG, function (data) {
-      console.log(data);
+      //console.log(data);
       var div = document.getElementById('chat-messages-box');
       div.innerHTML += '<div class="chat-message"><span class="chat-user">' + data.playerId + '</span>: <span class="chat-message">' + data.message + '</span>';
     });
