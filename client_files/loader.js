@@ -38,6 +38,8 @@ MyGame.loader = (function() {
       message: 'ButtonMenu',
       onComplete: null,
     }, {
+      scripts: ['js/components/viewport.js']
+    }, {
       scripts: ['js/rendering/graphics'],
       message: 'Graphics loaded',
       onComplete: null,
@@ -103,6 +105,15 @@ MyGame.loader = (function() {
     assetOrder =[{
       key: 'blue-brick',
       source: 'assets/images/blueBrick.png'
+    }, {
+      key: 'edge',
+      source: 'assets/images/edge.png'
+    }, {
+      key: 'water',
+      source: 'assets/images/water.png'
+    }, {
+      key: 'corner',
+      source: 'assets/images/corner.png'
     }];
 
     function loadScripts(scripts, onComplete){
