@@ -5,6 +5,7 @@ const GameState = require('./gamestate');
 const Player = require('./components/player');
 const NetworkIds = require('../client_files/shared/network-ids');
 const Queue = require('../client_files/shared/queue.js');
+const Token = require('../Token');
 
 var numPlayersRequired = 10;
 var gameInProgress = false;
@@ -174,25 +175,34 @@ function initializeSocketIO(httpServer) {
       });
     });
 
-    socket.on(NetworkIds.PLAYER_JOIN, data => {
-      newClient.state.player = data.player;
-      //console.log(data.player);
-      
-      for (let clientId in GameState.lobbyClients) {
-        if (!GameState.lobbyClients.hasOwnProperty(clientId)) {
-          continue;
-        }
-        let client = GameState.lobbyClients[clientId];
-        client.socket.emit(NetworkIds.PLAYER_JOIN, {
-          clients: Object.values(GameState.lobbyClients).map(x => x.state.player).filter(x => !!x.name)
-        });
-        if (clientId !== socket.id) {
-          client.socket.emit(NetworkIds.LOBBY_MSG, {
-            playerId: newClient.state.player.name,  
-            message: "Has entered the lobby"      
+    socket.on(NetworkIds.PLAYER_JOIN, async data => {
+      try {
+        // asynchronous token checking
+        const user = await Token.check_auth(data.token);
+        newClient.state.player = user;
+        //console.log(data.player);
+        
+        for (let clientId in GameState.lobbyClients) {
+          if (!GameState.lobbyClients.hasOwnProperty(clientId)) {
+            continue;
+          }
+          let client = GameState.lobbyClients[clientId];
+          client.socket.emit(NetworkIds.PLAYER_JOIN, {
+            clients: Object.values(GameState.lobbyClients).map(x => x.state.player).filter(x => !!x.name)
           });
-          //console.log(newClient.state.player);
+          if (clientId !== socket.id) {
+            client.socket.emit(NetworkIds.LOBBY_MSG, {
+              playerId: newClient.state.player.name,  
+              message: "Has entered the lobby"      
+            });
+            //console.log(newClient.state.player);
+          }
         }
+      } catch (e) {
+        newClient.socket.emit(NetworkIds.LOBBY_KICK, {
+          message: "Something went wrong authorizing you try refreshing or logging in again."
+        });
+        console.error(e);
       }
     });
 
@@ -204,7 +214,7 @@ function initializeSocketIO(httpServer) {
         let client = GameState.lobbyClients[clientId];
         
         client.socket.emit(NetworkIds.LOBBY_MSG, {
-          playerId: newClient.state.player,  
+          playerId: newClient.state.player.name,  
           message: data.message      
         });
       }

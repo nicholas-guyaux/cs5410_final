@@ -5,7 +5,6 @@ const secret = 'super-secret';
 const issuer = 'br';
 
 function verifyUserToken (token, cb) {
-  var data = jwt.decode(token);
   return jwt.verify(token, secret, cb);
 }
 
