@@ -7,14 +7,21 @@ const GameLobbyView = (function GameLobbyView (AudioPool) {
   function render () {
     if(socket === null) {
       socket = io();
-
     }
+
+    $('#chat-text')[0].focus();
+
     var cht = document.getElementById('chat-messages-box');
     cht.innerHTML = '';
     
     socket.on(NetworkIds.CONNECT_ACK, function (data) {
       socket.emit(NetworkIds.PLAYER_JOIN, {
-        player: client.user
+        // We'll just use the token and not the user object
+        // because
+        // player: client.user,
+        // this is for authorization so we know the user is who
+        // they say they are
+        token: client.user_token
       });
     });
 
@@ -22,27 +29,34 @@ const GameLobbyView = (function GameLobbyView (AudioPool) {
     socket.on(NetworkIds.PLAYER_JOIN, function (data) {
       console.log(data.clients);
       var lob = document.getElementById('lobby-count');
-      lob.innerHTML = data.clients.length + ' of ' + requiredNumPlayers;
+      lob.innerHTML = HTML.escape(data.clients.length) + ' of ' + HTML.escape(requiredNumPlayers);
       var lob = document.getElementById('lobby-players-box');
       lob.innerHTML = '';
       for (let playerId in data.clients) {
-        lob.innerHTML += '<div class="user-in-lobby">' + data.clients[playerId].name + '</div>';
+        lob.innerHTML += '<div class="user-in-lobby">' + HTML.escape(data.clients[playerId].name) + '</div>';
       }
     });
 
     socket.on(NetworkIds.PLAYER_LEAVE, function (data) {
       var lob = document.getElementById('lobby-count');
-      lob.innerHTML = data.clients.length + ' of ' + requiredNumPlayers;
+      lob.innerHTML = HTML.escape(data.clients.length) + ' of ' + HTML.escape(requiredNumPlayers);
       var lob = document.getElementById('lobby-players-box');
       lob.innerHTML = '';
       for (let playerId in data.clients) {
-        lob.innerHTML += '<div class="user-in-lobby">' + data.clients[playerId].name + '</div>';
+        lob.innerHTML += '<div class="user-in-lobby">' + HTML.escape(data.clients[playerId].name) + '</div>';
       }
     });
   
     socket.on(NetworkIds.LOBBY_MSG, function (data) {
       var div = document.getElementById('chat-messages-box');
-      div.innerHTML += '<div class="chat-message"><span class="chat-user">' + data.playerId + '</span>: <span class="chat-message">' + data.message + '</span>';
+      var scrollToBottom = false;
+      if(div.scrollHeight - div.scrollTop - 5 < div.clientHeight) {
+        scrollToBottom = true;
+      }
+      div.innerHTML += '<div class="chat-message"><span class="chat-user">' + data.playerId + '</span>: <span class="chat-message">' + HTML.escape(data.message) + '</span>';
+      if(scrollToBottom) {
+        div.scrollTop = div.scrollHeight;
+      }
     });
     AudioPool.playMusic('menu');
     keyboard.activate();
@@ -61,18 +75,26 @@ const GameLobbyView = (function GameLobbyView (AudioPool) {
       MainView.loadView(MenuView.name);
       AudioPool.playSFX('menu_click');
     });
+    // grab all buttons in #game-lobby and set up event listeners for button noises
     let buttons = $$('button', $('#game-lobby')[0]);
     Events.on(buttons, 'click', function (e) {
       AudioPool.playSFX('menu_click');
     });
   
-    let buttonChat = $$('button', $('#chat-submit-button')[1]);
+    // select the chat submit button and sendMessage on click
+    let buttonChat = $('#chat-submit-button');
     Events.on(buttonChat, 'click', function (e) {
       sendMessage();
     });
 
     Events.on(buttons, 'mouseenter', function (e) {
       AudioPool.playSFX('menu_navigate');
+    });
+
+    Events.on($('#chat-text'), 'keyup', function (e) {
+      if(e.key === "Enter") {
+        Events.simulateClick($('#chat-submit-button')[0]);
+      }
     });
 
     //buttonMenu = ButtonMenu($('#game-menu')[0]);
