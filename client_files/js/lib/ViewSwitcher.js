@@ -3,7 +3,7 @@ function ViewSwitcher (superView) {
     addView,
     addViews,
     loadView,
-  };;
+  };
 
   $$('[data-view]').forEach(el => {
     el.classList.add('hidden');

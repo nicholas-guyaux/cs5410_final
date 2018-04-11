@@ -73,10 +73,13 @@ MyGame.loader = (function() {
     //   message: 'Input loaded',
     //   onComplete: null,
     // }, {
-    //   scripts: ['js/components/'],         //Components / Player Models
-    //   message: 'Player models loaded',
-    //   onComplete: null,
-    // }, {
+      scripts: [ //Components / Player Models
+        'js/components/player',
+        'js/components/player-other'
+      ],
+      message: 'Player models loaded',
+      onComplete: null,
+    }, {
     //   scripts: ['js/rendering/'],          //Individual rendering files
     //   message: 'Renderers loaded',
     //   onComplete: null,
@@ -99,8 +102,9 @@ MyGame.loader = (function() {
       scripts: ['app.js'],
       message: 'app.js loaded',
       onComplete: null
-    }],
-    assetOrder =[{
+    }]
+    
+    let assetOrder = [{
       key: 'blue-brick',
       source: 'assets/images/blueBrick.png'
     }];

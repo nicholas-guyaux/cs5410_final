@@ -239,7 +239,7 @@ function terminate() {
 }
 
 module.exports = {
-  initializeSocketIO,
+  initializeSocketIO: initializeSocketIO,
   initialize: initialize,
   terminate: terminate
 };
