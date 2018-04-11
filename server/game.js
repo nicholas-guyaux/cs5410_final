@@ -126,9 +126,9 @@ function initializeSocketIO(io) {
         clients: Object.values(GameState.gameClients).map(x => x.state.player).filter(x => !!x.name)
       });
       if (clientId !== playerId.id) {
-        client.socket.emit(GameNetIds.LOBBY_MSG, {
+        client.socket.emit(GameNetId.GAME_MSG, {
           playerId: playerId.name,  
-          message: "Has left the lobby"      
+          message: "Has left the game"      
         });
       }
     }
@@ -164,7 +164,7 @@ function initializeSocketIO(io) {
       });
     });
 
-    socket.on(GameNetIds.PLAYER_JOIN_LOBBY, async data => {
+    socket.on(GameNetIds.PLAYER_JOIN_GAME, async data => {
       try {
         // asynchronous token checking
         const user = await Token.check_auth(data.token);
@@ -176,33 +176,32 @@ function initializeSocketIO(io) {
             continue;
           }
           let client = GameState.gameClients[clientId];
-          client.socket.emit(GameNetIds.PLAYER_JOIN_LOBBY_ACK, {
+          client.socket.emit(GameNetIds.PLAYER_JOIN_GAME_ACK, {
             clients: Object.values(GameState.gameClients).map(x => x.state.player).filter(x => !!x.name)
           });
           if (clientId !== socket.id) {
-            client.socket.emit(GameNetIds.LOBBY_MSG, {
+            client.socket.emit(GameNetIds.GAME_MSG, {
               playerId: newClient.state.player.name,  
-              message: "Has entered the lobby"      
+              message: "Has entered the game"      
             });
-            //console.log(newClient.state.player);
           }
         }
       } catch (e) {
-        newClient.socket.emit(GameNetIds.LOBBY_KICK, {
+        newClient.socket.emit(GameNetIds.GAME_KICK, {
           message: "Something went wrong authorizing you try refreshing or logging in again."
         });
         console.error(e);
       }
     });
 
-    socket.on(GameNetIds.LOBBY_MSG, data => {
+    socket.on(GameNetIds.GAME_MSG, data => {
       for (let clientId in GameState.gameClients) {
         if (!GameState.gameClients.hasOwnProperty(clientId)) {
           continue;
         }
         let client = GameState.gameClients[clientId];
         
-        client.socket.emit(GameNetIds.LOBBY_MSG, {
+        client.socket.emit(GameNetIds.GAME_MSG, {
           playerId: newClient.state.player.name,  
           message: data.message      
         });

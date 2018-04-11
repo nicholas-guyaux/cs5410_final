@@ -95,15 +95,6 @@ function initializeSocketIO(io) {
       // player: newPlayer
     });
 
-    //
-    // Handler to enqueue the new client's input messages in the game's inputQueue
-    socket.on(LobbyNetIds.INPUT, data => {
-      inputQueue.enqueue({
-        clientId: socket.id,
-        message: data
-      });
-    });
-
     socket.on(LobbyNetIds.PLAYER_JOIN_LOBBY, async data => {
       try {
         // asynchronous token checking
