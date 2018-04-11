@@ -29,7 +29,8 @@ const Graphics = (function() {
       world.top = Math.floor(canvas.height * 0.05);
       world.left = (canvas.width - world.size) / 2;
     }
-
+    GameMap.viewRect.w = world.size;
+    GameMap.viewRect.h = world.size;
     //
     // Notify interested parties of the canvas resize event.
     for (handler in resizeHandlers) {
@@ -105,6 +106,10 @@ const Graphics = (function() {
     );
   }
 
+  function drawTiledImage(image, leftEdge, topEdge, tileSizeX, tileSizeY, worldX, worldY){
+    context.drawImage(image, leftEdge, topEdge, tileSizeX, tileSizeY, world.left + worldX, world.top + worldY, tileSizeX, tileSizeY);
+  }
+
   function drawPattern(image, coords, size){
     console.log('hello');
     var pattern = context.createPattern(image, 'repeat');
@@ -120,6 +125,7 @@ const Graphics = (function() {
     rotateCanvas : rotateCanvas,
     drawImage : drawImage,
     drawRectangle : drawRectangle,
+    drawTiledImage : drawTiledImage,
     drawPattern : drawPattern
   }
 }());
