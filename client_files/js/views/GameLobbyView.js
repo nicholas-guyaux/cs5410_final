@@ -6,7 +6,7 @@ const GameLobbyView = (function GameLobbyView (AudioPool) {
   
   function render () {
     if(socket === null) {
-      socket = io();
+      socket = io('/lobby');
     }
 
     $('#chat-text')[0].focus();
@@ -15,7 +15,7 @@ const GameLobbyView = (function GameLobbyView (AudioPool) {
     cht.innerHTML = '';
     
     socket.on(NetworkIds.CONNECT_ACK, function (data) {
-      socket.emit(NetworkIds.PLAYER_JOIN, {
+      socket.emit(NetworkIds.PLAYER_JOIN_LOBBY, {
         // We'll just use the token and not the user object
         // because
         // player: client.user,
@@ -26,7 +26,7 @@ const GameLobbyView = (function GameLobbyView (AudioPool) {
     });
 
   
-    socket.on(NetworkIds.PLAYER_JOIN, function (data) {
+    socket.on(NetworkIds.PLAYER_JOIN_LOBBY_ACK, function (data) {
       console.log(data.clients);
       var lob = document.getElementById('lobby-count');
       lob.innerHTML = HTML.escape(data.clients.length) + ' of ' + HTML.escape(requiredNumPlayers);
@@ -58,6 +58,13 @@ const GameLobbyView = (function GameLobbyView (AudioPool) {
         div.scrollTop = div.scrollHeight;
       }
     });
+
+    socket.on(NetworkIds.START_GAME, function (data) {
+      // In the loadView this view's unrender will be called and its socket
+      // will be disconnected and set to null
+      GameView.loadView(GameView.name);
+    });
+
     AudioPool.playMusic('menu');
     keyboard.activate();
   }

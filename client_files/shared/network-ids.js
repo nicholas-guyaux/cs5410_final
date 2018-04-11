@@ -29,8 +29,12 @@
       value: 'fire',
       writable: false
     },
-    'PLAYER_JOIN': {
-      value: 'player-join',
+    'PLAYER_JOIN_LOBBY': {
+      value: 'player-join-lobby',
+      writable: false
+    },
+    'PLAYER_JOIN_LOBBY_ACK': {
+      value: 'player-join-lobby-ack',
       writable: false
     },
     'PLAYER_LEAVE': {
@@ -45,7 +49,7 @@
       value: 'game-starting',
       writeable: false
     },
-    'GAME_START': {
+    'START_GAME': {
       value: 'start_game',
       writeable: false
     },

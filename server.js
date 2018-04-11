@@ -59,6 +59,17 @@ let server = http.createServer(handleRequest);
 
 server.listen(3000, function() {
   Users.load();
-  lobby.initializeSocketIO(server);
+
+  // Initialize root socket.io
+  const io = require('socket.io')(server);
+
+  // Create socket.io namespaces for the lobby and the game
+  const lobbyIO = io.of('/lobby');
+  const gameIO = io.of('/game');
+
+  // Initialize socket.io in both namespaces
+  lobby.initializeSocketIO(lobbyIO);
+  game.initializeSocketIO(gameIO);
+
   console.log('Server is listening on port 3000');
 });

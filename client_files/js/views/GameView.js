@@ -22,7 +22,7 @@ const GameView = (function() {
     props.commandKeys = client.user.commandKeys;
     keyboard.activate();
     if (socket === null) {
-      socket = io();
+      socket = io('/game');
     }
 
     socket.on(NetworkIds.CONNECT_ACK, data => {

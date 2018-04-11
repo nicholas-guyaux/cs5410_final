@@ -8,11 +8,10 @@ const Queue = require('../client_files/shared/queue.js');
 const Token = require('../Token');
 const game = require('./game');
 
-var numPlayersRequired = 10;
-var gameInProgress = false;
-
-var numPlayersRequired
-
+let props = {
+  numPlayersRequired: 10,
+  gameInProgress: false
+};
 
 //------------------------------------------------------------------
 //
@@ -20,8 +19,7 @@ var numPlayersRequired
 // collecting inputs from the connected clients.
 //
 //------------------------------------------------------------------
-function initializeSocketIO(httpServer) {
-  const io = require('socket.io')(httpServer); // NOTE: Changed this from let to const
+function initializeSocketIO(io) {
 
   //------------------------------------------------------------------
   //
@@ -47,23 +45,6 @@ function initializeSocketIO(httpServer) {
           // TODO: Include all the data needed from a client on notify
           clientId: existingClient.socket.id,
           player: existingClient.state.player
-        });
-      }
-    }
-    if (GameState.lobbyClients.length >= numPlayersRequired && !gameInProgress) {
-      gameInProgress = true;
-      game.intialize();
-      GameState.gameClients = GameState.lobbyClients;
-      GameState.lobbyClients = {};
-      for (let clientId in GameState.gameClients) {
-        if (!GameState.gameClients.hasOwnProperty(clientId)) {
-          continue;
-        }
-        let existingClient = GameState.gameClients[clientId];
-        existingClient.socket.emit(NetworkIds.START_GAME, {
-          // TODO: Include all the data needed from a client on notify
-          clientId: newClient.socket.id,
-          player: newClient.state.player
         });
       }
     }
@@ -123,7 +104,7 @@ function initializeSocketIO(httpServer) {
       });
     });
 
-    socket.on(NetworkIds.PLAYER_JOIN, async data => {
+    socket.on(NetworkIds.PLAYER_JOIN_LOBBY, async data => {
       try {
         // asynchronous token checking
         const user = await Token.check_auth(data.token);
@@ -135,7 +116,7 @@ function initializeSocketIO(httpServer) {
             continue;
           }
           let client = GameState.lobbyClients[clientId];
-          client.socket.emit(NetworkIds.PLAYER_JOIN, {
+          client.socket.emit(NetworkIds.PLAYER_JOIN_LOBBY_ACK, {
             clients: Object.values(GameState.lobbyClients).map(x => x.state.player).filter(x => !!x.name)
           });
           if (clientId !== socket.id) {
@@ -174,22 +155,27 @@ function initializeSocketIO(httpServer) {
         name: GameState.lobbyClients[socket.id].state.player.name
       }
       delete GameState.lobbyClients[socket.id];
-      //console.log('goodbye sucker');
       notifyDisconnect(obj);
     });
 
     notifyConnect(newClient);
+    if (GameState.lobbyClients.length >= props.numPlayersRequired && !props.gameInProgress) {
+      props.gameInProgress = true;
+      game.intialize();
+
+      for (let clientId in GameState.lobbyClients) {
+        if (!GameState.lobbyClients.hasOwnProperty(clientId)) {
+          continue;
+        }
+        let existingClient = GameState.lobbyClients[clientId];
+        existingClient.socket.emit(NetworkIds.START_GAME, {
+          clientId: existingClient.socket.id,
+        });
+      }
+      GameState.lobbyClients = {};
+    }
   });
 }
-
-
-//------------------------------------------------------------------
-//
-// Public function that allows the game simulation and processing to
-// be terminated.
-//
-//------------------------------------------------------------------
-
 
 module.exports = {
   initializeSocketIO
