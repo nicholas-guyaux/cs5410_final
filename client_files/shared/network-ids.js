@@ -72,7 +72,11 @@
     'UPDATE_OTHER': {
       value: 'update-other',
       writable: false
-    }
+    },
+    "LOBBY_KICK": {
+      value: 'lobby-kick',
+      writable: false,
+    },
   });
 
 })(typeof exports === 'undefined' ? this['NetworkIds'] = {} : exports);

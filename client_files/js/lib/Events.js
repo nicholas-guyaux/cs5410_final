@@ -12,6 +12,15 @@ var Events = (function ($$) {
     }
   }
 
+  function simulateClick (el) {
+    var event = new MouseEvent('click', {
+      view: window,
+      bubbles: true,
+      cancelable: true
+    });
+    var cancelled = !el.dispatchEvent(event);
+  }
+
   function once (els, event, cb) {
     var elListener = el => function listener (e) {
       cb.call(this, e);
@@ -75,5 +84,6 @@ var Events = (function ($$) {
     once,
     onceKey,
     onPageVisibility,
+    simulateClick,
   }
 })($$);

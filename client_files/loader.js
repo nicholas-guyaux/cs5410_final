@@ -62,6 +62,10 @@ MyGame.loader = (function() {
       message: 'throttle',
       onComplete: null,
     }, {
+      scripts: ['js/lib/HTML'],
+      message: 'throttle',
+      onComplete: null,
+    }, {
       scripts: [
         'js/lib/AudioPool',
         // 'js/lib/ImageAsset'                //We haven't included this yet
