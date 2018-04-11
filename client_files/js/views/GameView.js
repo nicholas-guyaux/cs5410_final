@@ -25,37 +25,37 @@ const GameView = (function() {
       socket = io('/game');
     }
 
-    socket.on(NetworkIds.CONNECT_ACK, data => {
+    socket.on(GameNetIds.CONNECT_ACK, data => {
       receivedMessages.enqueue({
-        type: NetworkIds.CONNECT_ACK,
+        type: GameNetIds.CONNECT_ACK,
         data: data
       });
     });
 
-    socket.on(NetworkIds.CONNECT_OTHER, data => {
+    socket.on(GameNetIds.CONNECT_OTHER, data => {
       receivedMessages.enqueue({
-        type: NetworkIds.CONNECT_OTHER,
+        type: GameNetIds.CONNECT_OTHER,
         data: data
       });
     });
 
-    socket.on(NetworkIds.DISCONNECT_OTHER, data => {
+    socket.on(GameNetIds.DISCONNECT_OTHER, data => {
       receivedMessages.enqueue({
-        type: NetworkIds.DISCONNECT_OTHER,
+        type: GameNetIds.DISCONNECT_OTHER,
         data: data
       });
     });
 
-    socket.on(NetworkIds.UPDATE_SELF, data => {
+    socket.on(GameNetIds.UPDATE_SELF, data => {
       receivedMessages.enqueue({
-        type: NetworkIds.UPDATE_SELF,
+        type: GameNetIds.UPDATE_SELF,
         data: data
       });
     });
 
-    socket.on(NetworkIds.UPDATE_OTHER, data => {
+    socket.on(GameNetIds.UPDATE_OTHER, data => {
       receivedMessages.enqueue({
-        type: NetworkIds.UPDATE_OTHER,
+        type: GameNetIds.UPDATE_OTHER,
         data: data
       });
     });
@@ -64,9 +64,9 @@ const GameView = (function() {
       let message = {
         id: props.messageId++,
         elapsedTime: elapsedTime,
-        type: NetworkIds.INPUT_MOVE_FORWARD
+        type: GameNetIds.INPUT_MOVE_FORWARD
       };
-      socket.emit(NetworkIds.INPUT, message);
+      socket.emit(GameNetIds.INPUT, message);
       playerSelf.model.move(elapsedTime);
     });
 
@@ -74,9 +74,9 @@ const GameView = (function() {
       let message = {
         id: props.messageId++,
         elapsedTime: elapsedTime,
-        type: NetworkIds.INPUT_ROTATE_RIGHT
+        type: GameNetIds.INPUT_ROTATE_RIGHT
       };
-      socket.emit(NetworkIds.INPUT, message);
+      socket.emit(GameNetIds.INPUT, message);
       playerSelf.model.rotateRight(elapsedTime);
     });
 
@@ -84,9 +84,9 @@ const GameView = (function() {
       let message = {
         id: props.messageId++,
         elapsedTime: elapsedTime,
-        type: NetworkIds.INPUT_ROTATE_LEFT
+        type: GameNetIds.INPUT_ROTATE_LEFT
       };
-      socket.emit(NetworkIds.INPUT, message);
+      socket.emit(GameNetIds.INPUT, message);
       playerSelf.model.rotateLeft(elapsedTime);
     });
 
@@ -94,9 +94,9 @@ const GameView = (function() {
       let message = {
         id: props.messageId++,
         elapsedTime: elapsedTime,
-        type: NetworkIds.INPUT_FIRE
+        type: GameNetIds.INPUT_FIRE
       };
-      socket.emit(NetworkIds.INPUT, message);
+      socket.emit(GameNetIds.INPUT, message);
     });
     // Graphics.drawImage(MyGame.assets['blue-brick'], {x: 0.5, y: 0.5}, {width: 0.05, height: 0.05});
     requestAnimationFrame(gameLoop);
@@ -178,19 +178,19 @@ const GameView = (function() {
     while (!processMe.empty) {
       let message = processMe.dequeue();
       switch (message.type) {
-        case NetworkIds.CONNECT_ACK:
+        case GameNetIds.CONNECT_ACK:
           connectPlayerSelf(message.data);
           break;
-        case NetworkIds.CONNECT_OTHER:
+        case GameNetIds.CONNECT_OTHER:
           connectPlayerOther(message.data);
           break;
-        case NetworkIds.DISCONNECT_OTHER:
+        case GameNetIds.DISCONNECT_OTHER:
           disconnectPlayerOther(message.data);
           break;
-        case NetworkIds.UPDATE_SELF:
+        case GameNetIds.UPDATE_SELF:
           updatePlayerSelf(message.data);
           break;
-        case NetworkIds.UPDATE_OTHER:
+        case GameNetIds.UPDATE_OTHER:
           updatePlayerOther(message.data);
           break;
       }

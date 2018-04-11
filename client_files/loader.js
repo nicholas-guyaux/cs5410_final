@@ -14,7 +14,10 @@ MyGame.loader = (function() {
   'use strict';
   let scriptOrder = [
     {
-      scripts: ['shared/network-ids'],
+      scripts: [
+        'shared/game-net-ids',
+        'shared/lobby-net-ids'
+      ],
       message: 'Network Ids loaded',
       onComplete: null,
     }, {

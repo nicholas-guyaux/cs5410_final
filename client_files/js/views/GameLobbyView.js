@@ -14,8 +14,8 @@ const GameLobbyView = (function GameLobbyView (AudioPool) {
     var cht = document.getElementById('chat-messages-box');
     cht.innerHTML = '';
     
-    socket.on(NetworkIds.CONNECT_ACK, function (data) {
-      socket.emit(NetworkIds.PLAYER_JOIN_LOBBY, {
+    socket.on(LobbyNetIds.CONNECT_ACK, function (data) {
+      socket.emit(LobbyNetIds.PLAYER_JOIN_LOBBY, {
         // We'll just use the token and not the user object
         // because
         // player: client.user,
@@ -26,7 +26,7 @@ const GameLobbyView = (function GameLobbyView (AudioPool) {
     });
 
   
-    socket.on(NetworkIds.PLAYER_JOIN_LOBBY_ACK, function (data) {
+    socket.on(LobbyNetIds.PLAYER_JOIN_LOBBY_ACK, function (data) {
       console.log(data.clients);
       var lob = document.getElementById('lobby-count');
       lob.innerHTML = HTML.escape(data.clients.length) + ' of ' + HTML.escape(requiredNumPlayers);
@@ -37,7 +37,7 @@ const GameLobbyView = (function GameLobbyView (AudioPool) {
       }
     });
 
-    socket.on(NetworkIds.PLAYER_LEAVE, function (data) {
+    socket.on(LobbyNetIds.PLAYER_LEAVE, function (data) {
       var lob = document.getElementById('lobby-count');
       lob.innerHTML = HTML.escape(data.clients.length) + ' of ' + HTML.escape(requiredNumPlayers);
       var lob = document.getElementById('lobby-players-box');
@@ -47,7 +47,7 @@ const GameLobbyView = (function GameLobbyView (AudioPool) {
       }
     });
   
-    socket.on(NetworkIds.LOBBY_MSG, function (data) {
+    socket.on(LobbyNetIds.LOBBY_MSG, function (data) {
       var div = document.getElementById('chat-messages-box');
       var scrollToBottom = false;
       if(div.scrollHeight - div.scrollTop - 5 < div.clientHeight) {
@@ -59,7 +59,7 @@ const GameLobbyView = (function GameLobbyView (AudioPool) {
       }
     });
 
-    socket.on(NetworkIds.START_GAME, function (data) {
+    socket.on(LobbyNetIds.START_GAME, function (data) {
       // In the loadView this view's unrender will be called and its socket
       // will be disconnected and set to null
       GameView.loadView(GameView.name);
@@ -111,7 +111,7 @@ const GameLobbyView = (function GameLobbyView (AudioPool) {
     var chat = document.getElementById('chat-text').value;
     if (chat != '') {
       document.getElementById('chat-text').value='';
-      socket.emit(NetworkIds.LOBBY_MSG, {
+      socket.emit(LobbyNetIds.LOBBY_MSG, {
         playerId: player.name,
         message: chat
       });

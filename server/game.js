@@ -3,7 +3,7 @@
 const present = require('present');
 const GameState = require('./gamestate');
 const Player = require('./components/player');
-const NetworkIds = require('../client_files/shared/network-ids');
+const GameNetIds = require('../client_files/shared/game-net-ids');
 const Queue = require('../client_files/shared/queue.js');
 const Token = require('../Token');
 
@@ -23,21 +23,21 @@ function processInput(elapsedTime) {
 
   while (!processMe.empty) {
     let input = processMe.dequeue();
-    let client = GameState.lobbyClients[input.clientId];
+    let client = GameState.gameClients[input.clientId];
     client.lastMessageId = input.message.id;
 
     // TODO: Handle all message types from client
     switch (input.message.type) {
-      case NetworkIds.INPUT_MOVE:
+      case GameNetIds.INPUT_MOVE:
         // client.state.player.move(input.message.elapsedTime);
         break;
-      case NetworkIds.INPUT_ROTATE_LEFT:
+      case GameNetIds.INPUT_ROTATE_LEFT:
         // client.state.player.rotateLeft(input.message.elapsedTime);
         break;
-      case NetworkIds.INPUT_ROTATE_RIGHT:
+      case GameNetIds.INPUT_ROTATE_RIGHT:
         // client.state.player.rotateRight(input.message.elapsedTime);
         break;
-      case NetworkIds.INPUT_FIRE:
+      case GameNetIds.INPUT_FIRE:
         // createMissile(input.clientId, client.state.player);
         break;
     }
@@ -80,6 +80,164 @@ function initialize() {
   gameLoop(present(), 0);
 }
 
+function initializeSocketIO(io) {
+  //------------------------------------------------------------------
+  //
+  // Bidirectional notification: notifies the newly connected client of 
+  // all other clients and notifies all other clients of the newly connected 
+  // client.
+  //
+  //------------------------------------------------------------------
+  function notifyConnect(newClient) {
+    for (let clientId in GameState.gameClients) {
+      if (!GameState.gameClients.hasOwnProperty(clientId)) {
+        continue;
+      }
+      let existingClient = GameState.gameClients[clientId];
+
+      if (newClient.socket.id !== clientId) {
+        existingClient.socket.emit(GameNetIds.CONNECT_OTHER, {
+          // TODO: Include all the data needed from a client on notify
+          clientId: newClient.socket.id,
+          player: newClient.state.player
+        });
+        newClient.socket.emit(GameNetIds.CONNECT_OTHER, {
+          // TODO: Include all the data needed from a client on notify
+          clientId: existingClient.socket.id,
+          player: existingClient.state.player
+        });
+      }
+    }
+  }
+
+  //------------------------------------------------------------------
+  //
+  // Notifies the already connected clients about the disconnect of
+  // another client.
+  //
+  //------------------------------------------------------------------
+  function notifyDisconnect(playerId) {
+    for (let clientId in GameState.gameClients) {
+      if (!GameState.gameClients.hasOwnProperty(clientId)) {
+        continue;
+      }
+      let client = GameState.gameClients[clientId];
+      client.socket.emit(GameNetIds.PLAYER_LEAVE, {
+        clients: Object.values(GameState.gameClients).map(x => x.state.player).filter(x => !!x.name)
+      });
+      if (clientId !== playerId.id) {
+        client.socket.emit(GameNetIds.LOBBY_MSG, {
+          playerId: playerId.name,  
+          message: "Has left the lobby"      
+        });
+      }
+    }
+  }
+
+  //
+  // Handler for a new client connection
+  io.on('connection', function(socket) {
+    console.log('Connection established: ', socket.id);
+
+    // let newPlayer = Player.create();
+    let newClient = {
+      socket: socket,
+      state: {
+        player: ''
+      }
+    };
+    GameState.gameClients[socket.id] = newClient;
+
+    //
+    // Ack message emitted to new client with info about its new player
+    socket.emit(GameNetIds.CONNECT_ACK, {
+      clientId: socket.id,
+      // player: newPlayer
+    });
+
+    //
+    // Handler to enqueue the new client's input messages in the game's inputQueue
+    socket.on(GameNetIds.INPUT, data => {
+      inputQueue.enqueue({
+        clientId: socket.id,
+        message: data
+      });
+    });
+
+    socket.on(GameNetIds.PLAYER_JOIN_LOBBY, async data => {
+      try {
+        // asynchronous token checking
+        const user = await Token.check_auth(data.token);
+        newClient.state.player = user;
+        //console.log(data.player);
+        
+        for (let clientId in GameState.gameClients) {
+          if (!GameState.gameClients.hasOwnProperty(clientId)) {
+            continue;
+          }
+          let client = GameState.gameClients[clientId];
+          client.socket.emit(GameNetIds.PLAYER_JOIN_LOBBY_ACK, {
+            clients: Object.values(GameState.gameClients).map(x => x.state.player).filter(x => !!x.name)
+          });
+          if (clientId !== socket.id) {
+            client.socket.emit(GameNetIds.LOBBY_MSG, {
+              playerId: newClient.state.player.name,  
+              message: "Has entered the lobby"      
+            });
+            //console.log(newClient.state.player);
+          }
+        }
+      } catch (e) {
+        newClient.socket.emit(GameNetIds.LOBBY_KICK, {
+          message: "Something went wrong authorizing you try refreshing or logging in again."
+        });
+        console.error(e);
+      }
+    });
+
+    socket.on(GameNetIds.LOBBY_MSG, data => {
+      for (let clientId in GameState.gameClients) {
+        if (!GameState.gameClients.hasOwnProperty(clientId)) {
+          continue;
+        }
+        let client = GameState.gameClients[clientId];
+        
+        client.socket.emit(GameNetIds.LOBBY_MSG, {
+          playerId: newClient.state.player.name,  
+          message: data.message      
+        });
+      }
+    });
+
+    socket.on('disconnect', function() {
+      var obj = {
+        id: socket.id,
+        name: GameState.gameClients[socket.id].state.player.name
+      }
+      delete GameState.gameClients[socket.id];
+      notifyDisconnect(obj);
+    });
+
+    notifyConnect(newClient);
+    if (GameState.gameClients.length >= props.numPlayersRequired && !props.gameInProgress) {
+      props.gameInProgress = true;
+      game.intialize();
+
+      for (let clientId in GameState.gameClients) {
+        if (!GameState.gameClients.hasOwnProperty(clientId)) {
+          continue;
+        }
+        let existingClient = GameState.gameClients[clientId];
+        existingClient.socket.emit(GameNetIds.START_GAME, {
+          clientId: existingClient.socket.id,
+        });
+      }
+      GameState.gameClients = {};
+    }
+  });
+}
+
+
 //------------------------------------------------------------------
 //
 // Public function that allows the game simulation and processing to
@@ -91,6 +249,7 @@ function terminate() {
 }
 
 module.exports = {
-  initialize: initialize,
-  terminate: terminate
+  initialize,
+  terminate,
+  initializeSocketIO
 };
