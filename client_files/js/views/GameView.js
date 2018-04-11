@@ -1,8 +1,7 @@
 //
 // Contains client-side game loop and client-side game state data
 const GameView = (function() {
-
-  let keyboard = KeyboardHandler(true);
+  let keyboard = KeyboardHandler(false, 'keyCode');
   let receivedMessages = Queue.create();
   let playerSelf = {
     model: Player(),
@@ -11,51 +10,93 @@ const GameView = (function() {
   let playerOthers = {};
 
   let props = {
-    quit: False,
-    lastTimeStamp: performance.now()
+    quit: false,
+    lastTimeStamp: performance.now(),
+    messageId: 1,
+    commandKeys: null
   };
 
   //
   // Render to initially setup and show the GameView
   function render() {
+    props.commandKeys = client.user.commandKeys;
     keyboard.activate();
     if (socket === null) {
       socket = io();
     }
 
     socket.on(NetworkIds.CONNECT_ACK, data => {
-      networkQueue.enqueue({
+      receivedMessages.enqueue({
         type: NetworkIds.CONNECT_ACK,
         data: data
       });
     });
 
     socket.on(NetworkIds.CONNECT_OTHER, data => {
-      networkQueue.enqueue({
+      receivedMessages.enqueue({
         type: NetworkIds.CONNECT_OTHER,
         data: data
       });
     });
 
     socket.on(NetworkIds.DISCONNECT_OTHER, data => {
-      networkQueue.enqueue({
+      receivedMessages.enqueue({
         type: NetworkIds.DISCONNECT_OTHER,
         data: data
       });
     });
 
     socket.on(NetworkIds.UPDATE_SELF, data => {
-      networkQueue.enqueue({
+      receivedMessages.enqueue({
         type: NetworkIds.UPDATE_SELF,
         data: data
       });
     });
 
     socket.on(NetworkIds.UPDATE_OTHER, data => {
-      networkQueue.enqueue({
+      receivedMessages.enqueue({
         type: NetworkIds.UPDATE_OTHER,
         data: data
       });
+    });
+
+    keyboard.addAction(props.commandKeys.MOVE_FORWARD, elapsedTime => {
+      let message = {
+        id: props.messageId++,
+        elapsedTime: elapsedTime,
+        type: NetworkIds.INPUT_MOVE_FORWARD
+      };
+      socket.emit(NetworkIds.INPUT, message);
+      playerSelf.model.move(elapsedTime);
+    });
+
+    keyboard.addAction(props.commandKeys.ROTATE_RIGHT, elapsedTime => {
+      let message = {
+        id: props.messageId++,
+        elapsedTime: elapsedTime,
+        type: NetworkIds.INPUT_ROTATE_RIGHT
+      };
+      socket.emit(NetworkIds.INPUT, message);
+      playerSelf.model.rotateRight(elapsedTime);
+    });
+
+    keyboard.addAction(props.commandKeys.ROTATE_LEFT, elapsedTime => {
+      let message = {
+        id: props.messageId++,
+        elapsedTime: elapsedTime,
+        type: NetworkIds.INPUT_ROTATE_LEFT
+      };
+      socket.emit(NetworkIds.INPUT, message);
+      playerSelf.model.rotateLeft(elapsedTime);
+    });
+
+    keyboard.addAction(props.commandKeys.FIRE, elapsedTime => {
+      let message = {
+        id: props.messageId++,
+        elapsedTime: elapsedTime,
+        type: NetworkIds.INPUT_FIRE
+      };
+      socket.emit(NetworkIds.INPUT, message);
     });
     // Graphics.drawImage(MyGame.assets['blue-brick'], {x: 0.5, y: 0.5}, {width: 0.05, height: 0.05});
     requestAnimationFrame(gameLoop);
@@ -66,9 +107,6 @@ const GameView = (function() {
     socket = null;
     keyboard.deactivate();
     props.quit = true;
-  }
-
-  function init() {
   }
 
   function connectPlayerSelf(data) {
@@ -99,8 +137,8 @@ const GameView = (function() {
     model.size.y = data.size.y;
 
     playerOthers[data.clientId] = {
-        model: model,
-        texture: MyGame.assets['player-other']
+      model: model,
+      texture: MyGame.assets['player-other']
     };
   }
 
@@ -131,7 +169,9 @@ const GameView = (function() {
   function processInput(elapsedTime) {
     keyboard.handle(elapsedTime); // Pass gameState? Or not necessary?
 
-    // Double buffering
+    //
+    // Double buffering on the queue so we don't asynchronously receive inputs
+    // while processing.
     let processMe = receivedMessages;
     receivedMessages = Queue.create();
 
@@ -180,6 +220,9 @@ const GameView = (function() {
     if (!props.quit) {
       requestAnimationFrame(gameLoop);
     }
+  }
+
+  function init() {
   }
 
   return {

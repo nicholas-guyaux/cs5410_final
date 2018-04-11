@@ -3,7 +3,7 @@
 // Model for each remote player in the game.
 //
 //------------------------------------------------------------------
-MyGame.components.PlayerRemote = function() {
+function PlayerRemote() {
   'use strict';
   let that = {};
   let size = {

@@ -3,7 +3,7 @@
 // Model for each player in the game.
 //
 //------------------------------------------------------------------
-MyGame.components.Player = function() {
+function Player() {
   'use strict';
   let that = {};
   let position = {

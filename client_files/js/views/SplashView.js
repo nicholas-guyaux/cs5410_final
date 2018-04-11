@@ -2,7 +2,7 @@ const SplashView = (function SplashView (client) {
 
   function render () {
     // should use token stored in local storage and get the user
-    client.getUser().then(function (d) {
+    window.userLoaded = client.getUser().then(function (d) {
       if(client.user) {
         MainView.loadView(MenuView.name);
       } else {

@@ -13,8 +13,8 @@
       value: 'input',
       writable: false
     },
-    'INPUT_MOVE': {
-      value: 'move',
+    'INPUT_MOVE_FORWARD': {
+      value: 'move-forward',
       writable: false
     },
     'INPUT_ROTATE_LEFT': {
