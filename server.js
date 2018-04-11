@@ -3,6 +3,7 @@ const http = require('http');
 const path = require('path');
 const fs = require('fs');
 let game = require('./server/game');
+let lobby = require('./server/lobby');
 let Users = require('./models/Users');
 const { API } = require('./API');
 
@@ -17,7 +18,8 @@ let mimeTypes = {
   '.wav': 'audio/wav',
   '.ttf': 'font/ttf',
   '.woff': 'font/woff',
-  '.woff2': 'font/woff2'
+  '.woff2': 'font/woff2',
+  '.json': 'application/json'
 };
 
 function handleRequest(req, res) {
@@ -58,6 +60,6 @@ let server = http.createServer(handleRequest);
 
 server.listen(3000, function() {
   Users.load();
-  game.initializeSocketIO(server);
+  lobby.initializeSocketIO(server);
   console.log('Server is listening on port 3000');
 });
