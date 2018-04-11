@@ -81,7 +81,10 @@ function load () {
     throw new Error(Errors.UsersLoaded);
   }
   fs.readFile(path.join(__dirname, 'data', 'users.json'), 'utf8', function (err, data) {
-    if (err) throw err;
+    if (err) {
+      users = [];
+      return;
+    };
     users = JSON.parse(data);
   });
 }
