@@ -24,7 +24,7 @@ const Graphics = (function() {
   }
 
   function drawImage(image, center, size) {
-    console.log(center, size, canvas.width, canvas.height);
+    // console.log(center, size, canvas.width, canvas.height);
     let localCenter = {
           x: center.x * canvas.width,
           y: center.y * canvas.height
@@ -42,10 +42,10 @@ const Graphics = (function() {
   }
   
   return {
-    clear : clear,
-    saveContext : saveContext,
-    restoreContext : restoreContext,
-    rotateCanvas : rotateCanvas,
-    drawImage : drawImage
+    clear,
+    saveContext,
+    restoreContext,
+    rotateCanvas,
+    drawImage
   }
 }());

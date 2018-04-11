@@ -29,13 +29,13 @@ function processInput(elapsedTime) {
     // TODO: Handle all message types from client
     switch (input.message.type) {
       case GameNetIds.INPUT_MOVE:
-        // client.state.player.move(input.message.elapsedTime);
+        client.state.player.move(input.message.elapsedTime);
         break;
       case GameNetIds.INPUT_ROTATE_LEFT:
-        // client.state.player.rotateLeft(input.message.elapsedTime);
+        client.state.player.rotateLeft(input.message.elapsedTime);
         break;
       case GameNetIds.INPUT_ROTATE_RIGHT:
-        // client.state.player.rotateRight(input.message.elapsedTime);
+        client.state.player.rotateRight(input.message.elapsedTime);
         break;
       case GameNetIds.INPUT_FIRE:
         // createMissile(input.clientId, client.state.player);
@@ -45,11 +45,38 @@ function processInput(elapsedTime) {
 }
 
 function update(elapsedTime, currentTime) {
-
+  for (let clientId in GameState.gameClients) {
+    GameState.gameClients[clientId].state.player.update(currentTime);
+  }
 }
 
 function updateClients(elapsedTime) {
+  for (let clientId in GameState.gameClients) {
+    let client = GameState.gameClients[clientId];
+    let update = {
+        clientId: clientId,
+        lastMessageId: client.lastMessageId,
+        direction: client.player.direction,
+        position: client.player.position,
+        updateWindow: elapsedTime
+    };
+    if (client.player.reportUpdate) {
+        client.socket.emit(NetworkIds.UPDATE_SELF, update);
 
+        //
+        // Notify all other connected clients about every
+        // other connected client status...but only if they are updated.
+        for (let otherId in GameState.gameClients) {
+            if (otherId !== clientId) {
+              GameState.gameClients[otherId].socket.emit(NetworkIds.UPDATE_OTHER, update);
+            }
+        }
+    }
+  }
+
+  for (let clientId in GameState.gameClients) {
+    GameState.gameClients[clientId].player.reportUpdate = false;
+  }
 }
 
 //------------------------------------------------------------------
@@ -139,20 +166,27 @@ function initializeSocketIO(io) {
   io.on('connection', function(socket) {
     console.log('Connection established: ', socket.id);
 
-    // let newPlayer = Player.create();
+    let newPlayer = Player.create();
     let newClient = {
       socket: socket,
       state: {
-        player: ''
+        player: newPlayer
       }
     };
     GameState.gameClients[socket.id] = newClient;
 
     //
     // Ack message emitted to new client with info about its new player
+    // Note we can't send the player object itself because of its utilization of getters
     socket.emit(GameNetIds.CONNECT_ACK, {
       clientId: socket.id,
-      // player: newPlayer
+      player: {
+        direction: newPlayer.direction,
+        position: newPlayer.position,
+        size: newPlayer.size,
+        speed: newPlayer.speed,
+        rotateRate: newPlayer.rotateRate
+      }
     });
 
     //

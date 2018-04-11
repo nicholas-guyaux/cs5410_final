@@ -5,7 +5,7 @@ const GameView = (function() {
   let receivedMessages = Queue.create();
   let playerSelf = {
     model: Player(),
-    texture: MyGame.assets['player-self']
+    texture: MyGame.assets['test-ship']
   };
   let playerOthers = {};
 
@@ -110,35 +110,38 @@ const GameView = (function() {
   }
 
   function connectPlayerSelf(data) {
-    playerSelf.model.position.x = data.position.x;
-    playerSelf.model.position.y = data.position.y;
+    let player = data.player;
 
-    playerSelf.model.size.x = data.size.x;
-    playerSelf.model.size.y = data.size.y;
+    playerSelf.model.position.x = player.position.x;
+    playerSelf.model.position.y = player.position.y;
 
-    playerSelf.model.direction = data.direction;
-    playerSelf.model.speed = data.speed;
-    playerSelf.model.rotateRate = data.rotateRate;
+    playerSelf.model.size.x = player.size.x;
+    playerSelf.model.size.y = player.size.y;
+
+    playerSelf.model.direction = player.direction;
+    playerSelf.model.speed = player.speed;
+    playerSelf.model.rotateRate = player.rotateRate;
   }
 
   function connectPlayerOther(data) {
+    let player = data.player;
     let model = PlayerRemote();
-    model.state.position.x = data.position.x;
-    model.state.position.y = data.position.y;
-    model.state.direction = data.direction;
+    model.state.position.x = player.position.x;
+    model.state.position.y = player.position.y;
+    model.state.direction = player.direction;
     model.state.lastUpdate = performance.now();
 
-    model.goal.position.x = data.position.x;
-    model.goal.position.y = data.position.y;
-    model.goal.direction = data.direction;
+    model.goal.position.x = player.position.x;
+    model.goal.position.y = player.position.y;
+    model.goal.direction = player.direction;
     model.goal.updateWindow = 0;
 
-    model.size.x = data.size.x;
-    model.size.y = data.size.y;
+    model.size.x = player.size.x;
+    model.size.y = player.size.y;
 
     playerOthers[data.clientId] = {
       model: model,
-      texture: MyGame.assets['player-other']
+      texture: MyGame.assets['test-ship']
     };
   }
 
@@ -149,8 +152,8 @@ const GameView = (function() {
   //
   // Small update called in process input
   function updatePlayerSelf(data) {
-    playerSelf.model.position.x = data.position.x;
-    playerSelf.model.position.y = data.position.y;
+    playerSelf.model.position.x = data.player.position.x;
+    playerSelf.model.position.y = data.player.position.y;
   }
 
   //
@@ -160,9 +163,9 @@ const GameView = (function() {
       let model = playerOthers[data.clientId].model;
       model.goal.updateWindow = data.updateWindow;
 
-      model.goal.position.x = data.position.x;
-      model.goal.position.y = data.position.y
-      model.goal.direction = data.direction;
+      model.goal.position.x = data.player.position.x;
+      model.goal.position.y = data.player.position.y;
+      model.goal.direction = data.player.direction;
     }
   }
 
@@ -207,7 +210,12 @@ const GameView = (function() {
   //
   // Render function for gameLoop
   function renderFrame() {
-
+    Graphics.clear();
+    Renderer.renderPlayer(playerSelf.model, playerSelf.texture);
+    for (let id in playerOthers) {
+        let player = playerOthers[id];
+        Renderer.renderRemotePlayer(player.model, player.texture);
+    }
   }
 
   function gameLoop(time) {

@@ -87,10 +87,10 @@ MyGame.loader = (function() {
       message: 'Player models loaded',
       onComplete: null,
     }, {
-    //   scripts: ['js/rendering/'],          //Individual rendering files
-    //   message: 'Renderers loaded',
-    //   onComplete: null,
-    // }, {
+      scripts: ['js/rendering/renderer'],
+      message: 'Renderer loaded',
+      onComplete: null,
+    }, {
     //   scripts: [''],                       //Game
     //   message: 'Gameplay model loaded',
     //   onComplete: null,
@@ -109,11 +109,14 @@ MyGame.loader = (function() {
       scripts: ['app.js'],
       message: 'app.js loaded',
       onComplete: null
-    }]
+    }];
     
     let assetOrder = [{
       key: 'blue-brick',
       source: 'assets/images/blueBrick.png'
+    }, {
+      key: 'test-ship',
+      source: 'assets/images/testShip.png'
     }];
 
     function loadScripts(scripts, onComplete){
