@@ -23,22 +23,33 @@ const Graphics = (function() {
       context.translate(-center.x * canvas.width, -center.y * canvas.width);
   }
 
-  function drawImage(image, center, size) {
+  function drawImage(image, center, size, clipping) {
     console.log(center, size, canvas.width, canvas.height);
-    let localCenter = {
-          x: center.x * canvas.width,
-          y: center.y * canvas.height
+      let localCenter = {
+        x: center.x * canvas.width,
+        y: center.y * canvas.height
       };
       let localSize ={
-          width: size.width * canvas.width,
-          height: size.height * canvas.height
+        width: size.width * canvas.width,
+        height: size.height * canvas.height
       };
-      image.onload
-      context.drawImage(image,
+      if(clipping) {
+        context.drawImage(image,
+          clipping.x,
+          clipping.y,
+          clipping.width,
+          clipping.height,
           localCenter.x - localSize.width / 2,
           localCenter.y - localSize.height / 2,
           localSize.width,
           localSize.height);
+      } else {
+        context.drawImage(image,
+          localCenter.x - localSize.width / 2,
+          localCenter.y - localSize.height / 2,
+          localSize.width,
+          localSize.height);
+      }
   }
   
   return {

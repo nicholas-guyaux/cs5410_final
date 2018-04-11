@@ -33,6 +33,14 @@ const Geometry = (function () {
       lineIntersection (line) {
         return lineSegmentLineIntersection(lineSeg, line);
       },
+      /**
+       * gets the angle in radians
+       */
+      get angle () {
+        var deltaY = lineSeg.b.y - lineSeg.a.y;
+        var deltaX = lineSeg.b.x - lineSeg.a.x;
+        return Math.atan2(deltaY, deltaX);
+      },
       // https://stackoverflow.com/a/1968345/2066736
       lineSegmentIntersection (lineSeg2) {
         const [p0_x, p0_y] = [lineSeg.a.x, lineSeg.a.y];

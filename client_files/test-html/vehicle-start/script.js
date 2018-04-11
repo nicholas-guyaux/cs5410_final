@@ -1,39 +1,73 @@
-var canvas = document.getElementById('canvas');
-ctx = canvas.getContext('2d');
+var canvas = document.getElementById('game-canvas');
+const ctx = canvas.getContext('2d');
 
-var worldRect = Geometry.Rectangle({
-  x: 0,
-  y: 0,
-  width: canvas.width,
-  height: canvas.height,
-});
-
-var dropzoneRect = getCenteredBox({
-  rect: worldRect,
-  scale: 0.1,
-});
-
-var vehiclePath = getVehiclePath();
 lastTime = 0;
+let clipping;
 
-function renderLoop (totalTime) {
-  ctx.clearRect(worldRect.x, worldRect.y, worldRect.width, worldRect.height)
-  var elapsed = totalTime - lastTime;
-  console.log(elapsed, totalTime);
-  ctx.strokeStyle = 'red';
-  strokeRect(dropzoneRect);
-  
-  ctx.strokeStyle = '#7c0';
-  drawLine(vehiclePath);
+const gameState = GameState({
+  worldWidth: canvas.width,
+  worldHeight: canvas.height,
+});
 
-  const maxTime = 30 * 1000
-  var vehicle = getRectCenteredAtPoint(lerpBetweenPoints(vehiclePath.a, vehiclePath.b, totalTime, maxTime), 20, 20);
-  ctx.fillStyle = "steelblue";
-  fillRect(vehicle);
-  window.requestAnimationFrame(renderLoop);
+const keyboard = KeyboardHandler();
+
+keyboard.addOnceAction(() => {
+  gameState.dropShip();
+});
+
+function handleInput () {
+  keyboard.handle();
 }
 
-window.requestAnimationFrame(renderLoop);
+function update (elapsed, totalTime) {
+  gameState.update(elapsed, totalTime);
+}
+
+function renderVehicle (totalTime, plane, vehicle, vehiclePath) {
+  if (plane.loaded) {
+    if(!clipping) {
+      clipping = TiledImageClipping({
+        width: plane.width / 4,
+        height: plane.height
+      });
+    }
+    //  convert to viewport ratio from world coordinates
+    var vCenter = gameState.viewport.fromWorldToRatio({
+      x: gameState.vehicle.center.x,
+      y: gameState.vehicle.center.y,
+    });
+    ctx.save();
+    Graphics.rotateCanvas(vCenter, vehiclePath.angle + Math.PI / 2);
+    Graphics.drawImage(plane, vCenter, gameState.viewport.fromWorldToRatio({
+      width: gameState.vehicle.width,
+      height: gameState.vehicle.height, 
+    }), clipping(Math.floor(totalTime / 50) % 4));
+    ctx.restore();
+  }
+}
+
+function renderLoop (elapsed, totalTime) {
+  ctx.clear();
+  
+  console.log(elapsed, totalTime);
+  ctx.strokeStyle = 'red';
+  strokeRect(gameState.dropzoneRect);
+  
+  ctx.strokeStyle = '#7c0';
+  drawLine(gameState.vehiclePath);
+
+  renderVehicle(totalTime, gameState.plane, gameState.vehicle, gameState.vehiclePath);
+}
+
+function gameLoop (totalTime) {
+  var elapsed = totalTime - lastTime;
+  handleInput();
+  update(elapsed, totalTime);
+  renderLoop(elapsed, totalTime);
+  window.requestAnimationFrame(gameLoop);
+}
+
+window.requestAnimationFrame(gameLoop);
 
 function getRandomIntInclusive(min, max) {
   min = Math.ceil(min);
@@ -43,18 +77,6 @@ function getRandomIntInclusive(min, max) {
 
 function getRandomPointInRect (rect) {
   return Geometry.Point(getRandomIntInclusive(rect.left, rect.right), getRandomIntInclusive(rect.top, rect.bottom));
-}
-
-function getCenteredBox (spec) {
-  var { rect, scale } = spec;
-  var width = rect.width * scale;
-  var height = rect.height * scale;
-  return Geometry.Rectangle({
-    x: rect.center.x - width / 2,
-    y: rect.center.y - height / 2,
-    width: width,
-    height: height,
-  });
 }
 
 function fillRect (rect) {
@@ -98,14 +120,4 @@ function getRectCenteredAtPoint (point, width, height) {
 
 function strokeRect (rect) {
   ctx.strokeRect(rect.x, rect.y, rect.width, rect.height);
-}
-
-function getVehiclePath () {
-  var p1 = getRandomPointInRect(dropzoneRect);
-  var p2 = null;
-  do {
-    p2 = getRandomPointInRect(dropzoneRect);
-  } while(p2.x === p1.x && p2.y === p1.y);
-  var lineThroughRect = Geometry.Line(p1, p2);
-  return lineThroughRect.lineWithinRect(worldRect);
 }
