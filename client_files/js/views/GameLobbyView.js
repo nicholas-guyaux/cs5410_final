@@ -62,7 +62,7 @@ const GameLobbyView = (function GameLobbyView (AudioPool) {
     socket.on(LobbyNetIds.START_GAME, function (data) {
       // In the loadView this view's unrender will be called and its socket
       // will be disconnected and set to null
-      GameView.loadView(GameView.name);
+      MainView.loadView(GameView.name);
     });
 
     AudioPool.playMusic('menu');

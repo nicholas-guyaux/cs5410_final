@@ -7,7 +7,7 @@ const GameNetIds = require('../client_files/shared/game-net-ids');
 const Queue = require('../client_files/shared/queue.js');
 const Token = require('../Token');
 
-
+const SIMULATION_UPDATE_RATE_MS = 50;
 
 let props = {
   quit: false
@@ -68,18 +68,18 @@ function updateClients(elapsedTime) {
     };
 
     if (client.state.player.reportUpdate) {
-        client.socket.emit(NetworkIds.UPDATE_SELF, update);
+        client.socket.emit(GameNetIds.UPDATE_SELF, update);
 
         for (let otherId in GameState.gameClients) {
             if (otherId !== clientId) {
-              GameState.gameClients[otherId].socket.emit(NetworkIds.UPDATE_OTHER, update);
+              GameState.gameClients[otherId].socket.emit(GameNetIds.UPDATE_OTHER, update);
             }
         }
     }
   }
 
   for (let clientId in GameState.gameClients) {
-    GameState.gameClients[clientId].player.reportUpdate = false;
+    GameState.gameClients[clientId].state.player.reportUpdate = false;
   }
 }
 
@@ -94,8 +94,10 @@ function gameLoop(currentTime, elapsedTime) {
   updateClients(elapsedTime);
 
   if (!props.quit) {
-    let now = present();
-    gameLoop(now, now - currentTime);
+    setTimeout(() => {
+      let now = present();
+      gameLoop(now, now - currentTime);
+    }, SIMULATION_UPDATE_RATE_MS);
   }
 }
 

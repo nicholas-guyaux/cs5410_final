@@ -9,7 +9,7 @@ const Token = require('../Token');
 const game = require('./game');
 
 let props = {
-  numPlayersRequired: 10,
+  numPlayersRequired: 2,
   gameInProgress: false
 };
 
@@ -150,9 +150,10 @@ function initializeSocketIO(io) {
     });
 
     notifyConnect(newClient);
-    if (GameState.lobbyClients.length >= props.numPlayersRequired && !props.gameInProgress) {
+
+    if ((Object.keys(GameState.lobbyClients).length >= props.numPlayersRequired) && !props.gameInProgress) {
       props.gameInProgress = true;
-      game.intialize();
+      game.initialize();
 
       for (let clientId in GameState.lobbyClients) {
         if (!GameState.lobbyClients.hasOwnProperty(clientId)) {
@@ -163,7 +164,6 @@ function initializeSocketIO(io) {
           clientId: existingClient.socket.id,
         });
       }
-      GameState.lobbyClients = {};
     }
   });
 }
