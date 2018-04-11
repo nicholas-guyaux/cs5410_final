@@ -160,12 +160,11 @@ const GameView = (function() {
   // Small update called in process input (prep for update in gameLoop)
   function updatePlayerOther(data) {
     if (playerOthers.hasOwnProperty(data.clientId)) {
-      let model = playerOthers[data.clientId].model;
-      model.goal.updateWindow = data.updateWindow;
+      playerOthers[data.clientId].model.goal.updateWindow = data.player.updateWindow;
 
-      model.goal.position.x = data.player.position.x;
-      model.goal.position.y = data.player.position.y;
-      model.goal.direction = data.player.direction;
+      playerOthers[data.clientId].model.goal.position.x = data.player.position.x;
+      playerOthers[data.clientId].model.goal.position.y = data.player.position.y;
+      playerOthers[data.clientId].model.goal.direction = data.player.direction;
     }
   }
 
@@ -238,5 +237,6 @@ const GameView = (function() {
     unrender,
     init,
     name: "GameView",
+    playerOthers
   };
 }());

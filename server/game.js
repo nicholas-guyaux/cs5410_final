@@ -51,21 +51,25 @@ function update(elapsedTime, currentTime) {
 }
 
 function updateClients(elapsedTime) {
+
+  // For each game client create an update message with the client's data and elapsedTime
+  // Then, if the player is to report the update, then emit an UPDATE_SELF and an UPDATE_OTHER 
+  // to all other clients
   for (let clientId in GameState.gameClients) {
     let client = GameState.gameClients[clientId];
     let update = {
         clientId: clientId,
         lastMessageId: client.lastMessageId,
-        direction: client.player.direction,
-        position: client.player.position,
-        updateWindow: elapsedTime
+        player: {
+          direction: client.state.player.direction,
+          position: client.state.player.position,
+          updateWindow: elapsedTime
+        }
     };
-    if (client.player.reportUpdate) {
+
+    if (client.state.player.reportUpdate) {
         client.socket.emit(NetworkIds.UPDATE_SELF, update);
 
-        //
-        // Notify all other connected clients about every
-        // other connected client status...but only if they are updated.
         for (let otherId in GameState.gameClients) {
             if (otherId !== clientId) {
               GameState.gameClients[otherId].socket.emit(NetworkIds.UPDATE_OTHER, update);
@@ -120,18 +124,31 @@ function initializeSocketIO(io) {
       if (!GameState.gameClients.hasOwnProperty(clientId)) {
         continue;
       }
+
       let existingClient = GameState.gameClients[clientId];
+      let newPlayer = newClient.state.player;
+      let existingPlayer = existingClient.state.player;
 
       if (newClient.socket.id !== clientId) {
         existingClient.socket.emit(GameNetIds.CONNECT_OTHER, {
-          // TODO: Include all the data needed from a client on notify
           clientId: newClient.socket.id,
-          player: newClient.state.player
+          player: {
+            direction: newPlayer.direction,
+            position: newPlayer.position,
+            size: newPlayer.size,
+            speed: newPlayer.speed,
+            rotateRate: newPlayer.rotateRate
+          }
         });
         newClient.socket.emit(GameNetIds.CONNECT_OTHER, {
-          // TODO: Include all the data needed from a client on notify
           clientId: existingClient.socket.id,
-          player: existingClient.state.player
+          player: {
+            direction: existingPlayer.direction,
+            position: existingPlayer.position,
+            size: existingPlayer.size,
+            speed: existingPlayer.speed,
+            rotateRate: existingPlayer.rotateRate
+          }
         });
       }
     }
@@ -153,7 +170,7 @@ function initializeSocketIO(io) {
         clients: Object.values(GameState.gameClients).map(x => x.state.player).filter(x => !!x.name)
       });
       if (clientId !== playerId.id) {
-        client.socket.emit(GameNetId.GAME_MSG, {
+        client.socket.emit(GameNetIds.GAME_MSG, {
           playerId: playerId.name,  
           message: "Has left the game"      
         });
@@ -168,6 +185,7 @@ function initializeSocketIO(io) {
 
     let newPlayer = Player.create();
     let newClient = {
+      lastMessageId: null,
       socket: socket,
       state: {
         player: newPlayer
@@ -203,7 +221,6 @@ function initializeSocketIO(io) {
         // asynchronous token checking
         const user = await Token.check_auth(data.token);
         newClient.state.player = user;
-        //console.log(data.player);
         
         for (let clientId in GameState.gameClients) {
           if (!GameState.gameClients.hasOwnProperty(clientId)) {
@@ -252,21 +269,6 @@ function initializeSocketIO(io) {
     });
 
     notifyConnect(newClient);
-    if (GameState.gameClients.length >= props.numPlayersRequired && !props.gameInProgress) {
-      props.gameInProgress = true;
-      game.intialize();
-
-      for (let clientId in GameState.gameClients) {
-        if (!GameState.gameClients.hasOwnProperty(clientId)) {
-          continue;
-        }
-        let existingClient = GameState.gameClients[clientId];
-        existingClient.socket.emit(GameNetIds.START_GAME, {
-          clientId: existingClient.socket.id,
-        });
-      }
-      GameState.gameClients = {};
-    }
   });
 }
 
