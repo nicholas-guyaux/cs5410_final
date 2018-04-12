@@ -15,6 +15,9 @@ const GameLobbyView = (function GameLobbyView (AudioPool) {
     cht.innerHTML = '';
     
     socket.on(NetworkIds.CONNECT_ACK, function (data) {
+      requiredNumPlayers = data.numPlayers;
+      var numReq = document.getElementById('game-lobby-status');
+      numReq.innerHTML = 'Game needs ' + requiredNumPlayers  + ' players';
       socket.emit(NetworkIds.PLAYER_JOIN, {
         // We'll just use the token and not the user object
         // because

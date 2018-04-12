@@ -8,10 +8,8 @@ const Queue = require('../client_files/shared/queue.js');
 const Token = require('../Token');
 const game = require('./game');
 
-var numPlayersRequired = 10;
+var numPlayersRequired = 2;
 var gameInProgress = false;
-
-var numPlayersRequired
 
 
 //------------------------------------------------------------------
@@ -111,6 +109,7 @@ function initializeSocketIO(httpServer) {
     // Ack message emitted to new client with info about its new player
     socket.emit(NetworkIds.CONNECT_ACK, {
       clientId: socket.id,
+      numPlayers: numPlayersRequired
       // player: newPlayer
     });
 
