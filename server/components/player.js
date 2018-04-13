@@ -1,11 +1,12 @@
 // ------------------------------------------------------------------
+// Written by Dr. Dean Mathias
 //
 // Nodejs module that represents the model for a player.
 //
 // ------------------------------------------------------------------
 'use strict';
 
-let random = require ('./random');
+let random = require ('../utils/random');
 
 //------------------------------------------------------------------
 //
@@ -28,7 +29,7 @@ function createPlayer() {
     };
     let direction = random.nextDouble() * 2 * Math.PI;    // Angle in radians
     let rotateRate = Math.PI / 1000;    // radians per millisecond
-    let speed = 0.0002;                  // unit distance per millisecond
+    let speed = 0.0002;                 // unit distance per millisecond
     let reportUpdate = false;    // Indicates if this model was updated during the last update
 
     Object.defineProperty(that, 'direction', {
@@ -70,9 +71,12 @@ function createPlayer() {
         reportUpdate = true;
         let vectorX = Math.cos(direction);
         let vectorY = Math.sin(direction);
+        console.log('x:', position.x, 'y:', position.y);
 
         position.x += (vectorX * elapsedTime * speed);
         position.y += (vectorY * elapsedTime * speed);
+        console.log('x:', position.x, 'y:', position.y);
+        
     };
 
     //------------------------------------------------------------------

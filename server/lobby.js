@@ -3,14 +3,16 @@
 const present = require('present');
 const GameState = require('./gamestate');
 const Player = require('./components/player');
-const NetworkIds = require('../client_files/shared/network-ids');
+const LobbyNetIds = require('../client_files/shared/lobby-net-ids');
 const Queue = require('../client_files/shared/queue.js');
 const Token = require('../Token');
 const game = require('./game');
 
-var numPlayersRequired = 2;
-var gameInProgress = false;
 
+let props = {
+  numPlayersRequired: 2,
+  gameInProgress: false
+};
 
 //------------------------------------------------------------------
 //
@@ -18,8 +20,7 @@ var gameInProgress = false;
 // collecting inputs from the connected clients.
 //
 //------------------------------------------------------------------
-function initializeSocketIO(httpServer) {
-  const io = require('socket.io')(httpServer); // NOTE: Changed this from let to const
+function initializeSocketIO(io) {
 
   //------------------------------------------------------------------
   //
@@ -36,32 +37,15 @@ function initializeSocketIO(httpServer) {
       let existingClient = GameState.lobbyClients[clientId];
 
       if (newClient.socket.id !== clientId) {
-        existingClient.socket.emit(NetworkIds.CONNECT_OTHER, {
+        existingClient.socket.emit(LobbyNetIds.CONNECT_OTHER, {
           // TODO: Include all the data needed from a client on notify
           clientId: newClient.socket.id,
           player: newClient.state.player
         });
-        newClient.socket.emit(NetworkIds.CONNECT_OTHER, {
+        newClient.socket.emit(LobbyNetIds.CONNECT_OTHER, {
           // TODO: Include all the data needed from a client on notify
           clientId: existingClient.socket.id,
           player: existingClient.state.player
-        });
-      }
-    }
-    if (GameState.lobbyClients.length >= numPlayersRequired && !gameInProgress) {
-      gameInProgress = true;
-      game.intialize();
-      GameState.gameClients = GameState.lobbyClients;
-      GameState.lobbyClients = {};
-      for (let clientId in GameState.gameClients) {
-        if (!GameState.gameClients.hasOwnProperty(clientId)) {
-          continue;
-        }
-        let existingClient = GameState.gameClients[clientId];
-        existingClient.socket.emit(NetworkIds.START_GAME, {
-          // TODO: Include all the data needed from a client on notify
-          clientId: newClient.socket.id,
-          player: newClient.state.player
         });
       }
     }
@@ -79,11 +63,11 @@ function initializeSocketIO(httpServer) {
         continue;
       }
       let client = GameState.lobbyClients[clientId];
-      client.socket.emit(NetworkIds.PLAYER_LEAVE, {
+      client.socket.emit(LobbyNetIds.PLAYER_LEAVE, {
         clients: Object.values(GameState.lobbyClients).map(x => x.state.player).filter(x => !!x.name)
       });
       if (clientId !== playerId.id) {
-        client.socket.emit(NetworkIds.LOBBY_MSG, {
+        client.socket.emit(LobbyNetIds.LOBBY_MSG, {
           playerId: playerId.name,  
           message: "Has left the lobby"      
         });
@@ -107,22 +91,13 @@ function initializeSocketIO(httpServer) {
 
     //
     // Ack message emitted to new client with info about its new player
-    socket.emit(NetworkIds.CONNECT_ACK, {
+    socket.emit(LobbyNetIds.CONNECT_ACK, {
       clientId: socket.id,
-      numPlayers: numPlayersRequired
+      numPlayers: props.numPlayersRequired
       // player: newPlayer
     });
 
-    //
-    // Handler to enqueue the new client's input messages in the game's inputQueue
-    socket.on(NetworkIds.INPUT, data => {
-      inputQueue.enqueue({
-        clientId: socket.id,
-        message: data
-      });
-    });
-
-    socket.on(NetworkIds.PLAYER_JOIN, async data => {
+    socket.on(LobbyNetIds.PLAYER_JOIN_LOBBY, async data => {
       try {
         // asynchronous token checking
         const user = await Token.check_auth(data.token);
@@ -134,11 +109,11 @@ function initializeSocketIO(httpServer) {
             continue;
           }
           let client = GameState.lobbyClients[clientId];
-          client.socket.emit(NetworkIds.PLAYER_JOIN, {
+          client.socket.emit(LobbyNetIds.PLAYER_JOIN_LOBBY_ACK, {
             clients: Object.values(GameState.lobbyClients).map(x => x.state.player).filter(x => !!x.name)
           });
           if (clientId !== socket.id) {
-            client.socket.emit(NetworkIds.LOBBY_MSG, {
+            client.socket.emit(LobbyNetIds.LOBBY_MSG, {
               playerId: newClient.state.player.name,  
               message: "Has entered the lobby"      
             });
@@ -146,21 +121,21 @@ function initializeSocketIO(httpServer) {
           }
         }
       } catch (e) {
-        newClient.socket.emit(NetworkIds.LOBBY_KICK, {
+        newClient.socket.emit(LobbyNetIds.LOBBY_KICK, {
           message: "Something went wrong authorizing you try refreshing or logging in again."
         });
         console.error(e);
       }
     });
 
-    socket.on(NetworkIds.LOBBY_MSG, data => {
+    socket.on(LobbyNetIds.LOBBY_MSG, data => {
       for (let clientId in GameState.lobbyClients) {
         if (!GameState.lobbyClients.hasOwnProperty(clientId)) {
           continue;
         }
         let client = GameState.lobbyClients[clientId];
         
-        client.socket.emit(NetworkIds.LOBBY_MSG, {
+        client.socket.emit(LobbyNetIds.LOBBY_MSG, {
           playerId: newClient.state.player.name,  
           message: data.message      
         });
@@ -173,22 +148,27 @@ function initializeSocketIO(httpServer) {
         name: GameState.lobbyClients[socket.id].state.player.name
       }
       delete GameState.lobbyClients[socket.id];
-      //console.log('goodbye sucker');
       notifyDisconnect(obj);
     });
 
     notifyConnect(newClient);
+
+    if ((Object.keys(GameState.lobbyClients).length >= props.numPlayersRequired) && !props.gameInProgress) {
+      props.gameInProgress = true;
+      game.initialize();
+
+      for (let clientId in GameState.lobbyClients) {
+        if (!GameState.lobbyClients.hasOwnProperty(clientId)) {
+          continue;
+        }
+        let existingClient = GameState.lobbyClients[clientId];
+        existingClient.socket.emit(LobbyNetIds.START_GAME, {
+          clientId: existingClient.socket.id,
+        });
+      }
+    }
   });
 }
-
-
-//------------------------------------------------------------------
-//
-// Public function that allows the game simulation and processing to
-// be terminated.
-//
-//------------------------------------------------------------------
-
 
 module.exports = {
   initializeSocketIO
