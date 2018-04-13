@@ -40,7 +40,7 @@ var TILEDmap = Class.extend({
   fullyLoaded:false,
   //---------------------------
   load: function (){
-    fetch('assets/data/map.json').then(stream => stream.json()).then(function(data){
+    fetch('assets/data/islands.json').then(stream => stream.json()).then(function(data){
       GameMap.parseMapJSON(data);
     });
 	//xhrGet(map, false,function(data)
