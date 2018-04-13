@@ -71,6 +71,10 @@ function getUser () {
 function write () {
   if(Array.isArray(users)) {
     fs.writeFile(path.join(__dirname, 'data', 'users.json'), JSON.stringify(users), function (err) {
+      if(err) {
+        console.error(err);
+        return;
+      }
       console.log('users written');
     })
   }
