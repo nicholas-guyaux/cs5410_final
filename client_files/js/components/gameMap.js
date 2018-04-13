@@ -18,12 +18,12 @@
 var TILEDmap = Class.extend({
   currMapData: null,
   tileSets: new Array(),
-  viewRect: {
-    "x": 0,
-    "y": 0,
-    "w": 1000,
-    "h": 1000
-  },
+  // viewRect: {
+  //   "x": 0,
+  //   "y": 0,
+  //   "w": 1000,
+  //   "h": 1000
+  // },
   numXTiles: 100,
   numYTiles: 100,
   tileSize: {
@@ -114,7 +114,7 @@ var TILEDmap = Class.extend({
            r2.bottom < r1.top);
 	},
   //---------------------------
-  draw: function (ctx, worldCoords) { //
+  draw: function () { //
     if(!this.fullyLoaded) return;
 
     for (var layerIdx = 0; layerIdx < this.currMapData.layers.length; layerIdx++){
@@ -131,14 +131,14 @@ var TILEDmap = Class.extend({
         //test if this tile is within our world bounds
         var worldX = Math.floor(tileIDX % this.numXTiles) * this.tileSize.x;
         var worldY = Math.floor(tileIDX / this.numYTiles) * this.tileSize.y;
-        if ((worldX + this.tileSize.x) < this.viewRect.x 
-          || (worldY + this.tileSize.y) < this.viewRect.y 
-          || worldX > this.viewRect.x + this.viewRect.w 
-          || worldY > this.viewRect.y + this.viewRect.h) continue;
+        if ((worldX + this.tileSize.x) < Graphics.viewport.world.x 
+          || (worldY + this.tileSize.y) < Graphics.viewport.world.y 
+          || worldX > Graphics.viewport.world.x + Graphics.viewport.canvas.width 
+          || worldY > Graphics.viewport.world.y + Graphics.viewport.canvas.height) continue;
 
         //adjust all the visible tiles to draw at canvas origin.
-        // worldX += this.viewRect.x;
-        // worldY += this.viewRect.y;
+        // worldX += Graphics.viewport.x;
+        // worldY += Graphics.viewport.y;
 
         // Nine arguments: the element, source (x,y) coordinates, source width and 
         // height (for cropping), destination (x,y) coordinates, and destination width 

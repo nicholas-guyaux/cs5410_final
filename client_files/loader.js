@@ -42,6 +42,14 @@ MyGame.loader = (function() {
     }, {
       scripts: ['js/components/viewport.js']
     }, {
+      scripts: ['shared/Geometry'],
+      message: 'Graphics loaded',
+      onComplete: null,
+    },{
+      scripts: ['shared/Coords'],
+      message: 'Graphics loaded',
+      onComplete: null,
+    },{
       scripts: ['js/rendering/graphics'],
       message: 'Graphics loaded',
       onComplete: null,

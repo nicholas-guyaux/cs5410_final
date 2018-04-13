@@ -2,6 +2,14 @@ function GameState (spec) {
   var that = {};
   that.plane = ImageAsset('../../assets/images/plane.png')
 
+
+  that.worldRect = World();
+
+  that.dropzoneRect = getCenteredBox({
+    rect: that.worldRect,
+    scale: 0.1,
+  });
+  
   function World () {
     var worldRect = Geometry.Rectangle({
       x: 0,
@@ -24,13 +32,6 @@ function GameState (spec) {
     return worldRect;
   }
 
-  that.worldRect = World();
-
-  that.dropzoneRect = getCenteredBox({
-    rect: that.worldRect,
-    scale: 0.1,
-  });
-
   function ViewPort () {
     var viewport = Geometry.Rectangle({
       x: 0,
@@ -38,7 +39,7 @@ function GameState (spec) {
       width: spec.worldWidth,
       height: spec.worldHeight,
     });
-
+    
     // keep things in world coordinates by default only scale to viewport units when rendering.
     viewport.scaleToCoord = function (rectInWorld) {
       return Geometry.Rectangle({

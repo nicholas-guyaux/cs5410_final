@@ -7,6 +7,7 @@
 'use strict';
 
 let random = require ('../utils/random');
+let Coords = require ('../../client_files/shared/Coords');
 
 //------------------------------------------------------------------
 //
@@ -18,18 +19,18 @@ function createPlayer() {
     let that = {};
 
     let position = {
-        x: random.nextDouble(),
-        y: random.nextDouble()
+        x: 0,
+        y: 0
     };
 
     let size = {
-        width: 0.01,
-        height: 0.01,
-        radius: 0.02
+        width: 0.01*Coords.viewport.width,
+        height: 0.01*Coords.viewport.height,
+        radius: 0.02*Coords.viewport.width
     };
     let direction = random.nextDouble() * 2 * Math.PI;    // Angle in radians
     let rotateRate = Math.PI / 1000;    // radians per millisecond
-    let speed = 0.0002;                 // unit distance per millisecond
+    let speed = 0.0002*Coords.viewport.width;                 // unit distance per millisecond
     let reportUpdate = false;    // Indicates if this model was updated during the last update
 
     Object.defineProperty(that, 'direction', {
