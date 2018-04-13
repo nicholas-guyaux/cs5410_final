@@ -118,9 +118,8 @@ MyGame.loader = (function() {
       scripts: ['app.js'],
       message: 'app.js loaded',
       onComplete: null
-    }];
-    
-    let assetOrder = [{
+    }],
+    assetOrder =[{
       key: 'test-ship',
       source: 'assets/images/testShip.png'
     }];

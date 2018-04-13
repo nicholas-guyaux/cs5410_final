@@ -77,7 +77,6 @@ const Graphics = (function() {
   }
   
   function drawImage(image, center, size, clipping) {
-    //console.log(center, size, canvas.width, canvas.height);
     let localCenter = {
       x: center.x * canvas.width,
       y: center.y * canvas.height
