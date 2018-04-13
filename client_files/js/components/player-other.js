@@ -7,8 +7,8 @@ function PlayerRemote() {
   'use strict';
   let that = {};
   let size = {
-    width: 0.05,
-    height: 0.05
+    width: 0.05*Coords.viewport.width,
+    height: 0.05*Coords.viewport.width,
   };
   let state = {
     direction: 0,
