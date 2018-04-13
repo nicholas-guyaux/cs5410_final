@@ -19,6 +19,7 @@ const GameView = (function() {
   //
   // Render to initially setup and show the GameView
   function render() {
+    AudioPool.playMusic('game');
     props.commandKeys = client.user.commandKeys;
     keyboard.activate();
     if (socket === null) {

@@ -25,7 +25,7 @@ function ViewSwitcher (superView) {
       // View is already added ignore it.
       return;
     }
-    $$(`[data-view-transition="${view.name}"`).forEach(el => {
+    $$(`[data-view-transition="${view.name}"]`).forEach(el => {
       el.addEventListener('click', function (e) {
         loadView(this.dataset.viewTransition);
       })
