@@ -8,6 +8,7 @@ const Queue = require('../client_files/shared/queue.js');
 const Token = require('../Token');
 const game = require('./game');
 
+
 let props = {
   numPlayersRequired: 2,
   gameInProgress: false
@@ -92,6 +93,7 @@ function initializeSocketIO(io) {
     // Ack message emitted to new client with info about its new player
     socket.emit(LobbyNetIds.CONNECT_ACK, {
       clientId: socket.id,
+      numPlayers: props.numPlayersRequired
       // player: newPlayer
     });
 
