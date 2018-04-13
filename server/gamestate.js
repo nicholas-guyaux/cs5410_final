@@ -6,6 +6,7 @@
 //   state: {
 //     player: player
 //   }
+//   lastMessageId: null
 // };
 let lobbyClients = {};
 let gameClients = {};

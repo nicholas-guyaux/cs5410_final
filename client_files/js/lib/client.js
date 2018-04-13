@@ -2,7 +2,7 @@ const client = (function () {
 
   let user_token = window.localStorage.getItem('user-token') || null;
   let user = null;
-
+  
   function formPost (url, data) {
     let d = data.data;
     delete data.data;
@@ -97,6 +97,6 @@ const client = (function () {
       return user; 
     },
     getUser,
-    logout,
+    logout
   }
 })();

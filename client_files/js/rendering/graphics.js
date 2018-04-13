@@ -77,32 +77,31 @@ const Graphics = (function() {
   }
   
   function drawImage(image, center, size, clipping) {
-    console.log(center, size, canvas.width, canvas.height);
-      let localCenter = {
-        x: center.x * canvas.width,
-        y: center.y * canvas.height
-      };
-      let localSize ={
-        width: size.width * canvas.width,
-        height: size.height * canvas.height
-      };
-      if(clipping) {
-        context.drawImage(image,
-          clipping.x,
-          clipping.y,
-          clipping.width,
-          clipping.height,
-          localCenter.x - localSize.width / 2,
-          localCenter.y - localSize.height / 2,
-          localSize.width,
-          localSize.height);
-      } else {
-        context.drawImage(image,
-          localCenter.x - localSize.width / 2,
-          localCenter.y - localSize.height / 2,
-          localSize.width,
-          localSize.height);
-      }
+    let localCenter = {
+      x: center.x * canvas.width,
+      y: center.y * canvas.height
+    };
+    let localSize ={
+      width: size.width * canvas.width,
+      height: size.height * canvas.height
+    };
+    if(clipping) {
+      context.drawImage(image,
+        clipping.x,
+        clipping.y,
+        clipping.width,
+        clipping.height,
+        localCenter.x - localSize.width / 2,
+        localCenter.y - localSize.height / 2,
+        localSize.width,
+        localSize.height);
+    } else {
+      context.drawImage(image,
+        localCenter.x - localSize.width / 2,
+        localCenter.y - localSize.height / 2,
+        localSize.width,
+        localSize.height);
+    }
   }
   
   function drawRectangle(style, left, top, width, height, useViewport){

@@ -1,11 +1,12 @@
 // ------------------------------------------------------------------
+// Written by Dr. Dean Mathias
 //
 // Nodejs module that represents the model for a player.
 //
 // ------------------------------------------------------------------
 'use strict';
 
-let random = require ('./random');
+let random = require ('../utils/random');
 
 //------------------------------------------------------------------
 //

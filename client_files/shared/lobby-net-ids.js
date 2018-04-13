@@ -7,30 +7,14 @@
 (function(exports) {
   'use strict';
 
-  // TODO: add/change this so that we have all our needed Network Ids
+  // TODO: add/change this so that we have all our needed Lobby Network Ids
   Object.defineProperties(exports, {
-    'INPUT': {
-      value: 'input',
+    'PLAYER_JOIN_LOBBY': {
+      value: 'player-join-lobby',
       writable: false
     },
-    'INPUT_MOVE': {
-      value: 'move',
-      writable: false
-    },
-    'INPUT_ROTATE_LEFT': {
-      value: 'rotate-left',
-      writable: false
-    },
-    'INPUT_ROTATE_RIGHT': {
-      value: 'rotate-right',
-      writable: false
-    },
-    'INPUT_FIRE': {
-      value: 'fire',
-      writable: false
-    },
-    'PLAYER_JOIN': {
-      value: 'player-join',
+    'PLAYER_JOIN_LOBBY_ACK': {
+      value: 'player-join-lobby-ack',
       writable: false
     },
     'PLAYER_LEAVE': {
@@ -45,13 +29,9 @@
       value: 'game-starting',
       writeable: false
     },
-    'GAME_START': {
+    'START_GAME': {
       value: 'start_game',
       writeable: false
-    },
-    'GAME_SETUP': {
-      value: 'game-init',
-      writable: false
     },
     'CONNECT_ACK': {
       value: 'connect-ack',
@@ -65,18 +45,10 @@
       value: 'disconnect-other',
       writable: false
     },
-    'UPDATE_SELF': {
-      value: 'update-self',
-      writable: false
-    },
-    'UPDATE_OTHER': {
-      value: 'update-other',
-      writable: false
-    },
     "LOBBY_KICK": {
       value: 'lobby-kick',
       writable: false,
     },
   });
 
-})(typeof exports === 'undefined' ? this['NetworkIds'] = {} : exports);
+})(typeof exports === 'undefined' ? this['LobbyNetIds'] = {} : exports);
