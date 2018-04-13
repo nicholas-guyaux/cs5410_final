@@ -16,6 +16,11 @@ const Renderer = (function(graphics) {
     graphics.restoreContext();
   }
 
+  function render () {
+    renderPlayer();
+    renderRemotePlayer();
+  }
+
   return {
     renderPlayer,
     renderRemotePlayer

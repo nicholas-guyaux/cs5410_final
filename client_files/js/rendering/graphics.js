@@ -3,39 +3,48 @@ const Graphics = (function() {
 
   let canvas = document.getElementById('game-canvas');
   let context = canvas.getContext('2d');
+  var viewport = Coords.viewport;
+  var world = Coords.world;
 
-  let world = { size: 0, top: 0, left: 0 }
-  let viewport = Viewport({ left: 0, top: 0, buffer: 0.15 });
-  let resizeHandlers = [];
+  var currentTranslation = {
+    x: 0,
+    y: 0,
+  }
 
   function resizeCanvas(){
     var smallestSize = 0;
     var handler = null;
 
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
+    var wRatio = Coords.world.width * Coords.viewport.width;
+    var hRatio = Coords.world.height * Coords.viewport.height;
+
+    canvas.width = wRatio;
+    canvas.height = hRatio;
+
+    viewport.canvas.width = canvas.width;
+    viewport.canvas.height = canvas.height;
 
     //
     // Have to figure out where the upper left corner of the unit world is
     // based on whether the width or height is the largest dimension.
-    if (canvas.width < canvas.height) {
-      smallestSize = canvas.width;
-      world.size = smallestSize * 0.9;
-      world.left = Math.floor(canvas.width * 0.05);
-      world.top = (canvas.height - world.size) / 2;
-    } else {
-      smallestSize = canvas.height;
-      world.size = smallestSize * 0.9;
-      world.top = Math.floor(canvas.height * 0.05);
-      world.left = (canvas.width - world.size) / 2;
-    }
-    GameMap.viewRect.w = world.size;
-    GameMap.viewRect.h = world.size;
-    //
-    // Notify interested parties of the canvas resize event.
-    for (handler in resizeHandlers) {
-      resizeHandlers[handler](true);
-    }
+    // if (canvas.width < canvas.height) {
+    //   smallestSize = canvas.width;
+    //   world.size = smallestSize * 0.9;
+    //   world.x = Math.floor(canvas.width * 0.05);
+    //   world.y = (canvas.height - world.size) / 2;
+    // } else {
+    //   smallestSize = canvas.height;
+    //   world.size = smallestSize * 0.9;
+    //   world.y = Math.floor(canvas.height * 0.05);
+    //   world.x = (canvas.width - world.size) / 2;
+    // }
+    // GameMap.viewRect.w = world.size;
+    // GameMap.viewRect.h = world.size;
+    // //
+    // // Notify interested parties of the canvas resize event.
+    // for (handler in resizeHandlers) {
+    //   resizeHandlers[handler](true);
+    // }
   }
 
   function notifyResize(handler) { resizeHandlers.push(handler); }
@@ -63,6 +72,14 @@ const Graphics = (function() {
       this.clearRect(0,0, canvas.width, canvas.height);
       this.restore();
   }
+
+  function resetTransform () {
+    if(context.resetTransform) {
+      context.resetTransform();
+    } else {
+      context.setTransform(1,0,0,1,0,0);
+    }
+  }
   
   function clear() { context.clear(); }
 
@@ -70,20 +87,25 @@ const Graphics = (function() {
 
   function restoreContext() { context.restore(); }
 
+  function translateToViewport () {
+    resetTransform();
+    context.translate(-viewport.world.x, -viewport.world.y);
+  }
+
   function rotateCanvas(center, rotation) {
-      context.translate(center.x * canvas.width, center.y * canvas.width);
-      context.rotate(rotation);
-      context.translate(-center.x * canvas.width, -center.y * canvas.width);
+    context.translate(center.x * world.width, center.y * world.height);
+    context.rotate(rotation);
+    context.translate(-center.x * world.width, -center.y * world.height);
   }
   
   function drawImage(image, center, size, clipping) {
     let localCenter = {
-      x: center.x * canvas.width,
-      y: center.y * canvas.height
+      x: center.x * world.width,
+      y: center.y * world.height,
     };
     let localSize ={
-      width: size.width * canvas.width,
-      height: size.height * canvas.height
+      width: size.width * world.width,
+      height: size.height * world.height
     };
     if(clipping) {
       context.drawImage(image,
@@ -91,34 +113,38 @@ const Graphics = (function() {
         clipping.y,
         clipping.width,
         clipping.height,
-        localCenter.x - localSize.width / 2,
-        localCenter.y - localSize.height / 2,
-        localSize.width,
-        localSize.height);
+        (localCenter.x - localSize.width / 2)*scalingFactor(),
+        (localCenter.y - localSize.height / 2)*scalingFactor(),
+        (localSize.width)*scalingFactor(),
+        (localSize.height)*scalingFactor());
     } else {
       context.drawImage(image,
-        localCenter.x - localSize.width / 2,
-        localCenter.y - localSize.height / 2,
-        localSize.width,
-        localSize.height);
+        (localCenter.x - localSize.width / 2)*scalingFactor(),
+        (localCenter.y - localSize.height / 2)*scalingFactor(),
+        localSize.width*scalingFactor(),
+        localSize.height*scalingFactor());
     }
   }
   
   function drawRectangle(style, left, top, width, height, useViewport){
-    var adjustLeft = (useViewport === true) ? viewport.left : 0;
-    var adjustTop = (useViewport === true) ? viewport.top : 0;
+    var adjustLeft = (useViewport === true) ? viewport.x : 0;
+    var adjustTop = (useViewport === true) ? viewport.y : 0;
 
     context.strokeStyle = style;
     context.strokeRect(
-      0.5 + world.left + ((left - adjustLeft) * world.size),
-      0.5 + world.top + ((top - adjustTop) * world.size),
+      0.5 + world.x + ((left - adjustLeft) * world.size),
+      0.5 + world.y + ((top - adjustTop) * world.size),
       width * world.size,
       height* world.size
     );
   }
 
+  function scalingFactor () {
+    return canvas.width / (Coords.world.width * Coords.viewport.width);
+  }
+
   function drawTiledImage(image, leftEdge, topEdge, tileSizeX, tileSizeY, worldX, worldY){
-    context.drawImage(image, leftEdge, topEdge, tileSizeX, tileSizeY, world.left + worldX, world.top + worldY, tileSizeX, tileSizeY);
+    context.drawImage(image, leftEdge, topEdge, tileSizeX, tileSizeY, (world.x + worldX)*scalingFactor(), (world.top + worldY)*scalingFactor(), tileSizeX*scalingFactor(), tileSizeY*scalingFactor());
   }
 
   function drawPattern(image, coords, size){
@@ -136,6 +162,14 @@ const Graphics = (function() {
     drawImage : drawImage,
     drawRectangle : drawRectangle,
     drawTiledImage : drawTiledImage,
-    drawPattern : drawPattern
+    drawPattern : drawPattern,
+    resizeCanvas: resizeCanvas,
+    get viewport () {
+      return viewport;
+    },
+    get world () {
+      return world;
+    },
+    translateToViewport: translateToViewport,
   }
 }());

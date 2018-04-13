@@ -1,4 +1,4 @@
-const Geometry = (function () {
+const Geometry = (function (exports) {
   function pointInPolygon () {
 
   }
@@ -335,11 +335,11 @@ const Geometry = (function () {
     top: 'top'
   }
 
-  return {
+  Object.assign(exports,{
     Rectangle,
     Circle,
     LineSegment,
     Point,
     Line,
-  };
-})();
+  });
+})(typeof exports === 'undefined' ? this['Geometry'] = {} : exports);

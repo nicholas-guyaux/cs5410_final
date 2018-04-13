@@ -19,6 +19,7 @@ const GameView = (function() {
   //
   // Render to initially setup and show the GameView
   function render() {
+    Graphics.resizeCanvas();
     AudioPool.playMusic('game');
     props.commandKeys = client.user.commandKeys;
     keyboard.activate();
@@ -121,6 +122,14 @@ const GameView = (function() {
     playerSelf.model.direction = player.direction;
     playerSelf.model.speed = player.speed;
     playerSelf.model.rotateRate = player.rotateRate;
+    updateSelfPosition();
+  }
+
+  function updateSelfPosition () {
+    Graphics.viewport.playerUpdate({
+      x: playerSelf.model.position.x+ playerSelf.model.size.width / 2, 
+      y: playerSelf.model.position.y + playerSelf.model.size.height / 2,
+    });
   }
 
   function connectPlayerOther(data) {
@@ -154,6 +163,7 @@ const GameView = (function() {
   function updatePlayerSelf(data) {
     playerSelf.model.position.x = data.player.position.x;
     playerSelf.model.position.y = data.player.position.y;
+    updateSelfPosition();
   }
 
   //
@@ -210,6 +220,7 @@ const GameView = (function() {
   // Render function for gameLoop
   function renderFrame() {
     Graphics.clear();
+    Graphics.translateToViewport();
     GameMap.draw();
     Renderer.renderPlayer(playerSelf.model, playerSelf.texture);
     for (let id in playerOthers) {

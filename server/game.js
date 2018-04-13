@@ -7,7 +7,7 @@ const GameNetIds = require('../client_files/shared/game-net-ids');
 const Queue = require('../client_files/shared/queue.js');
 const Token = require('../Token');
 
-const SIMULATION_UPDATE_RATE_MS = 50;
+const SIMULATION_UPDATE_RATE_MS = 16;
 
 let props = {
   quit: false
@@ -24,11 +24,12 @@ function processInput(elapsedTime) {
   while (!processMe.empty) {
     let input = processMe.dequeue();
     let client = GameState.gameClients[input.clientId];
+    if(!client) continue;
     client.lastMessageId = input.message.id;
 
     // TODO: Handle all message types from client
     switch (input.message.type) {
-      case GameNetIds.INPUT_MOVE:
+      case GameNetIds.INPUT_MOVE_FORWARD:
         client.state.player.move(input.message.elapsedTime);
         break;
       case GameNetIds.INPUT_ROTATE_LEFT:
