@@ -98,7 +98,6 @@ const GameView = (function() {
       };
       socket.emit(GameNetIds.INPUT, message);
     });
-    // Graphics.drawImage(MyGame.assets['blue-brick'], {x: 0.5, y: 0.5}, {width: 0.05, height: 0.05});
     requestAnimationFrame(gameLoop);
   }
 

@@ -122,7 +122,6 @@ const Graphics = (function() {
   }
 
   function drawPattern(image, coords, size){
-    console.log('hello');
     var pattern = context.createPattern(image, 'repeat');
     context.fillStyle = pattern;
     context.fillRect(coords.x, coords.y, size.width * canvas.width, size.height * canvas.height);
