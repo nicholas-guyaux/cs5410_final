@@ -98,7 +98,7 @@ const GameView = (function() {
       };
       socket.emit(GameNetIds.INPUT, message);
     });
-    // Graphics.drawImage(MyGame.assets['blue-brick'], {x: 0.5, y: 0.5}, {width: 0.05, height: 0.05});
+    //Graphics.drawImage(MyGame.assets['blue-brick'], {x: 0.5, y: 0.5}, {width: 0.05, height: 0.05});
     requestAnimationFrame(gameLoop);
   }
 
@@ -210,6 +210,7 @@ const GameView = (function() {
   // Render function for gameLoop
   function renderFrame() {
     Graphics.clear();
+    GameMap.draw();
     Renderer.renderPlayer(playerSelf.model, playerSelf.texture);
     for (let id in playerOthers) {
         let player = playerOthers[id];
@@ -219,6 +220,7 @@ const GameView = (function() {
 
   function gameLoop(time) {
     let elapsedTime = time - props.lastTimeStamp;
+    props.lastTimeStamp = time;
 
     processInput(elapsedTime);
     update(elapsedTime);
@@ -230,6 +232,7 @@ const GameView = (function() {
   }
 
   function init() {
+    Graphics.initialize();
   }
 
   return {

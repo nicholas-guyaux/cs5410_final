@@ -8,12 +8,18 @@
   <style>
     body {
       margin: 0;
+      background-color: steelblue;
     }
   </style>
 </head>
 <body>
-  <canvas height="1000" width="1000" id="canvas" style="width: 100vh; height: 100vh;"></canvas>
-  <script src="/js/lib/Geometry.js"></script>
+  <canvas height="1000" width="1000" id="game-canvas" style="width: 100vh; height: 100vh;"></canvas>
+  <script src="../../js/rendering/graphics.js"></script>
+  <script src="../../js/lib/KeyboardHandler.js"></script>
+  <script src="../../js/lib/Geometry.js"></script>
+  <script src="../../js/lib/ImageAsset.js"></script>
+  <script src="../../js/lib/TiledImageClipping.js"></script>
+  <script src="gameState.js"></script>
   <script src="script.js"></script>
 </body>
 </html>

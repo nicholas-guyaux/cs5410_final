@@ -5,7 +5,6 @@ MyGame = {
   utilities: {},
   assets: {}
 };
-
 //Loader modeled after Dean Mathias's example code.
 //For better comments, see his github version:
 //https://github.com/ProfPorkins/GameTech/blob/master/JavaScript/TileRendering/scripts/loader.js
@@ -41,6 +40,8 @@ MyGame.loader = (function() {
       message: 'ButtonMenu',
       onComplete: null,
     }, {
+      scripts: ['js/components/viewport.js']
+    }, {
       scripts: ['js/rendering/graphics'],
       message: 'Graphics loaded',
       onComplete: null,
@@ -61,7 +62,10 @@ MyGame.loader = (function() {
       message: 'KeyboardHandler',
       onComplete: null,
     }, {
-      scripts: ['js/lib/throttle'],
+      scripts: [
+        'js/lib/throttle',
+        'js/lib/core'
+      ],
       message: 'throttle',
       onComplete: null,
     }, {
@@ -74,6 +78,10 @@ MyGame.loader = (function() {
         // 'js/lib/ImageAsset'                //We haven't included this yet
       ],
       message: 'Librarys loaded',
+      onComplete: null,
+    }, {
+      scripts: ['game'],
+      message: 'game.js loaded',
       onComplete: null,
     }, {
     //   scripts: ['input'],                  //INPUTS
@@ -102,6 +110,7 @@ MyGame.loader = (function() {
         'js/views/LoginView',
         'js/views/SignupView',
         'js/views/SplashView',
+        'js/components/gameMap'
       ],
       message: 'Views loaded',
       onComplete: null,
@@ -112,9 +121,6 @@ MyGame.loader = (function() {
     }];
     
     let assetOrder = [{
-      key: 'blue-brick',
-      source: 'assets/images/blueBrick.png'
-    }, {
       key: 'test-ship',
       source: 'assets/images/testShip.png'
     }];
@@ -196,6 +202,7 @@ MyGame.loader = (function() {
       AudioPool.addMusic('menu', 'assets/sound/09 Come and Find Me - B mix.mp3');
       AudioPool.addSFX('menu_click', 'assets/sound/270324__littlerobotsoundfactory__menu-navigate-00.wav');
       AudioPool.addSFX('menu_navigate', 'assets/sound/270322__littlerobotsoundfactory__menu-navigate-02.wav');
+      GameMap.load();
       console.log('Loading Complete');
       //MainView.loadView(MenuView.name);
       window.main('MenuView');
