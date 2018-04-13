@@ -11,8 +11,8 @@ function Player() {
       y: 0
   };
   let size = {
-      width: 0.05,
-      height: 0.05
+      width: 0.05*Coords.viewport.width,
+      height: 0.05*Coords.viewport.width,
   };
   let direction = 0;
   let rotateRate = 0;
@@ -52,7 +52,7 @@ function Player() {
 
       position.x += (vectorX * elapsedTime * speed);
       position.y += (vectorY * elapsedTime * speed);
-      Graphics.viewport.set({
+      Graphics.viewport.playerUpdate({
         x:position.x+ size.width / 2, 
         y: position.y + size.height / 2,
       });

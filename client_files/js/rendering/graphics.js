@@ -18,8 +18,8 @@ const Graphics = (function() {
     var wRatio = Coords.world.width * Coords.viewport.width;
     var hRatio = Coords.world.height * Coords.viewport.height;
 
-    canvas.width = canvas.offsetWidth;
-    canvas.height = canvas.offsetHeight;
+    canvas.width = wRatio;
+    canvas.height = hRatio;
 
     viewport.canvas.width = canvas.width;
     viewport.canvas.height = canvas.height;
@@ -87,25 +87,25 @@ const Graphics = (function() {
 
   function restoreContext() { context.restore(); }
 
-  function translate (viewport) {
+  function translateToViewport () {
     resetTransform();
-    context.translate(viewport.x, viewport.y);
+    context.translate(-viewport.world.x, -viewport.world.y);
   }
 
   function rotateCanvas(center, rotation) {
-      context.translate(center.x * canvas.width, center.y * canvas.width);
-      context.rotate(rotation);
-      context.translate(-center.x * canvas.width, -center.y * canvas.width);
+    context.translate(center.x * world.width, center.y * world.height);
+    context.rotate(rotation);
+    context.translate(-center.x * world.width, -center.y * world.height);
   }
   
   function drawImage(image, center, size, clipping) {
     let localCenter = {
-      x: center.x * canvas.width,
-      y: center.y * canvas.height
+      x: center.x * world.width,
+      y: center.y * world.height,
     };
     let localSize ={
-      width: size.width * canvas.width,
-      height: size.height * canvas.height
+      width: size.width * world.width,
+      height: size.height * world.height
     };
     if(clipping) {
       context.drawImage(image,
@@ -170,6 +170,6 @@ const Graphics = (function() {
     get world () {
       return world;
     },
-    translate: translate,
+    translateToViewport: translateToViewport,
   }
 }());

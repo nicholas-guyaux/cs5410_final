@@ -211,6 +211,7 @@ const GameView = (function() {
   // Render function for gameLoop
   function renderFrame() {
     Graphics.clear();
+    Graphics.translateToViewport();
     GameMap.draw();
     Renderer.renderPlayer(playerSelf.model, playerSelf.texture);
     for (let id in playerOthers) {

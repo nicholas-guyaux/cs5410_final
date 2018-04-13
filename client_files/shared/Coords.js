@@ -78,11 +78,25 @@
       viewport.y = Math.min(worldRect.height-viewport.height, Math.max(0, viewport.y + vector.deltaY));
     }
 
-    viewport.set = function (center) {
-      viewport.x = center.x - viewport.width / 2;
-      viewport.y = center.y - viewport.height / 2;
+    viewport.playerUpdate = function (playerCenter) {
+      var box = getCenteredBox({
+        rect: viewport, 
+        scale: 0.25,
+      });
+      if(box.left > playerCenter.x) {
+        box.x -= Math.abs(playerCenter.x - box.left);
+      } else if (box.right < playerCenter.x) {
+        box.x += Math.abs(playerCenter.x - box.right);
+      }
+      if(box.top > playerCenter.y) {
+        box.y -= Math.abs(playerCenter.y - box.top);
+      } else if(box.bottom < playerCenter.y) {
+        box.y += Math.abs(playerCenter.y - box.bottom);
+      }
+      viewport.x = Math.min(1-viewport.width, Math.max(0, box.center.x - viewport.width / 2));
+      viewport.y = Math.min(1-viewport.height, Math.max(0, box.center.y - viewport.height / 2));
       if(typeof Graphics !== "undefined") {
-        Graphics.translate(viewport.world)
+        Graphics.translateToViewport()
       }
     }
 
@@ -119,6 +133,18 @@
     };
 
     return viewport;
+  }
+
+  function getCenteredBox (spec) {
+    var { rect, scale } = spec;
+    var width = rect.width * scale;
+    var height = rect.height * scale;
+    return Geometry.Rectangle({
+      x: rect.center.x - width / 2,
+      y: rect.center.y - height / 2,
+      width: width,
+      height: height,
+    });
   }
 
   myExports.world = world;
