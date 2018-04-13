@@ -13,7 +13,10 @@ MyGame.loader = (function() {
   'use strict';
   let scriptOrder = [
     {
-      scripts: ['shared/network-ids'],
+      scripts: [
+        'shared/game-net-ids',
+        'shared/lobby-net-ids'
+      ],
       message: 'Network Ids loaded',
       onComplete: null,
     }, {
@@ -85,14 +88,17 @@ MyGame.loader = (function() {
     //   message: 'Input loaded',
     //   onComplete: null,
     // }, {
-    //   scripts: ['js/components/'],         //Components / Player Models
-    //   message: 'Player models loaded',
-    //   onComplete: null,
-    // }, {
-    //   scripts: ['js/rendering/'],          //Individual rendering files
-    //   message: 'Renderers loaded',
-    //   onComplete: null,
-    // }, {
+      scripts: [ //Components / Player Models
+        'js/components/player',
+        'js/components/player-other'
+      ],
+      message: 'Player models loaded',
+      onComplete: null,
+    }, {
+      scripts: ['js/rendering/renderer'],
+      message: 'Renderer loaded',
+      onComplete: null,
+    }, {
     //   scripts: [''],                       //Game
     //   message: 'Gameplay model loaded',
     //   onComplete: null,
@@ -113,7 +119,10 @@ MyGame.loader = (function() {
       message: 'app.js loaded',
       onComplete: null
     }],
-    assetOrder =[];
+    assetOrder =[{
+      key: 'test-ship',
+      source: 'assets/images/testShip.png'
+    }];
 
     function loadScripts(scripts, onComplete){
       //Once all scripts are loaded, call onComplete

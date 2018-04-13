@@ -1,4 +1,4 @@
-function KeyboardHandler (immediateHandle=false) {
+function KeyboardHandler (immediateHandle=false, type="key") {
 
   var active = false;
   var actions = new Map();
@@ -19,11 +19,11 @@ function KeyboardHandler (immediateHandle=false) {
     if(!active){
       return;
     }
-    var action = getKeys(actions, e.key);
+    var action = getKeys(actions, e[type]);
     if(action) {
       queuedActions.add(action);
     }
-    var action = getKeys(onceActions, e.key);
+    var action = getKeys(onceActions, e[type]);
     if(action && !addedOnceActions.has(action)) {
       addedOnceActions.add(action);
       queuedActions.add(action);
@@ -41,11 +41,11 @@ function KeyboardHandler (immediateHandle=false) {
     if(!active){
       return;
     }
-    var action = getKeys(actions, e.key);
+    var action = getKeys(actions, e[type]);
     if(action) {
       queuedActions.delete(action);
     }
-    var action = getKeys(onceActions, e.key);
+    var action = getKeys(onceActions, e[type]);
     if(addedOnceActions.has(action)) {
       addedOnceActions.delete(action)
     }

@@ -41,6 +41,16 @@ function isPasswordCorrect(savedHash, savedSalt, savedIterations, passwordAttemp
   });
 }
 
+function saveKeyboard(commandKeys, user) {
+  var user = users.find(u => user.name === u.name);
+
+  // TODO: filter input - use a list of valid keys
+  if (user) {
+    user.commandKeys = commandKeys;
+  }
+  write();
+}
+
 async function createUser (user) {
   if(!user.name) throw new Error(Errors.InvalidUser)
   if(!user.password) throw new Error(Errors.InvalidUser)
@@ -58,6 +68,12 @@ async function createUser (user) {
     client: {
       name: user.name,
       email: user.email,
+      commandKeys: {
+        ROTATE_RIGHT: 39,
+        ROTATE_LEFT: 37,
+        MOVE_FORWARD: 38,
+        FIRE: 32
+      }
     }
   };
   users.push(user);
