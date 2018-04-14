@@ -3,7 +3,7 @@
 const present = require('present');
 const GameState = require('./gamestate');
 const Player = require('./components/player');
-const Bullet = require('.components/bullet');
+const Bullet = require('./components/bullet');
 const GameNetIds = require('../client_files/shared/game-net-ids');
 const Queue = require('../client_files/shared/queue.js');
 const Token = require('../Token');
@@ -14,6 +14,7 @@ const STATE_UPDATE_LAG = 100;
 let inputQueue = Queue.create();
 let newBullets = [];
 let activeBullets = [];
+let hits = [];
 
 let props = {
   quit: false,
@@ -28,8 +29,8 @@ let props = {
 //
 //------------------------------------------------------------------
 function createBullet(clientId, playerModel) {
-  let bullet = bullet.create({
-    id: nextBulletId++,
+  let bullet = Bullet.create({
+    id: props.nextBulletId++,
     clientId: clientId,
     position: {
       x: playerModel.position.x,
@@ -95,7 +96,7 @@ function update(elapsedTime, currentTime) {
     // If update returns false, that means the bullet lifetime ended and
     // we don't keep it around any longer.
     if (activeBullets[i].update(elapsedTime)) {
-      keepBullets.push(activeBullets[bullet]);
+      keepBullets.push(activeBullets[i]);
     }
   }
   activeBullets = keepBullets;
@@ -107,22 +108,22 @@ function update(elapsedTime, currentTime) {
   // in that player's firing radius
   for (let i = 0; i < activeBullets.length; i++) {
     let hit = false;
-    for (let clientId in activeClients) {
+    for (let clientId in GameState.gameClients) {
       //
       // Don't allow a bullet to hit the player it was fired from.
       if (clientId !== activeBullets[i].clientId) {
-        if (collided(activeBullets[i], activeClients[clientId].player)) {
+        if (collided(activeBullets[i], GameState.gameClients[clientId].state.player)) {
           hit = true;
           hits.push({
             clientId: clientId,
             bulletId: activeBullets[i].id,
-            position: activeClients[clientId].player.position
+            position: GameState.gameClients[clientId].state.player.position
           });
         }
       }
     }
     if (!hit) {
-      keepbullets.push(activeBullets[i]);
+      keepBullets.push(activeBullets[i]);
     }
   }
   activeBullets = keepBullets;

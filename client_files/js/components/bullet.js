@@ -4,7 +4,7 @@
 // Model for each bullet in the game.
 //
 //------------------------------------------------------------------
-MyGame.components.Bullet = function(spec) {
+function Bullet(spec) {
   'use strict';
   let that = {};
 
@@ -44,4 +44,4 @@ MyGame.components.Bullet = function(spec) {
   };
 
   return that;
-};
+}

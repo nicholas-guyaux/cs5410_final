@@ -30,12 +30,15 @@ const GameView = (function() {
     textureSet: boatTextureSet,
   };
   let playerOthers = {};
+  let bullets = {};
+  let explosions = {};
 
   let props = {
     quit: false,
     lastTimeStamp: performance.now(),
     messageId: 1,
-    commandKeys: null
+    commandKeys: null,
+    nextExplosionId: 1
   };
 
   //
@@ -80,6 +83,20 @@ const GameView = (function() {
     socket.on(GameNetIds.UPDATE_OTHER, data => {
       receivedMessages.enqueue({
         type: GameNetIds.UPDATE_OTHER,
+        data: data
+      });
+    });
+
+    socket.on(GameNetIds.BULLET_NEW, data => {
+      receivedMessages.enqueue({
+        type: GameNetIds.BULLET_NEW,
+        data: data
+      });
+    });
+
+    socket.on(GameNetIds.BULLET_HIT, data => {
+      receivedMessages.enqueue({
+        type: GameNetIds.BULLET_HIT,
         data: data
       });
     });
@@ -241,6 +258,37 @@ const GameView = (function() {
     }
   }
 
+
+  function bulletNew(data) {
+    bullets[data.id] = Bullet({
+      id: data.id,
+      radius: data.radius,
+      speed: data.speed,
+      direction: data.direction,
+      position: {
+        x: data.position.x,
+        y: data.position.y
+      },
+      timeRemaining: data.timeRemaining
+    });
+  }
+
+  function bulletHit(data) {
+    // explosions[nextExplosionId] = components.AnimatedSprite({
+    //   id: nextExplosionId++,
+    //   spriteSheet: MyGame.assets['explosion'],
+    //   spriteSize: { width: 0.07, height: 0.07 },
+    //   spriteCenter: data.position,
+    //   spriteCount: 16,
+    //   spriteTime: [ 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50]
+    // });
+
+    //
+    // When we receive a hit notification, go ahead and remove the
+    // associated missle from the client model.
+    delete bullets[data.bulletId];
+  }
+
   function processInput(elapsedTime) {
     keyboard.handle(elapsedTime); // Pass gameState? Or not necessary?
 
@@ -268,6 +316,12 @@ const GameView = (function() {
         case GameNetIds.UPDATE_OTHER:
           updatePlayerOther(message.data);
           break;
+        case GameNetIds.BULLET_NEW:
+          bulletNew(message.data);
+          break;
+        case GameNetIds.BULLET_HIT:
+          bulletHit(message.data);
+          break;
       }
     }
   }
@@ -276,6 +330,23 @@ const GameView = (function() {
     playerSelf.model.update(elapsedTime);
     for (let id in playerOthers) {
       playerOthers[id].model.update(elapsedTime);
+    }
+
+    let removeMissiles = [];
+    for (let bullet in bullets) {
+      if (!bullets[bullet].update(elapsedTime)) {
+        removeMissiles.push(bullets[bullet]);
+      }
+    }
+
+    for (let i = 0; i < removeMissiles.length; i++) {
+      delete bullets[removeMissiles[i].id];
+    }
+
+    for (let id in explosions) {
+      if (!explosions[id].update(elapsedTime)) {
+        delete explosions[id];
+      }
     }
   }
 
@@ -291,6 +362,15 @@ const GameView = (function() {
         let player = playerOthers[id];
         Renderer.renderPlayer(player.model, player.textureSet, totalTime);
     }
+
+    for (let bullet in bullets) {
+      Renderer.renderBullet(bullets[bullet]);
+    }
+
+    // for (let id in explosions) {
+    //   renderer.AnimatedSprite.render(explosions[id]);
+    // }
+
     Graphics.finalizeRender();
   }
 
