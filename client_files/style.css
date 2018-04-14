@@ -25,13 +25,13 @@ h1, h2 {
   /* color: steelblue; */
 }
 
-@keyframes pizzaz {
+/* @keyframes pizzaz {
   0% {background-position-x: 0%; background-position-y: 0%;}
   25% {background-position-x: 200%; background-position-y: 200%;}
   50% {background-position-x: 400%; background-position-y: -200%;}
   75% {background-position-x: 0%; background-position-y: 100%;}
   100% {background-position-x: 0%; background-position-y: 0%;}
-}
+} */
 
 #volume-toggle {
   z-index: 10000;
