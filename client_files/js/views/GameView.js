@@ -269,6 +269,7 @@ const GameView = (function() {
         let player = playerOthers[id];
         Renderer.renderRemotePlayer(player.model, player.texture);
     }
+    Graphics.finalizeRender();
   }
 
   function gameLoop(time) {

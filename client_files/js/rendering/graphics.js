@@ -1,8 +1,12 @@
 const Graphics = (function() {
   'use strict';
 
-  let canvas = document.getElementById('game-canvas');
-  let context = canvas.getContext('2d');
+  let onScreenCanvas = document.getElementById('game-canvas');
+  let onScreenContext = onScreenCanvas.getContext('2d');
+
+  let canvas = document.createElement('canvas');
+  let context = context.getContext('2d');
+
   var viewport = Coords.viewport;
   var world = Coords.world;
 
@@ -20,6 +24,8 @@ const Graphics = (function() {
 
     canvas.width = wRatio;
     canvas.height = hRatio;
+    onScreenCanvas.width = wRatio;
+    onScreenCanvas.height = hRatio;
 
     viewport.canvas.width = canvas.width;
     viewport.canvas.height = canvas.height;
@@ -109,20 +115,20 @@ const Graphics = (function() {
     };
     if(clipping) {
       context.drawImage(image,
-        clipping.x,
-        clipping.y,
-        clipping.width,
-        clipping.height,
-        (localCenter.x - localSize.width / 2)*scalingFactor(),
-        (localCenter.y - localSize.height / 2)*scalingFactor(),
-        (localSize.width)*scalingFactor(),
-        (localSize.height)*scalingFactor());
+          clipping.x,
+          clipping.y,
+          clipping.width,
+          clipping.height,
+          (localCenter.x - localSize.width / 2)*scalingFactor(),
+          (localCenter.y - localSize.height / 2)*scalingFactor(),
+          (localSize.width)*scalingFactor(),
+          (localSize.height)*scalingFactor()); 
     } else {
       context.drawImage(image,
-        (localCenter.x - localSize.width / 2)*scalingFactor(),
-        (localCenter.y - localSize.height / 2)*scalingFactor(),
-        localSize.width*scalingFactor(),
-        localSize.height*scalingFactor());
+          (localCenter.x - localSize.width / 2)*scalingFactor(),
+          (localCenter.y - localSize.height / 2)*scalingFactor(),
+          localSize.width*scalingFactor(),
+          localSize.height*scalingFactor());
     }
   }
   
@@ -153,6 +159,10 @@ const Graphics = (function() {
     context.fillRect(coords.x, coords.y, size.width * canvas.width, size.height * canvas.height);
   }
 
+  function finalizeRender() {
+    onScreenContext.drawImage(canvas, 0, 0, canvas.width, canvas.height);
+  }
+
   return {
     initialize : initialize,
     clear : clear,
@@ -164,6 +174,7 @@ const Graphics = (function() {
     drawTiledImage : drawTiledImage,
     drawPattern : drawPattern,
     resizeCanvas: resizeCanvas,
+    finalizeRender: finalizeRender,
     get viewport () {
       return viewport;
     },
