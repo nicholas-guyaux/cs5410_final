@@ -51,6 +51,7 @@ const Renderer = (function(graphics) {
         model.size.width * (model.health.current / model.health.max), (model.size.height * .05)
       );
     }
+    //graphics.drawFilledRectangle('red',model.position.x, model.position.y, .1, .10);
   }
 
   // function renderRemotePlayer(model, textureSet, elapsed) {
