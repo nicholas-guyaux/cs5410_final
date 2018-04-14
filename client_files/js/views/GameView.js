@@ -192,6 +192,10 @@ const GameView = (function() {
   function updatePlayerSelf(data) {
     playerSelf.model.position.x = data.player.position.x;
     playerSelf.model.position.y = data.player.position.y;
+    //if(data.player.health.current < playerSelf.model.health.current)
+    //add damage particle effect
+    //else if(data.player.health.current > playerSelf.model.health.current)
+    //add healing particle effect
     playerSelf.model.health = data.player.health;
     playerSelf.model.direction = data.player.direction;
 

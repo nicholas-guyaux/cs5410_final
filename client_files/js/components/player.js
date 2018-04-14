@@ -83,7 +83,7 @@ function Player(maxHealth, maxEnergy, maxAmmo) {
       direction -= (rotateRate * elapsedTime);
   };
 
-  that.update = function(elapsedTime) {
+  that.update = function(playerUpdate) {
   };
 
   return that;
