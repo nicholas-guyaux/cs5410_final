@@ -9,10 +9,12 @@
 let random = require ('../utils/random');
 let Coords = require ('../../client_files/shared/Coords');
 let settings = require ('../../client_files/shared/settings');
+let GameMap = require('./gameMap')
 var fs = require('fs');
 var path = require('path');
 const waterUnitsFilePath = path.join(__dirname, '../../client_files/assets/data/water_units.json');
 const water_units = JSON.parse(fs.readFileSync(waterUnitsFilePath, 'utf8'));
+
 
 const boatImg = water_units.frames["ship_small_body.png"];
 //------------------------------------------------------------------
@@ -46,7 +48,7 @@ function createPlayer(maxHealth, maxEnergy, maxAmmo) {
     let ammo = {current: 0, max: maxAmmo};
     let bulletShots = { hit: 0, total: 0 };
     let killCount = 0;
-    let buffs = { dmg: false, speed: false, range: false, fireRate: false};
+    let buffs = { dmg: false, speed: false, fireRate: false};
 
     Object.defineProperty(that, 'direction', {
         get: () => direction
@@ -118,7 +120,7 @@ function createPlayer(maxHealth, maxEnergy, maxAmmo) {
       let centerX = position.x + size.width/2;
       let centerY = position.y + size.height/2;
       
-      moveY = GameMap.collision(centerX, centerY + (vectorY * elapsedTime * speed), Math.max(size.width, size.height));     
+      moveY = GameMap.collision(centerX, centerY + (vectorY * elapsedTime * speed), Math.max(size.width, size.height));
       moveX = GameMap.collision(centerX + (vectorX * elapsedTime * speed), centerY, Math.max(size.width, size.height));
      
       if (moveX) {
@@ -127,7 +129,9 @@ function createPlayer(maxHealth, maxEnergy, maxAmmo) {
       if (moveY) {
         position.y += (vectorY * elapsedTime * speed);
       }
-     
+      if(!moveY || !moveX){
+        health.current -= 1;
+      }
     };
 
     //------------------------------------------------------------------
