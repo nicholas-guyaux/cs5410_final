@@ -94,7 +94,7 @@ function update(elapsedTime, currentTime) {
     GameState.gameClients[clientId].state.player.update(currentTime);
   }
 
-  if(playerCount === 1){
+  if(GameState.playerCount === 1){
     //endGame
   }
 }
@@ -244,7 +244,7 @@ function initializeSocketIO(io) {
   io.on('connection', function(socket) {
     console.log('Connection established: ', socket.id);
 
-    let newPlayer = Player.create(maxHealth, maxEnergy, maxAmmo);
+    let newPlayer = Player.create(GameState.maxHealth, GameState.maxEnergy, GameState.maxAmmo);
     let newClient = {
       lastMessageId: null,
       socket: socket,
