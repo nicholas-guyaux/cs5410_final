@@ -303,6 +303,7 @@ const GameView = (function() {
         let player = playerOthers[id];
         Renderer.renderPlayer(player.model, player.textureSet, totalTime);
     }
+    Renderer.minimap();
     Graphics.finalizeRender();
   }
 

@@ -189,6 +189,10 @@ const Graphics = (function() {
     onScreenContext.drawImage(canvas, 0, 0, canvas.width, canvas.height);
   }
 
+  function setOpacity (alphaOpacity) {
+    context.globalAlpha = alphaOpacity;
+  }
+
   return {
     initialize : initialize,
     clear : clear,
@@ -203,6 +207,7 @@ const Graphics = (function() {
     resizeCanvas: resizeCanvas,
     finalizeRender: finalizeRender,
     drawFromTiledCanvas: drawFromTiledCanvas,
+    setOpacity: setOpacity,
     get viewport () {
       return viewport;
     },
