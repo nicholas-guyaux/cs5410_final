@@ -38,17 +38,17 @@ const Renderer = (function(graphics) {
     renderWaterUnit(center, textureSet.ship.spriteSet, textureSet.ship.normal);
     graphics.restoreContext();
     
-    if(model.position && typeof model.direction !== "undefined"){
+    if(model.health){
       //Render Health Bar
       graphics.drawFilledRectangle(
         'rgba(255,0,0,255)',
-        model.position.x, model.position.y - (model.size.height *.3),
-        model.size.width, (model.size.height * .1)//.001
+        model.position.x, center.y - (model.size.height *.4),
+        model.size.width, (model.size.height * .05)
       );
       graphics.drawFilledRectangle(
         'rgba(0,255,0,255)',
-        model.position.x, model.position.y - (model.size.height *.3),
-        model.size.width * (model.health.current / model.health.max), (model.size.height * .1)//.001
+        model.position.x, center.y - (model.size.height *.4),
+        model.size.width * (model.health.current / model.health.max), (model.size.height * .05)
       );
     }
   }
