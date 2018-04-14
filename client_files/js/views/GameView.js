@@ -24,6 +24,7 @@ const GameView = (function() {
       normal: undefined
     }
   };
+  let messageHistory = Queue.create();
   let playerSelf = {
     model: Player(),
     textureSet: boatTextureSet,
@@ -90,6 +91,7 @@ const GameView = (function() {
         type: GameNetIds.INPUT_MOVE_FORWARD
       };
       socket.emit(GameNetIds.INPUT, message);
+      messageHistory.enqueue(message);
       playerSelf.model.move(elapsedTime);
     });
 
@@ -100,6 +102,7 @@ const GameView = (function() {
         type: GameNetIds.INPUT_ROTATE_RIGHT
       };
       socket.emit(GameNetIds.INPUT, message);
+      messageHistory.enqueue(message);
       playerSelf.model.rotateRight(elapsedTime);
     });
 
@@ -110,6 +113,7 @@ const GameView = (function() {
         type: GameNetIds.INPUT_ROTATE_LEFT
       };
       socket.emit(GameNetIds.INPUT, message);
+      messageHistory.enqueue(message);
       playerSelf.model.rotateLeft(elapsedTime);
     });
 
@@ -184,6 +188,44 @@ const GameView = (function() {
   function updatePlayerSelf(data) {
     playerSelf.model.position.x = data.player.position.x;
     playerSelf.model.position.y = data.player.position.y;
+    playerSelf.model.direction = data.player.direction;
+
+    
+    // Remove messages from the queue up through the last one identified
+    // by the server as having been processed.
+    let done = false;
+    while (!done && !messageHistory.empty) {
+      if (messageHistory.front.id === data.lastMessageId) {
+        done = true;
+      }
+      messageHistory.dequeue();
+    }
+
+        
+    // Update the client simulation since this last server update, by
+    // replaying the remaining inputs.
+    // let memory = Queue.create();
+    // while (!messageHistory.empty) {
+    //   let message = messageHistory.dequeue();
+    //   memory.enqueue(message);
+    // }
+    // messageHistory = memory;
+
+    while (!messageHistory.empty) {
+      let message = messageHistory.dequeue();
+      switch (message.type) {
+        case GameNetIds.INPUT_MOVE_FORWARD:
+          playerSelf.model.move(message.elapsedTime);
+          break;
+        case GameNetIds.INPUT_ROTATE_LEFT:
+          playerSelf.model.rotateLeft(message.elapsedTime);
+          break;
+        case GameNetIds.INPUT_ROTATE_RIGHT:
+          playerSelf.model.rotateRight(message.elapsedTime);
+          break;
+      }
+    }
+
     updateSelfPosition();
   }
 
@@ -249,6 +291,7 @@ const GameView = (function() {
         let player = playerOthers[id];
         Renderer.renderPlayer(player.model, player.textureSet, totalTime);
     }
+    Graphics.finalizeRender();
   }
 
   function gameLoop(time) {

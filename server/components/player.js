@@ -80,12 +80,9 @@ function createPlayer() {
         reportUpdate = true;
         let vectorX = Math.cos(direction);
         let vectorY = Math.sin(direction);
-        console.log('x:', position.x, 'y:', position.y);
 
         position.x += (vectorX * elapsedTime * speed);
         position.y += (vectorY * elapsedTime * speed);
-        console.log('x:', position.x, 'y:', position.y);
-        
     };
 
     //------------------------------------------------------------------

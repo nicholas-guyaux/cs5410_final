@@ -92,10 +92,6 @@ MyGame.loader = (function() {
       message: 'Librarys loaded',
       onComplete: null,
     }, {
-      scripts: ['game'],
-      message: 'game.js loaded',
-      onComplete: null,
-    }, {
     //   scripts: ['input'],                  //INPUTS
     //   message: 'Input loaded',
     //   onComplete: null,
