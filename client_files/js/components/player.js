@@ -55,9 +55,23 @@ function Player(maxHealth, maxEnergy, maxAmmo) {
   that.move = function(elapsedTime) {
       let vectorX = Math.cos(direction);
       let vectorY = Math.sin(direction);
+      let moveX = false;
+      let moveY = false;
 
-      position.x += (vectorX * elapsedTime * speed);
-      position.y += (vectorY * elapsedTime * speed);
+      let centerX = position.x + size.width/2;
+      let centerY = position.y + size.height/2;
+      
+      moveY = GameMap.collision(centerX, centerY + (vectorY * elapsedTime * speed), Math.max(size.width, size.height));     
+      moveX = GameMap.collision(centerX + (vectorX * elapsedTime * speed), centerY, Math.max(size.width, size.height));
+     
+      if (moveX) {
+        position.x += (vectorX * elapsedTime * speed);
+      }
+      if (moveY) {
+        position.y += (vectorY * elapsedTime * speed);
+      }
+      // position.x += (vectorX * elapsedTime * speed);
+      // position.y += (vectorY * elapsedTime * speed);
       Graphics.viewport.playerUpdate({
         x:position.x+ size.width / 2, 
         y: position.y + size.height / 2,

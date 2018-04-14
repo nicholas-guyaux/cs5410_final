@@ -54,12 +54,22 @@ var TILEDmap = Class.extend({
 	this.currMapData = mapJSON;
 	
 	var map = this.currMapData;
-    this.numXTiles = map.width;
-    this.numYTiles = map.height;
-    this.tileSize.x = map.tilewidth;
-    this.tileSize.y = map.tileheight;
-    this.pixelSize.x = this.numXTiles * this.tileSize.x;
-    this.pixelSize.y = this.numYTiles * this.tileSize.y;
+  this.numXTiles = map.width;
+  this.numYTiles = map.height;
+  this.tileSize.x = map.tilewidth;
+  this.tileSize.y = map.tileheight;
+  this.pixelSize.x = this.numXTiles * this.tileSize.x;
+  this.pixelSize.y = this.numYTiles * this.tileSize.y;
+  this.collisionMap = mapJSON.layers[1].data;
+  this.gridMap = [];
+  let x = 0;
+  for (let i =0; i<100; i++) {
+    this.gridMap.push([]);
+    for (let j = 0; j < 100; j++) {
+      this.gridMap[i].push(this.collisionMap[x]);
+      x++;
+    }
+  }
 	
     //load our tilesets if we are a client.
 	var GameMap = this;
@@ -105,6 +115,16 @@ var TILEDmap = Class.extend({
     pkt.py = (lTileY * this.tileSize.y);
 
     return pkt;
+  },
+  collision:function(playerX, playerY, playerSize) {
+    for (let i1 = Math.ceil((playerX - playerSize/2) * 100), i2 = Math.floor((playerX + playerSize/2) * 100); i1 < i2; i1++) {
+      for (let j1 = Math.ceil((playerY - playerSize/2) * 100), j2 = Math.floor((playerY + playerSize/2) * 100); j1 < j2; j1++) {
+        if (this.gridMap[j1][i1] !== 0) {
+          return false;
+        }
+      }
+    }
+    return true;
   },
   //---------------------------
 	intersectRect:function (r1, r2) {
