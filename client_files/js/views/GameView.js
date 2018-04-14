@@ -3,9 +3,30 @@
 const GameView = (function() {
   let keyboard = KeyboardHandler(false, 'keyCode');
   let receivedMessages = Queue.create();
+  var boatTextureSet = {
+    water: {
+      spriteSet: MyGame.assets['water_units'],
+      animation: [
+        MyGame.assets['water_units_mapping'].frames["water_ripple_small_000.png"],
+        MyGame.assets['water_units_mapping'].frames["water_ripple_small_001.png"],
+        MyGame.assets['water_units_mapping'].frames["water_ripple_small_002.png"],
+        MyGame.assets['water_units_mapping'].frames["water_ripple_small_003.png"],
+        MyGame.assets['water_units_mapping'].frames["water_ripple_small_004.png"],
+      ],
+    },
+    ship: {
+      spriteSet: MyGame.assets['water_units'],
+      normal: MyGame.assets['water_units_mapping'].frames["ship_small_body.png"],
+      damaged: MyGame.assets['water_units_mapping'].frames["ship_small_body_destroyed.png"]
+    },
+    gun: {
+      spriteSet: MyGame.assets['water_units'],
+      normal: undefined
+    }
+  };
   let playerSelf = {
     model: Player(),
-    texture: MyGame.assets['test-ship']
+    textureSet: boatTextureSet,
   };
   let playerOthers = {};
 
@@ -150,7 +171,7 @@ const GameView = (function() {
 
     playerOthers[data.clientId] = {
       model: model,
-      texture: MyGame.assets['test-ship']
+      textureSet: boatTextureSet,
     };
   }
 
@@ -219,13 +240,14 @@ const GameView = (function() {
   //
   // Render function for gameLoop
   function renderFrame() {
+    totalTime = props.lastTimeStamp;
     Graphics.clear();
     Graphics.translateToViewport();
     GameMap.draw();
-    Renderer.renderPlayer(playerSelf.model, playerSelf.texture);
+    Renderer.renderPlayer(playerSelf.model, playerSelf.textureSet, totalTime);
     for (let id in playerOthers) {
         let player = playerOthers[id];
-        Renderer.renderRemotePlayer(player.model, player.texture);
+        Renderer.renderPlayer(player.model, player.textureSet, totalTime);
     }
   }
 
