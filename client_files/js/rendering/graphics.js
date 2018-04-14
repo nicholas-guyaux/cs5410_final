@@ -15,19 +15,19 @@ const Graphics = (function() {
     y: 0,
   };
 
-  // const imageCanvasMap = new Map();
+  const imageCanvasMap = new Map();
 
-  // function createImageCanvas(name, image) {
-  //   if(imageCanvasMap.has(name)) {
-  //     return;
-  //   }
-  //   const imageCanvas = document.createElement('canvas');
-  //   const imageContext = imageCanvas.getContext('2d');
-  //   imageCanvas.width = image.width;
-  //   imageCanvas.height = image.height;
-  //   imageContext.drawImage(image, 0, 0, image.width, image.height);
-  //   imageCanvasMap.set(name, imageCanvas);
-  // }
+  function createImageCanvas(name, image) {
+    if(imageCanvasMap.has(name)) {
+      return;
+    }
+    const imageCanvas = document.createElement('canvas');
+    const imageContext = imageCanvas.getContext('2d');
+    imageCanvas.width = image.width;
+    imageCanvas.height = image.height;
+    imageContext.drawImage(image, 0, 0, image.width, image.height);
+    imageCanvasMap.set(name, imageCanvas);
+  }
 
   function resizeCanvas(){
     var smallestSize = 0;
@@ -167,10 +167,10 @@ const Graphics = (function() {
     context.drawImage(image, leftEdge, topEdge, tileSizeX, tileSizeY, (world.x + worldX)*scalingFactor(), (world.top + worldY)*scalingFactor(), tileSizeX*scalingFactor(), tileSizeY*scalingFactor());
   }
 
-  // function drawFromTiledCanvas (name, image, leftEdge, topEdge, tileSizeX, tileSizeY, worldX, worldY){
-  //   createImageCanvas(name, image);
-  //   context.drawImage(imageCanvasMap.get(name), leftEdge, topEdge, tileSizeX, tileSizeY, (world.x + worldX)*scalingFactor(), (world.top + worldY)*scalingFactor(), tileSizeX*scalingFactor(), tileSizeY*scalingFactor());
-  // }
+  function drawFromTiledCanvas (name, image, leftEdge, topEdge, tileSizeX, tileSizeY, worldX, worldY){
+    createImageCanvas(name, image);
+    context.drawImage(imageCanvasMap.get(name), leftEdge, topEdge, tileSizeX, tileSizeY, (world.x + worldX)*scalingFactor(), (world.top + worldY)*scalingFactor(), tileSizeX*scalingFactor(), tileSizeY*scalingFactor());
+  }
 
   function drawPattern(image, coords, size){
     var pattern = context.createPattern(image, 'repeat');
@@ -195,7 +195,7 @@ const Graphics = (function() {
     drawPattern : drawPattern,
     resizeCanvas: resizeCanvas,
     finalizeRender: finalizeRender,
-    // drawFromTiledCanvas: drawFromTiledCanvas,
+    drawFromTiledCanvas: drawFromTiledCanvas,
     get viewport () {
       return viewport;
     },
