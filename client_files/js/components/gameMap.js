@@ -144,8 +144,8 @@ var TILEDmap = Class.extend({
         // height (for cropping), destination (x,y) coordinates, and destination width 
         // and height (resize).
         
-        Graphics.drawTiledImage(tPKT.img, tPKT.px, tPKT.py, this.tileSize.x, this.tileSize.y, worldX, worldY);
-        // Graphics.drawFromTiledCanvas("map-tiled-imageset", tPKT.img, tPKT.px, tPKT.py, this.tileSize.x, this.tileSize.y, worldX, worldY);
+        // Graphics.drawTiledImage(tPKT.img, tPKT.px, tPKT.py, this.tileSize.x, this.tileSize.y, worldX, worldY);
+        Graphics.drawFromTiledCanvas("map-tiled-imageset", tPKT.img, tPKT.px, tPKT.py, this.tileSize.x, this.tileSize.y, worldX, worldY);
         
         //ctx.drawImage(tPKT.img, tPKT.px, tPKT.py, this.tileSize.x, this.tileSize.y, worldX, worldY, this.tileSize.x, this.tileSize.y);
 

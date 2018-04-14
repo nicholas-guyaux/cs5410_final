@@ -3,6 +3,7 @@
 // Model for each player in the game.
 //
 //------------------------------------------------------------------
+const boatImg = MyGame.assets['water_units_mapping'].frames["ship_small_body.png"];
 function Player() {
   'use strict';
   let that = {};
@@ -11,8 +12,8 @@ function Player() {
       y: 0
   };
   let size = {
-      width: 0.05*Coords.viewport.width,
-      height: 0.05*Coords.viewport.width,
+      width: boatImg.sourceSize.w / Coords.world.width * settings.waterUnitScale,
+      height: boatImg.sourceSize.h / Coords.world.height * settings.waterUnitScale,
   };
   let direction = 0;
   let rotateRate = 0;

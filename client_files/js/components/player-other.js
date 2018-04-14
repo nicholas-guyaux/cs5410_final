@@ -7,8 +7,8 @@ function PlayerRemote() {
   'use strict';
   let that = {};
   let size = {
-    width: 0.05*Coords.viewport.width,
-    height: 0.05*Coords.viewport.width,
+    width: boatImg.sourceSize.w / Coords.world.width * settings.waterUnitScale,
+    height: boatImg.sourceSize.h / Coords.world.height * settings.waterUnitScale,
   };
   let state = {
     direction: 0,
