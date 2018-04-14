@@ -4,7 +4,7 @@
 //
 //------------------------------------------------------------------
 const boatImg = MyGame.assets['water_units_mapping'].frames["ship_small_body.png"];
-function Player() {
+function Player(maxHealth, maxEnergy, maxAmmo) {
   'use strict';
   let that = {};
   let position = {
@@ -18,6 +18,7 @@ function Player() {
   let direction = 0;
   let rotateRate = 0;
   let speed = 0;
+  let health = { current: maxHealth, max: maxHealth }
 
   Object.defineProperty(that, 'direction', {
       get: () => direction,
@@ -40,6 +41,10 @@ function Player() {
 
   Object.defineProperty(that, 'size', {
       get: () => size
+  });
+
+  Object.defineProperty(that, 'health', {
+    get: () => health
   });
 
   //------------------------------------------------------------------

@@ -146,16 +146,22 @@ const Graphics = (function() {
     }
   }
   
-  function drawRectangle(style, left, top, width, height, useViewport){
-    var adjustLeft = (useViewport === true) ? viewport.x : 0;
-    var adjustTop = (useViewport === true) ? viewport.y : 0;
-
+  function drawRectangle(style, left, top, width, height){
     context.strokeStyle = style;
     context.strokeRect(
-      0.5 + world.x + ((left - adjustLeft) * world.size),
-      0.5 + world.y + ((top - adjustTop) * world.size),
-      width * world.size,
-      height* world.size
+      0.5 + (left * world.width * scalingFactor()),
+      0.5 + (top * world.height * scalingFactor()),
+      width * world.width,
+      height * world.height
+    );
+  }
+  function drawFilledRectangle(style, left, top, width, height){
+    context.fillStyle = style;
+    context.fillRect(
+      0.5 + (left * world.width * scalingFactor()),
+      0.5 + (top * world.height * scalingFactor()),
+      width * world.width,
+      height * world.height
     );
   }
 
@@ -191,6 +197,7 @@ const Graphics = (function() {
     rotateCanvas : rotateCanvas,
     drawImage : drawImage,
     drawRectangle : drawRectangle,
+    drawFilledRectangle : drawFilledRectangle,
     drawTiledImage : drawTiledImage,
     drawPattern : drawPattern,
     resizeCanvas: resizeCanvas,

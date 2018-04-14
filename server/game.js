@@ -8,6 +8,12 @@ const Queue = require('../client_files/shared/queue.js');
 const Token = require('../Token');
 
 const SIMULATION_UPDATE_RATE_MS = 16;
+//Game Constants
+let playerCount = 0;
+let maxHealth = 100;
+let maxAmmo = 50;
+let maxEnergy = 100;
+let defaultBulletDamage = 5;
 
 
 // The following is used to visually see the entity interpolation in action
@@ -201,7 +207,7 @@ function initializeSocketIO(io) {
   io.on('connection', function(socket) {
     console.log('Connection established: ', socket.id);
 
-    let newPlayer = Player.create();
+    let newPlayer = Player.create(maxHealth, maxEnergy, maxAmmo);
     let newClient = {
       lastMessageId: null,
       socket: socket,
