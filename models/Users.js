@@ -74,6 +74,13 @@ async function createUser (user) {
         MOVE_FORWARD: 38,
         FIRE: 32
       }
+    },
+    stats: {
+      totalGames: 0,
+      totalKills: 0,
+      totalWins: 0,
+      totalDamageDealt: 0,
+      shotAccuracy: 0
     }
   };
   users.push(user);

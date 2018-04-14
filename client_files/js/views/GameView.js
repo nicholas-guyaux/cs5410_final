@@ -1,3 +1,7 @@
+let playerCount = 0;
+let maxHealth = 100;
+let maxAmmo = 50;
+let maxEnergy = 100;
 //
 // Contains client-side game loop and client-side game state data
 const GameView = (function() {
@@ -33,7 +37,7 @@ const GameView = (function() {
   });
   let messageHistory = Queue.create();
   let playerSelf = {
-    model: Player(),
+    model: Player(maxHealth, maxAmmo, maxEnergy),
     textureSet: boatTextureSet,
   };
   let playerOthers = {};
@@ -159,7 +163,7 @@ const GameView = (function() {
 
   function updateSelfPosition () {
     Graphics.viewport.playerUpdate({
-      x: playerSelf.model.position.x+ playerSelf.model.size.width / 2, 
+      x: playerSelf.model.position.x + playerSelf.model.size.width / 2,
       y: playerSelf.model.position.y + playerSelf.model.size.height / 2,
     });
   }
@@ -195,6 +199,7 @@ const GameView = (function() {
   function updatePlayerSelf(data) {
     playerSelf.model.position.x = data.player.position.x;
     playerSelf.model.position.y = data.player.position.y;
+    playerSelf.model.health = data.player.health;
     playerSelf.model.direction = data.player.direction;
 
     

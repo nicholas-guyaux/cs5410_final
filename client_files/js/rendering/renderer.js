@@ -12,12 +12,6 @@ const Renderer = (function(graphics) {
     });
   }
 
-  // textureSet: [
-    //   {
-    //     spriteSet: MyGame.assets['water_units'],
-    //     mapping: MyGame.assets['water_units_mapping'],
-    //   }
-    // ]
   function renderPlayer(model, textureSet, totalTime) {
     var center;
     var direction;
@@ -43,6 +37,20 @@ const Renderer = (function(graphics) {
     renderWaterUnit(waterCenter, textureSet.water.spriteSet, water_animated_mapping);
     renderWaterUnit(center, textureSet.ship.spriteSet, textureSet.ship.normal);
     graphics.restoreContext();
+    
+    if(model.health){
+      //Render Health Bar
+      graphics.drawFilledRectangle(
+        'rgba(255,0,0,255)',
+        model.position.x, center.y - (model.size.height *.4),
+        model.size.width, (model.size.height * .05)
+      );
+      graphics.drawFilledRectangle(
+        'rgba(0,255,0,255)',
+        model.position.x, center.y - (model.size.height *.4),
+        model.size.width * (model.health.current / model.health.max), (model.size.height * .05)
+      );
+    }
   }
 
   // function renderRemotePlayer(model, textureSet, elapsed) {
