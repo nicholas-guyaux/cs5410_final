@@ -11,7 +11,8 @@ const game = require('./game');
 
 let props = {
   numPlayersRequired: 2,
-  gameInProgress: false
+  gameInProgress: false,
+  countdownTime: 10
 };
 
 //------------------------------------------------------------------
@@ -155,17 +156,30 @@ function initializeSocketIO(io) {
 
     if ((Object.keys(GameState.lobbyClients).length >= props.numPlayersRequired) && !props.gameInProgress) {
       props.gameInProgress = true;
-      game.initialize();
+      game.initialize(Object.keys(GameState.lobbyClients).length);//sends # of players
 
       for (let clientId in GameState.lobbyClients) {
         if (!GameState.lobbyClients.hasOwnProperty(clientId)) {
           continue;
         }
         let existingClient = GameState.lobbyClients[clientId];
-        existingClient.socket.emit(LobbyNetIds.START_GAME, {
+        existingClient.socket.emit(LobbyNetIds.START_COUNTDOWN, {
           clientId: existingClient.socket.id,
+          countdown: props.countdownTime
         });
       }
+      setTimeout(function(){
+        for (let clientId in GameState.lobbyClients) {
+          if (!GameState.lobbyClients.hasOwnProperty(clientId)) {
+            continue;
+          }
+          let existingClient = GameState.lobbyClients[clientId];
+          existingClient.socket.emit(LobbyNetIds.START_GAME, {
+            clientId: existingClient.socket.id,
+          });
+        }
+      }, props.countdownTime * 1000);
+      
     }
   });
 }

@@ -9,13 +9,6 @@ const Token = require('../Token');
 const rbush = require('rbush');
 
 const SIMULATION_UPDATE_RATE_MS = 16;
-//Game Constants
-let playerCount = 0;
-let maxHealth = 100;
-let maxAmmo = 50;
-let maxEnergy = 100;
-let defaultBulletDamage = 5;
-
 
 // The following is used to visually see the entity interpolation in action
 const DEMONSTRATION_STATE_UPDATE_LAG = 100;
@@ -57,9 +50,52 @@ function processInput(elapsedTime) {
   }
 }
 
+function checkCollisions(player){
+  //Note: Player Vs Wall Collision done in player.move();
+  checkPlayerVsPlayerCollisions(player);
+  checkPlayerVsBulletCollisions(player);
+  checkPlayerVsBuffCollision(player);
+  checkPlayerVsDeathCircleCollision(player);
+}
+
+function checkPlayerVsPlayerCollisions(player){
+  //if hit, take damage to other
+}
+function checkPlayerVsBulletCollisions(player){
+  //if hit, take damage to self
+}
+function checkPlayerVsBuffCollision(player){
+  //if hit, pick up buff if not already obtained
+}
+function checkPlayerVsDeathCircleCollision(player){
+  //If outside circle, take damage
+}
+
+function checkDeath(player){
+  if(player.health.current <= 0)
+    return true;
+  return false;
+}
+
+function processDeath(player){
+  //PlayerCount--
+  //Update to player = death
+  //Update to others = otherDeath
+}
+
 function update(elapsedTime, currentTime) {
+  //for bullet in bullets
+  //update bullet (bullets die on hitting player or land)
+
   for (let clientId in GameState.gameClients) {
+    checkCollisions(GameState.gameClients[clientId].state.player);
+    if(checkDeath(GameState.gameClients[clientId].state.player))
+      processDeath(GameState.gameClients[clientId].state.player);
     GameState.gameClients[clientId].state.player.update(currentTime);
+  }
+
+  if(playerCount === 1){
+    //endGame
   }
 }
 

@@ -1,15 +1,14 @@
 // TODO: Add all gamestate data structures and methods here
 
-// Example client object in activeClients:
-// {
-//   socket: socket,
-//   state: {
-//     player: player
-//   }
-//   lastMessageId: null
-// };
 let lobbyClients = {};
 let gameClients = {};
+let playerCount = 0;
+let alivePlayers = [];
+//Game Constants
+const maxHealth = 100;
+const maxAmmo = 50;
+const maxEnergy = 100;
+const defaultBulletDamage = 5;
 
 // TODO: Wipes and preps the gamestate for a new game
 function newGame() {
