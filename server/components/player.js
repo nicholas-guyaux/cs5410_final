@@ -15,7 +15,7 @@ let Coords = require ('../../client_files/shared/Coords');
 // at some random location.
 //
 //------------------------------------------------------------------
-function createPlayer() {
+function createPlayer(maxHealth, maxEnergy, maxAmmo) {
     let that = {};
 
     let position = {
@@ -32,6 +32,13 @@ function createPlayer() {
     let rotateRate = Math.PI / 1000;    // radians per millisecond
     let speed = 0.0002*Coords.viewport.width;                 // unit distance per millisecond
     let reportUpdate = false;    // Indicates if this model was updated during the last update
+    
+    let health = {current: maxHealth, max: maxHealth};
+    let energy = {current: maxEnergy, max: maxEnergy};
+    let ammo = {current: 0, max: maxAmmo};
+    let bulletShots = { hit: 0, total: 0 };
+    let killCount = 0;
+    let buffs = { dmg: false, speed: false, range: false, fireRate: false};
 
     Object.defineProperty(that, 'direction', {
         get: () => direction
@@ -62,6 +69,30 @@ function createPlayer() {
         get: () => size.radius
     });
 
+    Object.defineProperty(that, 'health', {
+      get: () => health
+    });
+
+    Object.defineProperty(that, 'energy', {
+      get: () => energy
+    });
+
+    Object.defineProperty(that, 'ammo', {
+      get: () => ammo
+    });
+
+    Object.defineProperty(that, 'bulletShots', {
+      get: () => bulletShots
+    });
+
+    Object.defineProperty(that, 'killCount', {
+      get: () => killCount
+    });
+
+    Object.defineProperty(that, 'buffs', {
+      get: () => buffs
+    });
+
     //------------------------------------------------------------------
     //
     // Moves the player forward based on how long it has been since the
@@ -72,12 +103,9 @@ function createPlayer() {
         reportUpdate = true;
         let vectorX = Math.cos(direction);
         let vectorY = Math.sin(direction);
-        console.log('x:', position.x, 'y:', position.y);
 
         position.x += (vectorX * elapsedTime * speed);
         position.y += (vectorY * elapsedTime * speed);
-        console.log('x:', position.x, 'y:', position.y);
-        
     };
 
     //------------------------------------------------------------------
