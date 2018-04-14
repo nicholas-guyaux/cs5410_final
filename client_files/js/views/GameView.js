@@ -24,6 +24,13 @@ const GameView = (function() {
       normal: undefined
     }
   };
+  var opposingBoatTextureSet = Object.assign({},boatTextureSet, {
+    ship: {
+      spriteSet: MyGame.assets['water_units'],
+      normal: MyGame.assets['water_units_mapping'].frames["ship_small_b_body.png"],
+      damaged: MyGame.assets['water_units_mapping'].frames["ship_small_body_b_destroyed.png"]
+    }
+  });
   let messageHistory = Queue.create();
   let playerSelf = {
     model: Player(),
@@ -175,7 +182,7 @@ const GameView = (function() {
 
     playerOthers[data.clientId] = {
       model: model,
-      textureSet: boatTextureSet,
+      textureSet: opposingBoatTextureSet,
     };
   }
 
