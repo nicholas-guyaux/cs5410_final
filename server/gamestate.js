@@ -13,7 +13,7 @@ let gameClients = {};
 
 // TODO: Wipes and preps the gamestate for a new game
 function newGame() {
-
+  
 }
 
 module.exports = {
