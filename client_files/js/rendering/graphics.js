@@ -5,7 +5,7 @@ const Graphics = (function() {
   let onScreenContext = onScreenCanvas.getContext('2d');
 
   let canvas = document.createElement('canvas');
-  let context = context.getContext('2d');
+  let context = canvas.getContext('2d');
 
   var viewport = Coords.viewport;
   var world = Coords.world;
