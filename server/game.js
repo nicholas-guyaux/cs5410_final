@@ -15,8 +15,13 @@ let maxAmmo = 50;
 let maxEnergy = 100;
 let defaultBulletDamage = 5;
 
+
+// The following is used to visually see the entity interpolation in action
+const DEMONSTRATION_STATE_UPDATE_LAG = 100;
+
 let props = {
-  quit: false
+  quit: false,
+  lastUpdate: 0
 };
 let inputQueue = Queue.create();
 
@@ -59,6 +64,14 @@ function update(elapsedTime, currentTime) {
 
 function updateClients(elapsedTime) {
 
+  props.lastUpdate += elapsedTime;
+
+
+  // The following is used to visually see the entity interpolation in action
+  if (props.lastUpdate < DEMONSTRATION_STATE_UPDATE_LAG) {
+      return;
+  }
+
   // For each game client create an update message with the client's data and elapsedTime
   // Then, if the player is to report the update, then emit an UPDATE_SELF and an UPDATE_OTHER 
   // to all other clients
@@ -70,7 +83,7 @@ function updateClients(elapsedTime) {
         player: {
           direction: client.state.player.direction,
           position: client.state.player.position,
-          updateWindow: elapsedTime
+          updateWindow: props.lastUpdate
         }
     };
 
@@ -88,6 +101,8 @@ function updateClients(elapsedTime) {
   for (let clientId in GameState.gameClients) {
     GameState.gameClients[clientId].state.player.reportUpdate = false;
   }
+
+  props.lastUpdate = 0;
 }
 
 //------------------------------------------------------------------

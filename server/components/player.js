@@ -8,7 +8,13 @@
 
 let random = require ('../utils/random');
 let Coords = require ('../../client_files/shared/Coords');
+let settings = require ('../../client_files/shared/settings');
+var fs = require('fs');
+var path = require('path');
+const waterUnitsFilePath = path.join(__dirname, '../../client_files/assets/data/water_units.json');
+const water_units = JSON.parse(fs.readFileSync(waterUnitsFilePath, 'utf8'));
 
+const boatImg = water_units.frames["ship_small_body.png"];
 //------------------------------------------------------------------
 //
 // Public function used to initially create a newly connected player
@@ -24,9 +30,11 @@ function createPlayer(maxHealth, maxEnergy, maxAmmo) {
     };
 
     let size = {
-        width: 0.01*Coords.viewport.width,
-        height: 0.01*Coords.viewport.height,
-        radius: 0.02*Coords.viewport.width
+        width: boatImg.sourceSize.w / Coords.world.width * settings.waterUnitScale,
+        height: boatImg.sourceSize.h / Coords.world.height * settings.waterUnitScale,
+        // the height is bigger than the width that is why the 
+        // height is used to compute the radius.
+        radius: boatImg.sourceSize.h / Coords.world.height / 2 * settings.waterUnitScale,
     };
     let direction = random.nextDouble() * 2 * Math.PI;    // Angle in radians
     let rotateRate = Math.PI / 1000;    // radians per millisecond

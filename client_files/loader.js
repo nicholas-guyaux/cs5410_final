@@ -43,7 +43,11 @@ MyGame.loader = (function() {
       scripts: ['js/components/viewport.js']
     }, {
       scripts: ['shared/Geometry'],
-      message: 'Graphics loaded',
+      message: 'Geometry loaded',
+      onComplete: null,
+    }, {
+      scripts: ['shared/settings'],
+      message: 'settings loaded',
       onComplete: null,
     },{
       scripts: ['shared/Coords'],
@@ -88,10 +92,6 @@ MyGame.loader = (function() {
       message: 'Librarys loaded',
       onComplete: null,
     }, {
-      scripts: ['game'],
-      message: 'game.js loaded',
-      onComplete: null,
-    }, {
     //   scripts: ['input'],                  //INPUTS
     //   message: 'Input loaded',
     //   onComplete: null,
@@ -130,6 +130,9 @@ MyGame.loader = (function() {
     assetOrder =[{
       key: 'test-ship',
       source: 'assets/images/testShip.png'
+    }, {
+      key: 'water_units',
+      source: 'assets/images/water_units.png'
     }];
 
     function loadScripts(scripts, onComplete){
@@ -221,9 +224,16 @@ MyGame.loader = (function() {
       function(source, asset) { MyGame.assets[source.key] = asset; },
       function(error){ console.log(error); },
       function() {
-        console.log('All assets loaded');
-        console.log('Starting to dynamically load project scripts');
-        loadScripts(scriptOrder, mainComplete);
+        fetch('assets/data/water_units.json').then(x => x.json()).then(function (water_units_mapping) {
+          MyGame.assets['water_units_mapping'] = water_units_mapping;
+        }).catch(e => {
+          console.error(e);
+          throw e;
+        }).then(function () {
+          console.log('All assets loaded');
+          console.log('Starting to dynamically load project scripts');
+          loadScripts(scriptOrder, mainComplete);
+        });
       }
   );
 }());

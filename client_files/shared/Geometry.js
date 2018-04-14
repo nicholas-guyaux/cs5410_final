@@ -1,4 +1,4 @@
-const Geometry = (function (exports) {
+(function (exports) {
   function pointInPolygon () {
 
   }

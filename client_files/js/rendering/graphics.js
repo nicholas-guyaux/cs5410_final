@@ -1,14 +1,32 @@
 const Graphics = (function() {
   'use strict';
 
-  let canvas = document.getElementById('game-canvas');
+  let onScreenCanvas = document.getElementById('game-canvas');
+  let onScreenContext = onScreenCanvas.getContext('2d');
+
+  let canvas = document.createElement('canvas');
   let context = canvas.getContext('2d');
+
   var viewport = Coords.viewport;
   var world = Coords.world;
 
   var currentTranslation = {
     x: 0,
     y: 0,
+  };
+
+  const imageCanvasMap = new Map();
+
+  function createImageCanvas(name, image) {
+    if(imageCanvasMap.has(name)) {
+      return;
+    }
+    const imageCanvas = document.createElement('canvas');
+    const imageContext = imageCanvas.getContext('2d');
+    imageCanvas.width = image.width;
+    imageCanvas.height = image.height;
+    imageContext.drawImage(image, 0, 0, image.width, image.height);
+    imageCanvasMap.set(name, imageCanvas);
   }
 
   function resizeCanvas(){
@@ -20,6 +38,8 @@ const Graphics = (function() {
 
     canvas.width = wRatio;
     canvas.height = hRatio;
+    onScreenCanvas.width = wRatio;
+    onScreenCanvas.height = hRatio;
 
     viewport.canvas.width = canvas.width;
     viewport.canvas.height = canvas.height;
@@ -109,20 +129,20 @@ const Graphics = (function() {
     };
     if(clipping) {
       context.drawImage(image,
-        clipping.x,
-        clipping.y,
-        clipping.width,
-        clipping.height,
-        (localCenter.x - localSize.width / 2)*scalingFactor(),
-        (localCenter.y - localSize.height / 2)*scalingFactor(),
-        (localSize.width)*scalingFactor(),
-        (localSize.height)*scalingFactor());
+          clipping.x,
+          clipping.y,
+          clipping.width,
+          clipping.height,
+          (localCenter.x - localSize.width / 2)*scalingFactor(),
+          (localCenter.y - localSize.height / 2)*scalingFactor(),
+          (localSize.width)*scalingFactor(),
+          (localSize.height)*scalingFactor()); 
     } else {
       context.drawImage(image,
-        (localCenter.x - localSize.width / 2)*scalingFactor(),
-        (localCenter.y - localSize.height / 2)*scalingFactor(),
-        localSize.width*scalingFactor(),
-        localSize.height*scalingFactor());
+          (localCenter.x - localSize.width / 2)*scalingFactor(),
+          (localCenter.y - localSize.height / 2)*scalingFactor(),
+          localSize.width*scalingFactor(),
+          localSize.height*scalingFactor());
     }
   }
   
@@ -153,10 +173,20 @@ const Graphics = (function() {
     context.drawImage(image, leftEdge, topEdge, tileSizeX, tileSizeY, (world.x + worldX)*scalingFactor(), (world.top + worldY)*scalingFactor(), tileSizeX*scalingFactor(), tileSizeY*scalingFactor());
   }
 
+  function drawFromTiledCanvas (name, image, leftEdge, topEdge, tileSizeX, tileSizeY, worldX, worldY){
+    createImageCanvas(name, image);
+    context.drawImage(imageCanvasMap.get(name), leftEdge, topEdge, tileSizeX, tileSizeY, (world.x + worldX)*scalingFactor(), (world.top + worldY)*scalingFactor(), tileSizeX*scalingFactor(), tileSizeY*scalingFactor());
+  }
+
   function drawPattern(image, coords, size){
     var pattern = context.createPattern(image, 'repeat');
     context.fillStyle = pattern;
     context.fillRect(coords.x, coords.y, size.width * canvas.width, size.height * canvas.height);
+  }
+
+  function finalizeRender() {
+    onScreenContext.clear();
+    onScreenContext.drawImage(canvas, 0, 0, canvas.width, canvas.height);
   }
 
   return {
@@ -171,6 +201,8 @@ const Graphics = (function() {
     drawTiledImage : drawTiledImage,
     drawPattern : drawPattern,
     resizeCanvas: resizeCanvas,
+    finalizeRender: finalizeRender,
+    drawFromTiledCanvas: drawFromTiledCanvas,
     get viewport () {
       return viewport;
     },
