@@ -69,6 +69,10 @@ const GameLobbyView = (function GameLobbyView (AudioPool) {
       MainView.loadView(GameView.name);
     });
 
+    socket.on(LobbyNetIds.START_COUNTDOWN, function (data){
+      //Start countdown
+    });
+
     AudioPool.playMusic('menu');
     keyboard.activate();
   }
