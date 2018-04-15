@@ -133,6 +133,9 @@ MyGame.loader = (function() {
     }, {
       key: 'water_units',
       source: 'assets/images/water_units.png'
+    }, {
+      key: 'minimap',
+      source: 'assets/images/minimap.png'
     }];
 
     function loadScripts(scripts, onComplete){

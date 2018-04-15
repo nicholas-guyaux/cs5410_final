@@ -317,6 +317,9 @@ const GameView = (function() {
         Renderer.renderPlayer(player.model, player.textureSet, totalTime);
     }
     Renderer.renderPlayer(playerSelf.model, playerSelf.textureSet, totalTime);
+
+    Renderer.minimap();
+
     Graphics.finalizeRender();
   }
 
