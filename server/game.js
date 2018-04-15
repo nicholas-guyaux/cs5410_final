@@ -46,6 +46,9 @@ function processInput(elapsedTime) {
       case GameNetIds.INPUT_FIRE:
         // createMissile(input.clientId, client.state.player);
         break;
+      case GameNetIds.INPUT_TURBO:
+        client.state.player.turbo(input.message.elapsedTime);
+        break;
     }
   }
 }
@@ -91,7 +94,7 @@ function update(elapsedTime, currentTime) {
     checkCollisions(GameState.gameClients[clientId].state.player);
     if(checkDeath(GameState.gameClients[clientId].state.player))
       processDeath(GameState.gameClients[clientId].state.player);
-    GameState.gameClients[clientId].state.player.update(currentTime);
+    GameState.gameClients[clientId].state.player.update(elapsedTime);
   }
 
   if(GameState.playerCount === 1){
@@ -120,6 +123,9 @@ function updateClients(elapsedTime) {
         player: {
           direction: client.state.player.direction,
           position: client.state.player.position,
+          health: client.state.player.health,
+          energy: client.state.player.energy,
+          useTurbo: client.state.player.useTurbo,
           updateWindow: props.lastUpdate
         }
     };
@@ -315,7 +321,7 @@ function initializeSocketIO(io) {
         
         client.socket.emit(GameNetIds.GAME_MSG, {
           playerId: newClient.state.player.name,  
-          message: data.message      
+          message: data.message
         });
       }
     });

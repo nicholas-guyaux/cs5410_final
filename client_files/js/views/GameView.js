@@ -136,6 +136,15 @@ const GameView = (function() {
       };
       socket.emit(GameNetIds.INPUT, message);
     });
+
+    keyboard.addAction(props.commandKeys.TURBO, elapsedTime => {
+      let message ={
+        id: props.messageId++,
+        elapsedTime: elapsedTime,
+        type: GameNetIds.INPUT_TURBO
+      };
+      socket.emit(GameNetIds.INPUT, message);
+    })
     requestAnimationFrame(gameLoop);
   }
 
@@ -205,7 +214,8 @@ const GameView = (function() {
     //add healing particle effect
     playerSelf.model.health = data.player.health;
     playerSelf.model.direction = data.player.direction;
-
+    playerSelf.model.energy = data.player.energy;
+    playerSelf.model.useTurbo = data.player.useTurbo;
     
     // Remove messages from the queue up through the last one identified
     // by the server as having been processed.
@@ -302,11 +312,14 @@ const GameView = (function() {
     Graphics.clear();
     Graphics.translateToViewport();
     GameMap.draw();
-    Renderer.renderPlayer(playerSelf.model, playerSelf.textureSet, totalTime);
     for (let id in playerOthers) {
         let player = playerOthers[id];
         Renderer.renderPlayer(player.model, player.textureSet, totalTime);
     }
+    Renderer.renderPlayer(playerSelf.model, playerSelf.textureSet, totalTime);
+
+    Renderer.minimap();
+
     Graphics.finalizeRender();
   }
 

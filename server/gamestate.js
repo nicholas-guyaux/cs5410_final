@@ -8,7 +8,7 @@ let itemArray = [];
 //Game Constants
 const maxHealth = 100;
 const maxAmmo = 50;
-const maxEnergy = 100;
+const maxEnergy = 200;
 const defaultBulletDamage = 5;
 const healthPP = 5;
 const ammoPP = 5;
@@ -83,5 +83,9 @@ function popGunSpeed() {
 module.exports = {
   newGame: newGame,
   lobbyClients: lobbyClients,
-  gameClients: gameClients
+  gameClients: gameClients,
+  maxHealth: maxHealth,
+  maxEnergy: maxEnergy,
+  maxAmmo: maxAmmo,
+  defaultBulletDamage: defaultBulletDamage
 };
