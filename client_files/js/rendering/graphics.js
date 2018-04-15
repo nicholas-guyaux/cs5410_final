@@ -140,7 +140,7 @@ const Graphics = (function() {
     } else {
       context.drawImage(image,
           Math.floor((localCenter.x - localSize.width / 2)*scalingFactor()),
-          (localCenter.y - localSize.height / 2)*scalingFactor()),
+          Math.floor((localCenter.y - localSize.height / 2)*scalingFactor()),
           Math.floor(localSize.width*scalingFactor()),
           Math.floor(localSize.height*scalingFactor()));
     }
