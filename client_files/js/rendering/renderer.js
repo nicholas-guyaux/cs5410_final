@@ -39,6 +39,12 @@ const Renderer = (function(graphics) {
     graphics.restoreContext();
     
     if(model.health){
+      //Render Energy Bar
+      graphics.drawFilledRectangle(
+        'rgba(245,140,0,255)',
+        model.position.x, center.y - (model.size.height *.4),
+        model.size.width * (model.energy.current / model.energy.max), (model.size.height * .1)
+      );
       //Render Health Bar
       graphics.drawFilledRectangle(
         'rgba(255,0,0,255)',
@@ -48,7 +54,7 @@ const Renderer = (function(graphics) {
       graphics.drawFilledRectangle(
         'rgba(0,255,0,255)',
         model.position.x, center.y - (model.size.height *.4),
-        model.size.width * (model.health.current / model.health.max), (model.size.height * .05)
+        model.size.width * (Math.max(0,model.health.current) / model.health.max), (model.size.height * .05)
       );
     }
     //graphics.drawFilledRectangle('red',model.position.x, model.position.y, .1, .10);
