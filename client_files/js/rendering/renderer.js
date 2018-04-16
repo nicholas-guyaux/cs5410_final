@@ -69,15 +69,19 @@ const Renderer = (function(graphics) {
   }
 
   function renderItems(itemList, itemImages) {
+    var size = {
+      width: .01,
+      height: .01,
+    };
     for (let i = 0; i < itemList.length; i++) {
       let item = itemList[i];
       graphics.saveContext();
       let center = {
-        x:item.minX + .05,
-        y:item.minY + .05
+        x:item.minX + size.width / 2,
+        y:item.minY + size.height / 2
       };
       console.log(itemImages[item.type]);
-      graphics.drawImage(itemImages[item.type], center, .01, false);
+      graphics.drawImage(itemImages[item.type], center, size, false);
       graphics.restoreContext();
     }
   }
