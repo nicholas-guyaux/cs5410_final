@@ -41,12 +41,60 @@ function processInput(elapsedTime) {
       case GameNetIds.INPUT_FIRE:
         // createMissile(input.clientId, client.state.player);
         break;
+      case GameNetIds.INPUT_TURBO:
+        client.state.player.turbo(input.message.elapsedTime);
+        break;
     }
   }
 }
 
+function checkCollisions(player){
+  //Note: Player Vs Wall Collision done in player.move();
+  checkPlayerVsPlayerCollisions(player);
+  checkPlayerVsBulletCollisions(player);
+  checkPlayerVsBuffCollision(player);
+  checkPlayerVsDeathCircleCollision(player);
+}
+
+function checkPlayerVsPlayerCollisions(player){
+  //if hit, take damage to other
+}
+function checkPlayerVsBulletCollisions(player){
+  //if hit, take damage to self
+}
+function checkPlayerVsBuffCollision(player){
+  //if hit, pick up buff if not already obtained
+}
+function checkPlayerVsDeathCircleCollision(player){
+  //If outside circle, take damage
+}
+
+function checkDeath(player){
+  if(player.health.current <= 0)
+    return true;
+  return false;
+}
+
+function processDeath(player){
+  //PlayerCount--
+  //Update to player = death
+  //Update to others = otherDeath
+}
+
 function update(elapsedTime, currentTime, totalTime) {
-  GameState.update(elapsedTime, currentTime, totalTime);
+  GameState.update(elapsedTime, currentTime, totalTime);  
+  //for bullet in bullets
+  //update bullet (bullets die on hitting player or land)
+
+  for (let clientId in GameState.gameClients) {
+    checkCollisions(GameState.gameClients[clientId].state.player);
+    if(checkDeath(GameState.gameClients[clientId].state.player))
+      processDeath(GameState.gameClients[clientId].state.player);
+  }
+
+  if(GameState.playerCount === 1){
+    //endGame
+  }
 }
 
 function updateClients(elapsedTime) {
@@ -62,7 +110,10 @@ function updateClients(elapsedTime) {
         player: {
           direction: client.state.player.direction,
           position: client.state.player.position,
-          updateWindow: elapsedTime
+          health: client.state.player.health,
+          energy: client.state.player.energy,
+          useTurbo: client.state.player.useTurbo,
+          updateWindow: props.lastUpdate
         }
     };
 
@@ -270,7 +321,7 @@ function initializeSocketIO(io) {
         
         client.socket.emit(GameNetIds.GAME_MSG, {
           playerId: newClient.state.player.name,  
-          message: data.message      
+          message: data.message
         });
       }
     });

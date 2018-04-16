@@ -9,7 +9,7 @@ let alivePlayers = [];
 //Game Constants
 const maxHealth = 100;
 const maxAmmo = 50;
-const maxEnergy = 100;
+const maxEnergy = 200;
 const defaultBulletDamage = 5;
 const vehicleStartTime = 12 * 1000;
 const droppableAfterTime = 2 * 1000;
@@ -20,6 +20,10 @@ var GameState = {
   newGame: newGame,
   lobbyClients: lobbyClients,
   gameClients: gameClients,
+  maxHealth: maxHealth,
+  maxEnergy: maxEnergy,
+  maxAmmo: maxAmmo,
+  defaultBulletDamage: defaultBulletDamage,
   game: game,
   update: update,
   vehicle: null,

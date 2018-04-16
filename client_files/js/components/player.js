@@ -20,6 +20,12 @@ function Player(maxHealth, maxEnergy, maxAmmo) {
   let rotateRate = 0;
   let speed = 0;
   let health = { current: maxHealth, max: maxHealth }
+  let energy = {current: maxEnergy, max: maxEnergy};
+  let useTurbo = false;
+  let ammo = {current: 0, max: maxAmmo};
+  let bulletShots = { hit: 0, total: 0 };
+  let killCount = 0;
+  let buffs = { dmg: false, speed: false, fireRate: false};
 
   Object.defineProperty(that, 'direction', {
       get: () => direction,
@@ -50,7 +56,37 @@ function Player(maxHealth, maxEnergy, maxAmmo) {
   });
 
   Object.defineProperty(that, 'health', {
-    get: () => health
+    get: () => health,
+    set: (value) => { health = value }
+  });
+
+  Object.defineProperty(that, 'energy', {
+    get: () => energy,
+    set: (value) => { energy = value }
+  });
+
+  Object.defineProperty(that, 'useTurbo', {
+    get: () => useTurbo,
+    set: (value) => { useTurbo = value }
+  });
+
+  Object.defineProperty(that, 'ammo', {
+    get: () => ammo,
+    set: (value) => { ammo = value }
+  });
+
+  Object.defineProperty(that, 'bulletShots', {
+    get: () => bulletShots,
+    set: (value) => { health = value }
+  });
+
+  Object.defineProperty(that, 'killCount', {
+    get: () => killCount,
+    set: (value) => { killCount = value }
+  });
+
+  Object.defineProperty(that, 'buffs', {
+    get: () => buffs
   });
 
   //------------------------------------------------------------------
@@ -59,30 +95,33 @@ function Player(maxHealth, maxEnergy, maxAmmo) {
   //
   //------------------------------------------------------------------
   that.move = function(elapsedTime) {
-      let vectorX = Math.cos(direction);
-      let vectorY = Math.sin(direction);
-      let moveX = false;
-      let moveY = false;
+    let vectorX = Math.cos(direction);
+    let vectorY = Math.sin(direction);
+    let moveX = false;
+    let moveY = false;
 
-      let centerX = position.x + size.width/2;
-      let centerY = position.y + size.height/2;
-      
-      moveY = GameMap.collision(centerX, centerY + (vectorY * elapsedTime * speed), Math.max(size.width, size.height));     
-      moveX = GameMap.collision(centerX + (vectorX * elapsedTime * speed), centerY, Math.max(size.width, size.height));
-     
-      if (moveX) {
-        position.x += (vectorX * elapsedTime * speed);
-      }
-      if (moveY) {
-        position.y += (vectorY * elapsedTime * speed);
-      }
-      // position.x += (vectorX * elapsedTime * speed);
-      // position.y += (vectorY * elapsedTime * speed);
-      Graphics.viewport.playerUpdate({
-        x:position.x+ size.width / 2, 
-        y: position.y + size.height / 2,
-      });
-      
+    let centerX = position.x + size.width/2;
+    let centerY = position.y + size.height/2;
+    
+    moveY = GameMap.collision(centerX, centerY + (vectorY * elapsedTime * speed), Math.max(size.width, size.height));
+    moveX = GameMap.collision(centerX + (vectorX * elapsedTime * speed), centerY, Math.max(size.width, size.height));
+    
+    let turboAdjust = 1;
+    if(useTurbo)
+      turboAdjust = 2;
+
+    if (moveX) {
+      position.x += (vectorX * elapsedTime * speed * turboAdjust);
+    }
+    if (moveY) {
+      position.y += (vectorY * elapsedTime * speed * turboAdjust);
+    }
+    // position.x += (vectorX * elapsedTime * speed);
+    // position.y += (vectorY * elapsedTime * speed);
+    Graphics.viewport.playerUpdate({
+      x:position.x+ size.width / 2, 
+      y: position.y + size.height / 2,
+    });
   };
 
   //------------------------------------------------------------------

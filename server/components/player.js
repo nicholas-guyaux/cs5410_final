@@ -46,6 +46,7 @@ function createPlayer(maxHealth, maxEnergy, maxAmmo) {
     
     let health = {current: maxHealth, max: maxHealth};
     let energy = {current: maxEnergy, max: maxEnergy};
+    let useTurbo = false;
     let ammo = {current: 0, max: maxAmmo};
     let bulletShots = { hit: 0, total: 0 };
     let killCount = 0;
@@ -86,7 +87,7 @@ function createPlayer(maxHealth, maxEnergy, maxAmmo) {
     });
 
     Object.defineProperty(that, 'health', {
-      get: () => health
+      get: () => health,
     });
 
     Object.defineProperty(that, 'energy', {
@@ -129,13 +130,17 @@ function createPlayer(maxHealth, maxEnergy, maxAmmo) {
       moveY = GameMap.collision(centerX, centerY + (vectorY * elapsedTime * speed), Math.max(size.width, size.height));
       moveX = GameMap.collision(centerX + (vectorX * elapsedTime * speed), centerY, Math.max(size.width, size.height));
      
+      let turboAdjust = 1;
+      if(useTurbo)
+        turboAdjust = 2;
+
       if (moveX) {
-        position.x += (vectorX * elapsedTime * speed);
+        position.x += (vectorX * elapsedTime * speed * turboAdjust);
       }
       if (moveY) {
-        position.y += (vectorY * elapsedTime * speed);
+        position.y += (vectorY * elapsedTime * speed * turboAdjust);
       }
-      if(!moveY || !moveX){
+      if((!moveY || !moveX) && useTurbo){
         health.current -= 1;
       }
     };
@@ -162,15 +167,34 @@ function createPlayer(maxHealth, maxEnergy, maxAmmo) {
         direction -= (rotateRate * elapsedTime);
     };
 
+    that.turbo = function() {
+      if(energy.current === energy.max){
+        useTurbo = true;
+      }
+    }
+
     //------------------------------------------------------------------
     //
     // Function used to update the player during the game loop.
     //
     //------------------------------------------------------------------
-    that.update = function(when) {
+    that.update = function(elapsedTime) {
+      if(useTurbo){
+        energy.current -= 2;
+        if(energy.current <= 0){
+          useTurbo = false
+          console.log('zero');
+        }
+      }
+      else if(energy.current < energy.max){
+        energy.current++;
+        if(energy.current == energy.max){
+          console.log('ready');
+        }
+      }
     };
 
     return that;
 }
 
-module.exports.create = () => createPlayer();
+module.exports.create = (...args) => createPlayer(...args);
