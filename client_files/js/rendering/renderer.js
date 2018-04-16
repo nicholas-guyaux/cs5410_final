@@ -1,5 +1,19 @@
 const Renderer = (function(graphics) {
 
+  /**
+   * https://en.wikipedia.org/wiki/Linear_interpolation
+   * Precise method, which guarantees y = rangeEnd when x = 1.
+   * @param {Number} rangeStart 
+   * output range start
+   * @param {Number} rangeEnd 
+   * output range end
+   * @param {Float} x 
+   * a number between 0 and 1 on the input range.
+   */
+  function lerp(rangeStart, rangeEnd, x) {
+    return (1 - x) * rangeStart + x * rangeEnd;
+  }
+
   function renderWaterUnit (center, image, mapping) {
     graphics.drawImage(image, center, {
       width: mapping.sourceSize.w / Coords.world.width * settings.waterUnitScale,
@@ -60,12 +74,37 @@ const Renderer = (function(graphics) {
     //graphics.drawFilledRectangle('red',model.position.x, model.position.y, .1, .10);
   }
 
+  function minimap () {
+    var minimap = {
+      width: Coords.viewport.width*.2,
+      height: Coords.viewport.height*.2,
+    }
+    minimap.x = Coords.viewport.x;
+    minimap.y = Coords.viewport.y + Coords.viewport.height - minimap.height;
+    minimap.center = {
+      x: minimap.x + minimap.width / 2,
+      y: minimap.y + minimap.height / 2,
+    }
+    graphics.saveContext();
+    const viewport = {
+      x: lerp(minimap.x, minimap.x + minimap.width, Coords.viewport.x),
+      y: lerp(minimap.y, minimap.y + minimap.height, Coords.viewport.y),
+      width: lerp(0, minimap.width, Coords.viewport.width),
+      height: lerp(0, minimap.height, Coords.viewport.height),
+    }
+    graphics.drawRectangle('yellow', viewport.x, viewport.y, viewport.width, viewport.height);
+    graphics.setOpacity(0.7);
+    graphics.drawImage(MyGame.assets['minimap'], minimap.center, minimap);
+    graphics.restoreContext();
+  }
+
   // function renderRemotePlayer(model, textureSet, elapsed) {
   //   return renderPlayer(model, textureSet, elapsed);
   // }
 
   return {
     renderPlayer,
+    minimap,
     // renderRemotePlayer
   };
 }(Graphics));
