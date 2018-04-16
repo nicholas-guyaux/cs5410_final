@@ -156,8 +156,6 @@ function initializeSocketIO(io) {
 
     if ((Object.keys(GameState.lobbyClients).length >= props.numPlayersRequired) && !props.gameInProgress) {
       props.gameInProgress = true;
-      game.initialize(Object.keys(GameState.lobbyClients).length);//sends # of players
-
       for (let clientId in GameState.lobbyClients) {
         if (!GameState.lobbyClients.hasOwnProperty(clientId)) {
           continue;
@@ -169,6 +167,7 @@ function initializeSocketIO(io) {
         });
       }
       setTimeout(function(){
+        game.initialize(Object.keys(GameState.lobbyClients).length);//sends # of players  
         for (let clientId in GameState.lobbyClients) {
           if (!GameState.lobbyClients.hasOwnProperty(clientId)) {
             continue;

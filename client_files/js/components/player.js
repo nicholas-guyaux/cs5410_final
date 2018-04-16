@@ -5,6 +5,7 @@
 //------------------------------------------------------------------
 const boatImg = MyGame.assets['water_units_mapping'].frames["ship_small_body.png"];
 function Player(maxHealth, maxEnergy, maxAmmo) {
+  let isDropped = false;
   'use strict';
   let that = {};
   let position = {
@@ -23,6 +24,11 @@ function Player(maxHealth, maxEnergy, maxAmmo) {
   Object.defineProperty(that, 'direction', {
       get: () => direction,
       set: (value) => { direction = value }
+  });
+
+  Object.defineProperty(that, 'isDropped', {
+    get: () => isDropped,
+    set: (value) => { isDropped = !!value }
   });
 
   Object.defineProperty(that, 'speed', {

@@ -1,5 +1,7 @@
 // TODO: Add all gamestate data structures and methods here
-
+const Vehicle = require('./components/vehicle');
+const Dropper = require('./components/dropper');
+const present = require('present');
 let lobbyClients = {};
 let gameClients = {};
 let playerCount = 0;
@@ -9,14 +11,34 @@ const maxHealth = 100;
 const maxAmmo = 50;
 const maxEnergy = 100;
 const defaultBulletDamage = 5;
-
+const vehicleStartTime = 12 * 1000;
+const droppableAfterTime = 2 * 1000;
+var game = {};
 // TODO: Wipes and preps the gamestate for a new game
-function newGame() {
-  
-}
-
-module.exports = {
+// we are adding other things to GameState in newGame
+var GameState = {
   newGame: newGame,
   lobbyClients: lobbyClients,
-  gameClients: gameClients
+  gameClients: gameClients,
+  game: game,
+  update: update,
+  vehicle: null,
+  dropper: null,
 };
+
+function newGame() {
+  GameState.startTime = present();
+  GameState.vehicle = Vehicle(vehicleStartTime);
+  GameState.dropper = Dropper(GameState.vehicle, droppableAfterTime);
+}
+
+function update (elapsed, currentTime, totalTime) {
+  GameState.vehicle.update(elapsed, totalTime);
+  const clientStates = Object.values(GameState.gameClients).map(client => client.state);
+  GameState.dropper.update(currentTime, clientStates);
+  for (let clientId in GameState.gameClients) {
+    GameState.gameClients[clientId].state.player.update(currentTime);
+  }
+}
+
+module.exports = GameState;

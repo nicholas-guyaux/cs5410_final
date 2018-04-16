@@ -25,10 +25,11 @@ const boatImg = water_units.frames["ship_small_body.png"];
 //------------------------------------------------------------------
 function createPlayer(maxHealth, maxEnergy, maxAmmo) {
     let that = {};
+    let isDropped = false;
 
     let position = {
-        x: .2,
-        y: .1
+        x: null,
+        y: null,
     };
 
     let size = {
@@ -52,6 +53,11 @@ function createPlayer(maxHealth, maxEnergy, maxAmmo) {
 
     Object.defineProperty(that, 'direction', {
         get: () => direction
+    });
+
+    Object.defineProperty(that, 'isDropped', {
+      get: () => isDropped,
+      set: (val) => { isDropped = !!val; }
     });
 
     Object.defineProperty(that, 'position', {

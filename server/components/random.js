@@ -31,6 +31,17 @@ function nextRange(min, max) {
 
 // ------------------------------------------------------------------
 //
+// Generate a uniformly selected random 'integer' within the range [min, max].
+//
+// ------------------------------------------------------------------
+function nextDoubleRange(min, max) {
+  let range = max - min;
+
+  return (Math.random() * range) + min;
+}
+
+// ------------------------------------------------------------------
+//
 // Generate a uniformly selected vector (x,y) around the circumference of a
 // unit circle.
 //
@@ -84,5 +95,6 @@ function nextGaussian(mean, stdDev) {
 
 module.exports.nextDouble = nextDouble;
 module.exports.nextRange = nextRange;
+module.exports.nextDoubleRange = nextDoubleRange;
 module.exports.nextCircleVector = nextCircleVector;
 module.exports.nextGaussian = nextGaussian;

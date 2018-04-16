@@ -70,8 +70,8 @@ MyGame.loader = (function() {
       message: 'ViewSwitcher',
       onComplete: null,
     }, {
-      scripts: ['js/lib/KeyboardHandler'],
-      message: 'KeyboardHandler',
+      scripts: ['js/lib/KeyboardHandler', 'js/lib/TiledImageClipping'],
+      message: 'KeyboardHandler and TiledImageClipping',
       onComplete: null,
     }, {
       scripts: [
@@ -118,7 +118,8 @@ MyGame.loader = (function() {
         'js/views/LoginView',
         'js/views/SignupView',
         'js/views/SplashView',
-        'js/components/gameMap'
+        'js/components/gameMap',
+        'js/components/vehicle',
       ],
       message: 'Views loaded',
       onComplete: null,
@@ -136,6 +137,9 @@ MyGame.loader = (function() {
     }, {
       key: 'minimap',
       source: 'assets/images/minimap.png'
+    }, {
+      key: 'plane',
+      source: 'assets/images/plane.png'
     }];
 
     function loadScripts(scripts, onComplete){

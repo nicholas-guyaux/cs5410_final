@@ -5,6 +5,7 @@ let maxEnergy = 100;
 //
 // Contains client-side game loop and client-side game state data
 const GameView = (function() {
+  var vehicle = null;
   let keyboard = KeyboardHandler(false, 'keyCode');
   let receivedMessages = Queue.create();
   var boatTextureSet = {
@@ -52,6 +53,7 @@ const GameView = (function() {
   //
   // Render to initially setup and show the GameView
   function render() {
+    vehicle = Vehicle();
     Graphics.resizeCanvas();
     AudioPool.playMusic('game');
     props.commandKeys = client.user.commandKeys;
@@ -91,6 +93,13 @@ const GameView = (function() {
     socket.on(GameNetIds.UPDATE_OTHER, data => {
       receivedMessages.enqueue({
         type: GameNetIds.UPDATE_OTHER,
+        data: data
+      });
+    });
+
+    socket.on(GameNetIds.UPDATE_VEHICLE, data => {
+      receivedMessages.enqueue({
+        type: GameNetIds.UPDATE_VEHICLE,
         data: data
       });
     });
@@ -257,6 +266,21 @@ const GameView = (function() {
     }
   }
 
+  function updateVehicle(data) {
+    if(!vehicle.x || !vehicle.y) {
+      vehicle.x = data.vehicle.x;
+      vehicle.y = data.vehicle.y;
+    }
+    if(!vehicle.goal) vehicle.goal = {};
+    vehicle.goal.updateWindow = data.updateWindow;
+
+    vehicle.goal.x = data.vehicle.x;
+    vehicle.goal.y = data.vehicle.y;
+    // the direction doesn't need to be lerped
+    vehicle.direction = data.vehicle.direction;
+    vehicle.radius = data.vehicle.radius;
+  }
+
   function processInput(elapsedTime) {
     keyboard.handle(elapsedTime); // Pass gameState? Or not necessary?
 
@@ -284,11 +308,15 @@ const GameView = (function() {
         case GameNetIds.UPDATE_OTHER:
           updatePlayerOther(message.data);
           break;
+        case GameNetIds.UPDATE_VEHICLE:
+          updateVehicle(message.data);
+          break;
       }
     }
   }
 
   function update(elapsedTime) {
+    vehicle.update(elapsedTime);
     playerSelf.model.update(elapsedTime);
     for (let id in playerOthers) {
       playerOthers[id].model.update(elapsedTime);
@@ -299,6 +327,12 @@ const GameView = (function() {
   // Render function for gameLoop
   function renderFrame() {
     totalTime = props.lastTimeStamp;
+    if(!playerSelf.model.isDropped) {
+      Graphics.setFullMapCanvas(true);
+      Renderer.renderGameStart(totalTime, vehicle);
+      return;
+    }
+    Graphics.setFullMapCanvas(false);
     Graphics.clear();
     Graphics.translateToViewport();
     GameMap.draw();

@@ -84,7 +84,26 @@ const Graphics = (function() {
 		// Force the canvas to resize to the window first time in, otherwise
 		// the canvas is a default we don't want.
 		resizeCanvas();
-	}
+  }
+  
+  // var isFullMap = false;
+  function setFullMapCanvas (fullMapIsScreenVal) {
+    // const fullScreenVal = !!fullMapIsScreenVal;
+    // if(isFullMap !== fullScreenVal) {
+    //   isFullMap = fullScreenVal; 
+    //   if(isFullMap) {
+    //     canvas.width = Coords.world.width;
+    //     canvas.height = Coords.world.height;
+    //     onScreenCanvas.width = Coords.world.width;
+    //     onScreenCanvas.height = Coords.world.height;
+
+    //     // viewport.canvas.width = canvas.width;
+    //     // viewport.canvas.height = canvas.height;
+    //   } else {
+    //     resizeCanvas();
+    //   }
+    // }
+  }
 
   CanvasRenderingContext2D.prototype.clear = function() {
       this.save();
@@ -149,24 +168,24 @@ const Graphics = (function() {
   function drawRectangle(style, left, top, width, height){
     context.strokeStyle = style;
     context.strokeRect(
-      0.5 + (left * world.width * scalingFactor()),
-      0.5 + (top * world.height * scalingFactor()),
-      width * world.width,
-      height * world.height
+      Math.floor(0.5 + (left * world.width * scalingFactor())),
+      Math.floor(0.5 + (top * world.height * scalingFactor())),
+      Math.floor(width * world.width),
+      Math.floor(height * world.height)
     );
   }
   function drawFilledRectangle(style, left, top, width, height){
     context.fillStyle = style;
     context.fillRect(
-      0.5 + (left * world.width * scalingFactor()),
-      0.5 + (top * world.height * scalingFactor()),
-      width * world.width,
-      height * world.height
+      Math.floor(0.5 + (left * world.width * scalingFactor())),
+      Math.floor(0.5 + (top * world.height * scalingFactor())),
+      Math.floor(width * world.width),
+      Math.floor(height * world.height)
     );
   }
 
   function scalingFactor () {
-    return canvas.width / (Coords.world.width * Coords.viewport.width);
+    return 1;//canvas.width / (Coords.world.width * Coords.viewport.width);
   }
 
   function drawTiledImage(image, leftEdge, topEdge, tileSizeX, tileSizeY, worldX, worldY){
@@ -208,6 +227,7 @@ const Graphics = (function() {
     finalizeRender: finalizeRender,
     drawFromTiledCanvas: drawFromTiledCanvas,
     setOpacity: setOpacity,
+    setFullMapCanvas: setFullMapCanvas,
     get viewport () {
       return viewport;
     },

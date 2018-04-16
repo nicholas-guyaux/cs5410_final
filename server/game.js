@@ -6,16 +6,11 @@ const Player = require('./components/player');
 const GameNetIds = require('../client_files/shared/game-net-ids');
 const Queue = require('../client_files/shared/queue.js');
 const Token = require('../Token');
-const rbush = require('rbush');
 
 const SIMULATION_UPDATE_RATE_MS = 16;
 
-// The following is used to visually see the entity interpolation in action
-const DEMONSTRATION_STATE_UPDATE_LAG = 100;
-
 let props = {
-  quit: false,
-  lastUpdate: 0
+  quit: false
 };
 let inputQueue = Queue.create();
 
@@ -50,64 +45,11 @@ function processInput(elapsedTime) {
   }
 }
 
-function checkCollisions(player){
-  //Note: Player Vs Wall Collision done in player.move();
-  checkPlayerVsPlayerCollisions(player);
-  checkPlayerVsBulletCollisions(player);
-  checkPlayerVsBuffCollision(player);
-  checkPlayerVsDeathCircleCollision(player);
-}
-
-function checkPlayerVsPlayerCollisions(player){
-  //if hit, take damage to other
-}
-function checkPlayerVsBulletCollisions(player){
-  //if hit, take damage to self
-}
-function checkPlayerVsBuffCollision(player){
-  //if hit, pick up buff if not already obtained
-}
-function checkPlayerVsDeathCircleCollision(player){
-  //If outside circle, take damage
-}
-
-function checkDeath(player){
-  if(player.health.current <= 0)
-    return true;
-  return false;
-}
-
-function processDeath(player){
-  //PlayerCount--
-  //Update to player = death
-  //Update to others = otherDeath
-}
-
-function update(elapsedTime, currentTime) {
-  //for bullet in bullets
-  //update bullet (bullets die on hitting player or land)
-
-  for (let clientId in GameState.gameClients) {
-    checkCollisions(GameState.gameClients[clientId].state.player);
-    if(checkDeath(GameState.gameClients[clientId].state.player))
-      processDeath(GameState.gameClients[clientId].state.player);
-    GameState.gameClients[clientId].state.player.update(currentTime);
-  }
-
-  if(GameState.playerCount === 1){
-    //endGame
-  }
+function update(elapsedTime, currentTime, totalTime) {
+  GameState.update(elapsedTime, currentTime, totalTime);
 }
 
 function updateClients(elapsedTime) {
-
-  props.lastUpdate += elapsedTime;
-
-
-  // The following is used to visually see the entity interpolation in action
-  if (props.lastUpdate < DEMONSTRATION_STATE_UPDATE_LAG) {
-      return;
-  }
 
   // For each game client create an update message with the client's data and elapsedTime
   // Then, if the player is to report the update, then emit an UPDATE_SELF and an UPDATE_OTHER 
@@ -120,26 +62,36 @@ function updateClients(elapsedTime) {
         player: {
           direction: client.state.player.direction,
           position: client.state.player.position,
-          updateWindow: props.lastUpdate
+          updateWindow: elapsedTime
         }
     };
 
+    if(!client.state.player.isDropped) {
+      client.socket.emit(GameNetIds.UPDATE_VEHICLE, {
+        vehicle: {
+          x: Math.abs(GameState.vehicle.circle.x),
+          y: Math.abs(GameState.vehicle.circle.y),
+          radius: GameState.vehicle.circle.radius,
+          direction: GameState.vehicle.direction,
+        },
+        updateWindow: elapsedTime,
+      });
+    }
     if (client.state.player.reportUpdate) {
-        client.socket.emit(GameNetIds.UPDATE_SELF, update);
+      client.socket.emit(GameNetIds.UPDATE_SELF, update);
 
-        for (let otherId in GameState.gameClients) {
-            if (otherId !== clientId) {
-              GameState.gameClients[otherId].socket.emit(GameNetIds.UPDATE_OTHER, update);
-            }
+      for (let otherId in GameState.gameClients) {
+        if (otherId !== clientId) {
+          GameState.gameClients[otherId].socket.emit(GameNetIds.UPDATE_OTHER, update);
         }
+      }
     }
   }
 
   for (let clientId in GameState.gameClients) {
+    let client = GameState.gameClients[clientId];
     GameState.gameClients[clientId].state.player.reportUpdate = false;
   }
-
-  props.lastUpdate = 0;
 }
 
 //------------------------------------------------------------------
@@ -149,7 +101,7 @@ function updateClients(elapsedTime) {
 //------------------------------------------------------------------
 function gameLoop(currentTime, elapsedTime) {
   processInput(elapsedTime);
-  update(elapsedTime, currentTime);
+  update(elapsedTime, currentTime, currentTime - GameState.startTime);
   updateClients(elapsedTime);
 
   if (!props.quit) {
@@ -169,6 +121,7 @@ function gameLoop(currentTime, elapsedTime) {
 
 
 function initialize() {
+  GameState.newGame();
   gameLoop(present(), 0);
 }
 
@@ -193,6 +146,7 @@ function initializeSocketIO(io) {
       if (newClient.socket.id !== clientId) {
         existingClient.socket.emit(GameNetIds.CONNECT_OTHER, {
           clientId: newClient.socket.id,
+          // player: null,
           player: {
             direction: newPlayer.direction,
             position: newPlayer.position,
@@ -244,12 +198,12 @@ function initializeSocketIO(io) {
   io.on('connection', function(socket) {
     console.log('Connection established: ', socket.id);
 
-    let newPlayer = Player.create(GameState.maxHealth, GameState.maxEnergy, GameState.maxAmmo);
+    let newPlayer = Player.create();
     let newClient = {
       lastMessageId: null,
       socket: socket,
       state: {
-        player: newPlayer
+        player: newPlayer,
       }
     };
     GameState.gameClients[socket.id] = newClient;
@@ -282,6 +236,7 @@ function initializeSocketIO(io) {
         // asynchronous token checking
         const user = await Token.check_auth(data.token);
         newClient.state.player = user;
+        newClient.state.player.isDropped = false;
         
         for (let clientId in GameState.gameClients) {
           if (!GameState.gameClients.hasOwnProperty(clientId)) {

@@ -86,10 +86,40 @@ const Renderer = (function(graphics) {
       width: lerp(0, minimap.width, Coords.viewport.width),
       height: lerp(0, minimap.height, Coords.viewport.height),
     }
-    graphics.drawRectangle('yellow', viewport.x, viewport.y, viewport.width, viewport.height);
     graphics.setOpacity(0.7);
     graphics.drawImage(MyGame.assets['minimap'], minimap.center, minimap);
     graphics.restoreContext();
+    graphics.drawRectangle('yellow', viewport.x, viewport.y, viewport.width, viewport.height);
+  }
+
+  var clipping = TiledImageClipping({
+    width: MyGame.assets['plane'].width / 4,
+    height: MyGame.assets['plane'].height
+  });
+  function renderVehicle (totalTime, vehicle) {
+    if(!vehicle.x) {
+      return;
+    }
+    const vRect = Geometry.Rectangle({
+      width: vehicle.width,
+      height: vehicle.height,
+      // get x and y in viewport
+      x: (vehicle.x - vehicle.width / 2)*Coords.viewport.width+Coords.viewport.x,
+      y: (vehicle.y - vehicle.height / 2)*Coords.viewport.height+Coords.viewport.y,
+    })
+    graphics.saveContext();
+    Graphics.rotateCanvas(vRect.center, vehicle.direction + Math.PI / 2);
+    Graphics.drawImage(MyGame.assets['plane'], vRect.center, {
+      width: vehicle.width,
+      height: vehicle.height, 
+    }, clipping(Math.floor(totalTime / 50) % 4));
+    graphics.restoreContext();
+  }
+
+  function renderGameStart(totalTime, vehicle) {
+    Graphics.drawImage(MyGame.assets['minimap'], Coords.viewport.center, Coords.viewport);
+    renderVehicle(totalTime, vehicle);
+    Graphics.finalizeRender();
   }
 
   // function renderRemotePlayer(model, textureSet, elapsed) {
@@ -99,6 +129,8 @@ const Renderer = (function(graphics) {
   return {
     renderPlayer,
     minimap,
+    renderVehicle,
+    renderGameStart,
     // renderRemotePlayer
   };
 }(Graphics));

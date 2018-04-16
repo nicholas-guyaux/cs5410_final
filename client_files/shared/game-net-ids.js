@@ -69,6 +69,10 @@
       value: 'update-other',
       writable: false
     },
+    'UPDATE_VEHICLE': {
+      value: 'update-vehicle',
+      writable: false,
+    },
     "GAME_KICK": {
       value: 'game-kick',
       writable: false,

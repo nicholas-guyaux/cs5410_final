@@ -41,6 +41,9 @@
         var deltaX = lineSeg.b.x - lineSeg.a.x;
         return Math.atan2(deltaY, deltaX);
       },
+      get distance () {
+        return Math.sqrt(Math.pow(lineSeg.a.x-lineSeg.b.x, 2), Math.pow(lineSeg.a.y-lineSeg.b.y, 2));
+      },
       // https://stackoverflow.com/a/1968345/2066736
       lineSegmentIntersection (lineSeg2) {
         const [p0_x, p0_y] = [lineSeg.a.x, lineSeg.a.y];
@@ -221,6 +224,17 @@
           x: that.x - that.radius,
           y: that.y - that.radius,
         });
+      },
+      point: {
+        get x () { 
+          return that.x;
+        },
+        get y () {
+          return that.y;
+        }
+      },
+      containsPoint (point) {
+        return LineSegment(that.point, point);
       }
     }
 
