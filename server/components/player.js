@@ -8,6 +8,7 @@
 
 let random = require ('../utils/random');
 let Coords = require ('../../client_files/shared/Coords');
+let Geometry = require ('../../client_files/shared/Geometry');
 let settings = require ('../../client_files/shared/settings');
 var fs = require('fs');
 var path = require('path');
@@ -24,6 +25,7 @@ const boatImg = water_units.frames["ship_small_body.png"];
 function createPlayer() {
     let that = {};
 
+    // this is top left position
     let position = {
         x: 0,
         y: 0
@@ -40,6 +42,14 @@ function createPlayer() {
     let rotateRate = Math.PI / 1000;    // radians per millisecond
     let speed = 0.0002*Coords.viewport.width;                 // unit distance per millisecond
     let reportUpdate = false;    // Indicates if this model was updated during the last update
+
+    that.getCircle = function () {
+      return Geometry.Circle({
+        x: position.x + size.width / 2,
+        y: position.y + size.height / 2,
+        radius: size.radius,
+      });
+    }
 
     Object.defineProperty(that, 'direction', {
         get: () => direction

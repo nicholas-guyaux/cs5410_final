@@ -33,8 +33,8 @@ function createBullet(clientId, playerModel) {
     id: props.nextBulletId++,
     clientId: clientId,
     position: {
-      x: playerModel.position.x,
-      y: playerModel.position.y
+      x: playerModel.position.x + playerModel.size.width / 2,
+      y: playerModel.position.y + playerModel.size.height / 2,
     },
     direction: playerModel.direction,
     speed: playerModel.speed
@@ -112,7 +112,11 @@ function update(elapsedTime, currentTime) {
       //
       // Don't allow a bullet to hit the player it was fired from.
       if (clientId !== activeBullets[i].clientId) {
-        if (collided(activeBullets[i], GameState.gameClients[clientId].state.player)) {
+        var clientCirc = GameState.gameClients[clientId].state.player.getCircle();
+        if (collided(activeBullets[i], {
+          position: clientCirc,
+          radius: clientCirc.radius,
+        })) {
           hit = true;
           hits.push({
             clientId: clientId,
