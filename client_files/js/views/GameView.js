@@ -38,7 +38,9 @@ const GameView = (function() {
     lastTimeStamp: performance.now(),
     messageId: 1,
     commandKeys: null,
-    nextExplosionId: 1
+    nextExplosionId: 1,
+    FOVDistance: .1,
+    FOVWidth: .2
   };
 
   //
@@ -169,7 +171,7 @@ const GameView = (function() {
 
   function updateSelfPosition () {
     Graphics.viewport.playerUpdate({
-      x: playerSelf.model.position.x+ playerSelf.model.size.width / 2, 
+      x: playerSelf.model.position.x + playerSelf.model.size.width / 2, 
       y: playerSelf.model.position.y + playerSelf.model.size.height / 2,
     });
   }
@@ -350,17 +352,48 @@ const GameView = (function() {
     }
   }
 
+  // This function was written by Dr. Dean Mathias
+  function rotatePointAboutPoint(center, pt, angle) {
+    let sin = Math.sin(angle);
+    let cos = Math.cos(angle);
+    let pTranslate = {
+      x: pt.x - center.x,
+      y: pt.y - center.y
+    }
+
+    let x = pTranslate.x * cos - pTranslate.y * sin;
+    let y = pTranslate.x * sin + pTranslate.y * cos;
+
+    return {
+      x: x + center.x,
+      y: y + center.y
+    };
+  }
+
+  function renderFOV() {
+    let playerPos = {x: playerSelf.model.position.x, y: playerSelf.model.position.y};
+    let FOVPoint1 = {x: (playerPos.x + props.FOVDistance), y: playerPos.y - (props.FOVWidth / 2)};
+    let FOVPoint2 = {x: (playerPos.x + props.FOVDistance), y: playerPos.y + (props.FOVWidth / 2)};
+
+    FOVPoint1 = rotatePointAboutPoint(playerPos, FOVPoint1, playerSelf.model.direction);
+    FOVPoint2 = rotatePointAboutPoint(playerPos, FOVPoint2, playerSelf.model.direction);
+    FOVPolygon = [playerPos, FOVPoint1, FOVPoint2];
+
+    Graphics.enableClipping(FOVPolygon);
+  }
+
   //
   // Render function for gameLoop
   function renderFrame() {
     totalTime = props.lastTimeStamp;
     Graphics.clear();
     Graphics.translateToViewport();
+    renderFOV();
     GameMap.draw();
     Renderer.renderPlayer(playerSelf.model, playerSelf.textureSet, totalTime);
     for (let id in playerOthers) {
-        let player = playerOthers[id];
-        Renderer.renderPlayer(player.model, player.textureSet, totalTime);
+      let player = playerOthers[id];
+      Renderer.renderPlayer(player.model, player.textureSet, totalTime);
     }
 
     for (let bullet in bullets) {
@@ -371,7 +404,10 @@ const GameView = (function() {
     //   renderer.AnimatedSprite.render(explosions[id]);
     // }
 
+    // Graphics.drawCircle('#000000', {x: 0, y: 0}, 1000);
+
     Graphics.finalizeRender();
+    Graphics.disableClipping();
   }
 
   function gameLoop(time) {

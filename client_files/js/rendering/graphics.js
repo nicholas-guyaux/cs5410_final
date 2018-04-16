@@ -15,6 +15,10 @@ const Graphics = (function() {
     y: 0,
   };
 
+  let props = {
+    clippingEnabled: false
+  };
+
   const imageCanvasMap = new Map();
 
   function createImageCanvas(name, image) {
@@ -147,8 +151,8 @@ const Graphics = (function() {
   }
   
   function drawRectangle(style, left, top, width, height, useViewport){
-    var adjustLeft = (useViewport === true) ? viewport.x : 0;
-    var adjustTop = (useViewport === true) ? viewport.y : 0;
+    var adjustLeft = useViewport ? viewport.x : 0;
+    var adjustTop = useViewport ? viewport.y : 0;
 
     context.strokeStyle = style;
     context.strokeRect(
@@ -188,6 +192,34 @@ const Graphics = (function() {
     context.fillRect(coords.x, coords.y, size.width * canvas.width, size.height * canvas.height);
   }
 
+  function enableClipping(polygon) {
+    // Convert polygon to true coordinates       
+    for (let point of polygon) {
+      point.x *= Coords.world.width;
+      point.y *= Coords.world.height;
+    }
+
+    if (!props.clippingEnabled && (polygon.length >= 2)) {
+      context.save();
+      props.clippingEnabled = true;
+
+      context.beginPath();
+      context.moveTo(polygon[0].x, polygon[0].y);
+      for (let pointIdx = 1; pointIdx < polygon.length; pointIdx++) {
+        context.lineTo(polygon[pointIdx].x, polygon[pointIdx].y);
+      }
+      context.closePath();
+      context.clip();
+    }
+  }
+
+  function disableClipping() {
+    if (props.clippingEnabled) {
+      context.restore();
+      props.clippingEnabled = false;
+    }
+  }
+
   function finalizeRender() {
     onScreenContext.clear();
     onScreenContext.drawImage(canvas, 0, 0, canvas.width, canvas.height);
@@ -206,6 +238,8 @@ const Graphics = (function() {
     drawPattern : drawPattern,
     resizeCanvas: resizeCanvas,
     finalizeRender: finalizeRender,
+    enableClipping: enableClipping,
+    disableClipping: disableClipping,
     drawFromTiledCanvas: drawFromTiledCanvas,
     get viewport () {
       return viewport;

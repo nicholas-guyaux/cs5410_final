@@ -54,7 +54,7 @@ function Player() {
       position.x += (vectorX * elapsedTime * speed);
       position.y += (vectorY * elapsedTime * speed);
       Graphics.viewport.playerUpdate({
-        x:position.x+ size.width / 2, 
+        x: position.x + size.width / 2, 
         y: position.y + size.height / 2,
       });
       
