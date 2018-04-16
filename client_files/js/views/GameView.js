@@ -1,3 +1,7 @@
+let playerCount = 0;
+let maxHealth = 100;
+let maxAmmo = 50;
+let maxEnergy = 100;
 //
 // Contains client-side game loop and client-side game state data
 const GameView = (function() {
@@ -24,9 +28,16 @@ const GameView = (function() {
       normal: undefined
     }
   };
+  var opposingBoatTextureSet = Object.assign({},boatTextureSet, {
+    ship: {
+      spriteSet: MyGame.assets['water_units'],
+      normal: MyGame.assets['water_units_mapping'].frames["ship_small_b_body.png"],
+      damaged: MyGame.assets['water_units_mapping'].frames["ship_small_body_b_destroyed.png"]
+    }
+  });
   let messageHistory = Queue.create();
   let playerSelf = {
-    model: Player(),
+    model: Player(maxHealth, maxAmmo, maxEnergy),
     textureSet: boatTextureSet,
   };
   let playerOthers = {};
@@ -142,6 +153,15 @@ const GameView = (function() {
       };
       socket.emit(GameNetIds.INPUT, message);
     });
+
+    keyboard.addAction(props.commandKeys.TURBO, elapsedTime => {
+      let message ={
+        id: props.messageId++,
+        elapsedTime: elapsedTime,
+        type: GameNetIds.INPUT_TURBO
+      };
+      socket.emit(GameNetIds.INPUT, message);
+    })
     requestAnimationFrame(gameLoop);
   }
 
@@ -169,7 +189,7 @@ const GameView = (function() {
 
   function updateSelfPosition () {
     Graphics.viewport.playerUpdate({
-      x: playerSelf.model.position.x+ playerSelf.model.size.width / 2, 
+      x: playerSelf.model.position.x + playerSelf.model.size.width / 2,
       y: playerSelf.model.position.y + playerSelf.model.size.height / 2,
     });
   }
@@ -192,7 +212,7 @@ const GameView = (function() {
 
     playerOthers[data.clientId] = {
       model: model,
-      textureSet: boatTextureSet,
+      textureSet: opposingBoatTextureSet,
     };
   }
 
@@ -205,8 +225,14 @@ const GameView = (function() {
   function updatePlayerSelf(data) {
     playerSelf.model.position.x = data.player.position.x;
     playerSelf.model.position.y = data.player.position.y;
+    //if(data.player.health.current < playerSelf.model.health.current)
+    //add damage particle effect
+    //else if(data.player.health.current > playerSelf.model.health.current)
+    //add healing particle effect
+    playerSelf.model.health = data.player.health;
     playerSelf.model.direction = data.player.direction;
-
+    playerSelf.model.energy = data.player.energy;
+    playerSelf.model.useTurbo = data.player.useTurbo;
     
     // Remove messages from the queue up through the last one identified
     // by the server as having been processed.
@@ -357,7 +383,6 @@ const GameView = (function() {
     Graphics.clear();
     Graphics.translateToViewport();
     GameMap.draw();
-    Renderer.renderPlayer(playerSelf.model, playerSelf.textureSet, totalTime);
     for (let id in playerOthers) {
         let player = playerOthers[id];
         Renderer.renderPlayer(player.model, player.textureSet, totalTime);
@@ -370,6 +395,9 @@ const GameView = (function() {
     // for (let id in explosions) {
     //   renderer.AnimatedSprite.render(explosions[id]);
     // }
+    Renderer.renderPlayer(playerSelf.model, playerSelf.textureSet, totalTime);
+
+    Renderer.minimap();
 
     Graphics.finalizeRender();
   }

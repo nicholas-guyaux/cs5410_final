@@ -134,6 +134,9 @@ MyGame.loader = (function() {
     }, {
       key: 'water_units',
       source: 'assets/images/water_units.png'
+    }, {
+      key: 'minimap',
+      source: 'assets/images/minimap.png'
     }];
 
     function loadScripts(scripts, onComplete){
@@ -214,7 +217,9 @@ MyGame.loader = (function() {
       AudioPool.addMusic('game', 'assets/sound/02 Underclocked (underunderclocked mix).mp3');
       AudioPool.addSFX('menu_click', 'assets/sound/270324__littlerobotsoundfactory__menu-navigate-00.wav');
       AudioPool.addSFX('menu_navigate', 'assets/sound/270322__littlerobotsoundfactory__menu-navigate-02.wav');
-      GameMap.load();
+      GameMap.load().then(function(){
+        GameMap.loadImage()
+      });
       console.log('Loading Complete');
       //MainView.loadView(MenuView.name);
       window.main('MenuView');

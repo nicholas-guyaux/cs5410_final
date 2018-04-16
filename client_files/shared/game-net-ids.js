@@ -37,6 +37,10 @@
       value: 'bullet-new',
       writable: false
     },
+    "INPUT_TURBO": {
+      value: 'turbo',
+      writable: false
+    },
     'PLAYER_JOIN_GAME': {
       value: 'player-join-game',
       writable: false
