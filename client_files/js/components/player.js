@@ -25,6 +25,7 @@ function Player(maxHealth, maxEnergy, maxAmmo) {
   let bulletShots = { hit: 0, total: 0 };
   let killCount = 0;
   let buffs = { dmg: false, speed: false, fireRate: false};
+  let localItems = [];
 
   Object.defineProperty(that, 'direction', {
       get: () => direction,
@@ -82,6 +83,11 @@ function Player(maxHealth, maxEnergy, maxAmmo) {
   Object.defineProperty(that, 'buffs', {
     get: () => buffs
   });
+
+  Object.defineProperty(that, 'localItems', {
+    get: () => localItems,
+    set: (value) => { localItems = value }
+});
 
   //------------------------------------------------------------------
   //

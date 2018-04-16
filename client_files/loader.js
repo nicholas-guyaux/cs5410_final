@@ -136,6 +136,24 @@ MyGame.loader = (function() {
     }, {
       key: 'minimap',
       source: 'assets/images/minimap.png'
+    }, {
+      key: 'ammo',
+      source: 'assets/images/ammo.png'
+    }, {
+      key: 'health',
+      source: 'assets/images/health.png'
+    }, {
+      key: 'gun',
+      source: 'assets/images/gun.png'
+    }, {
+      key: 'dmg',
+      source: 'assets/images/dmg.png'
+    }, {
+      key: 'gunSpd',
+      source: 'assets/images/gunSpd.png'
+    }, {
+      key: 'speed',
+      source: 'assets/images/speed.png'
     }];
 
     function loadScripts(scripts, onComplete){

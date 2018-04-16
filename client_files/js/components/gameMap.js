@@ -120,7 +120,11 @@
   
       return pkt;
     },
+    getGridMap:function() {
+      return this.gridMap;
+    },
     collision:function(playerX, playerY, playerSize) {
+      //console.log('x:', playerX, ' y:', playerY, 'size:', playerSize);
       for (let i1 = Math.ceil((playerX - playerSize/2) * 100), i2 = Math.floor((playerX + playerSize/2) * 100); i1 < i2; i1++) {
         for (let j1 = Math.ceil((playerY - playerSize/2) * 100), j2 = Math.floor((playerY + playerSize/2) * 100); j1 < j2; j1++) {
           if (this.gridMap[j1][i1] !== 0) {

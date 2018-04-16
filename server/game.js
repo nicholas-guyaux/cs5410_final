@@ -19,6 +19,8 @@ let props = {
 };
 let inputQueue = Queue.create();
 
+var tree = rbush();
+
 function processInput(elapsedTime) {
   //
   // Double buffering on the queue so we don't asynchronously receive inputs
@@ -117,6 +119,13 @@ function updateClients(elapsedTime) {
   // to all other clients
   for (let clientId in GameState.gameClients) {
     let client = GameState.gameClients[clientId];
+    // let buffs = tree.search({
+    //   minX: client.state.player.position.x - .15,
+    //   minY: client.state.player.position.y - .15,
+    //   maxX: client.state.player.position.x + .15,
+    //   maxY: client.state.player.position.y + .15
+    // });
+    let buffs = tree.all();
     let update = {
         clientId: clientId,
         lastMessageId: client.lastMessageId,
@@ -126,8 +135,9 @@ function updateClients(elapsedTime) {
           health: client.state.player.health,
           energy: client.state.player.energy,
           useTurbo: client.state.player.useTurbo,
-          updateWindow: props.lastUpdate
-        }
+          updateWindow: props.lastUpdate,
+          items: buffs
+        }        
     };
 
     if (client.state.player.reportUpdate) {
@@ -176,6 +186,8 @@ function gameLoop(currentTime, elapsedTime) {
 
 function initialize() {
   gameLoop(present(), 0);
+  tree = rbush();
+  tree.load(GameState.newGame());
 }
 
 function initializeSocketIO(io) {
