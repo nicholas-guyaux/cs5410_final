@@ -355,7 +355,7 @@ const GameView = (function() {
     explosions[props.nextExplosionId] = AnimatedSprite({
       id: props.nextExplosionId++,
       spriteSheet: MyGame.assets['explosion'],
-      spriteSize: { width: 0.07, height: 0.07 },
+      spriteSize: { width: 0.01, height: 0.01 },
       spriteCenter: data.position,
       spriteCount: 16,
       spriteTime: [ 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50]
@@ -473,9 +473,7 @@ const GameView = (function() {
     // Graphics.enableClipping(FOVPolygon); // clipping for objects forbidden outside FOV
 
     GameMap.draw();
-    for (let id in explosions) {
-      AnimatedSpriteDraw.render(explosions[id]);
-    }
+    
     Renderer.renderPlayer(playerSelf.model, playerSelf.textureSet, totalTime);
     let playerPos = {x: playerSelf.model.position.x + playerSelf.model.size.width / 2, y: playerSelf.model.position.y + playerSelf.model.size.height / 2};
     let FOVPoint1 = {x: (playerPos.x + props.FOVDistance), y: playerPos.y - (props.FOVWidth / 2)};
@@ -504,7 +502,11 @@ const GameView = (function() {
     Graphics.disableClipping();
     Graphics.createFogEffect(FOVPolygon2, props.FOVDistance);
     Graphics.disableFogClipping();
+    for (let id in explosions) {
+      Renderer.renderExplosion(explosions[id]);
+    }
     Renderer.minimap();
+
     Renderer.renderPlayer(playerSelf.model, playerSelf.textureSet, totalTime);
     
     Graphics.finalizeRender();

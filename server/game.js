@@ -133,7 +133,7 @@ function checkPlayerVsBulletCollisions(player, clientId){
           hitClientId: clientId,
           sourceClientId: results[i].clientId,
           bulletId: results[i].id,
-          position: results[i].position
+          position: player.position
         });
         GameState.gameClients[results[i].clientId].state.player.bulletShots.hit++;
         player.health.current -= results[i].damage;
@@ -275,11 +275,15 @@ function update(elapsedTime, currentTime, totalTime) {
             maxY: (j+1)/100
           });
           for (z = 0; z < badBullets.length; z++) {
+            let location = {
+              x: (2*k + 1)/200,
+              y: (2*j + 1)/200
+            } 
             hits.push({
               hitClientId: badBullets[z].clientId,
               sourceClientId: badBullets[z].clientId,
               bulletId: badBullets[z].id,
-              position:badBullets[z].position
+              position: location
             });
             bulletTree.remove(badBullets[z]);
           }

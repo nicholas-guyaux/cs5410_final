@@ -105,7 +105,7 @@ MyGame.loader = (function() {
       message: 'Player models loaded',
       onComplete: null,
     }, {
-      scripts: ['js/rendering/renderer','js/rendering/animated-sprite'],
+      scripts: ['js/rendering/renderer'],
       message: 'Renderer loaded',
       onComplete: null,
     }, {

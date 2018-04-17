@@ -74,6 +74,16 @@ const Renderer = (function(graphics) {
     //graphics.drawFilledRectangle('red',model.position.x, model.position.y, .1, .10);
   }
 
+  function renderExplosion(sprite) {
+    graphics.drawImageSpriteSheet(
+        sprite.spriteSheet,
+        { width: sprite.pixelWidth, height: sprite.pixelHeight },
+        sprite.sprite,
+        { x: sprite.center.x, y: sprite.center.y },
+        { width: sprite.width, height: sprite.height }
+    );
+  }
+
   function renderItems(itemList, itemImages) {
     var size = {
       width: .01,
@@ -156,6 +166,7 @@ const Renderer = (function(graphics) {
     minimap,
     renderVehicle,
     renderGameStart,
+    renderExplosion,
     renderItems
     // renderRemotePlayer
   };

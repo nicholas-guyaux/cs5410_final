@@ -347,14 +347,13 @@ const Graphics = (function() {
   //------------------------------------------------------------------
   function drawImageSpriteSheet(spriteSheet, spriteSize, sprite, center, size) {
     let localCenter = {
-        x: center.x * canvas.width,
-        y: center.y * canvas.width
+        x: center.x * Coords.world.width,
+        y: center.y * Coords.world.height
     };
     let localSize = {
-        width: size.width * canvas.width,
-        height: size.height * canvas.height
+        width: size.width * Coords.world.width,
+        height: size.height * Coords.world.height
     };
-
     context.drawImage(spriteSheet,
         sprite * spriteSize.width, 0,                 // which sprite to render
         spriteSize.width, spriteSize.height,    // size in the spritesheet
