@@ -12,7 +12,7 @@ const game = require('./game');
 let props = {
   numPlayersRequired: 2,
   gameInProgress: false,
-  countdownTime: 10
+  countdownTime: 2
 };
 
 //------------------------------------------------------------------

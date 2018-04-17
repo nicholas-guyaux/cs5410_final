@@ -51,6 +51,7 @@ function createPlayer(maxHealth, maxEnergy, maxAmmo) {
     let ammo = {current: 0, max: maxAmmo};
     let bulletShots = { hit: 0, total: 0 };
     let killCount = 0;
+    let gun = false;
     let buffs = { dmg: false, speed: false, fireRate: false};
     let currentFireRateWait = 0;
 
@@ -76,7 +77,12 @@ function createPlayer(maxHealth, maxEnergy, maxAmmo) {
 
     Object.defineProperty(that, 'speed', {
         get: () => speed
-    })
+    });
+
+    Object.defineProperty(that, 'gun', {
+      get: () => gun,
+      set: value => gun = value
+    });
 
     Object.defineProperty(that, 'rotateRate', {
         get: () => rotateRate
@@ -93,6 +99,7 @@ function createPlayer(maxHealth, maxEnergy, maxAmmo) {
 
     Object.defineProperty(that, 'health', {
       get: () => health,
+      set: value => health = value
     });
 
     Object.defineProperty(that, 'energy', {
@@ -100,7 +107,8 @@ function createPlayer(maxHealth, maxEnergy, maxAmmo) {
     });
 
     Object.defineProperty(that, 'ammo', {
-      get: () => ammo
+      get: () => ammo,
+      set: value => ammo = value
     });
 
     Object.defineProperty(that, 'bulletShots', {
@@ -112,7 +120,8 @@ function createPlayer(maxHealth, maxEnergy, maxAmmo) {
     });
 
     Object.defineProperty(that, 'buffs', {
-      get: () => buffs
+      get: () => buffs,
+      set: value => buffs = value
     });
 
     Object.defineProperty(that, 'currentFireRateWait', {
