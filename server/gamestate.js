@@ -73,18 +73,30 @@ function popItems() {
   
 }
 
+function getItemCoords(){
+  let x = Math.floor(random.nextGaussian(50,15));
+  if(x < 0)
+    x = 0;
+  if(x > 99)
+    x = 99;
+  let y = Math.floor(random.nextGaussian(50,15));
+  if(y < 0)
+    y = 0;
+  if(y > 99)
+    y = 99;
+  return [x,y];
+}
+
 function popAmmo() {
   //populate ammo on map
   for(let i = 0; i < ammoPP; i++) {
-    let x = Math.floor(random.nextGaussian(50,15));
-    let y = Math.floor(random.nextGaussian(50,15));
+    let [x,y] = getItemCoords();
     let added = false;
     
     while (!added) {
       let able = true;
       while (islandMap[y][x] !== 0) {
-        x = Math.floor(random.nextGaussian(50,15));
-        y = Math.floor(random.nextGaussian(50,15));
+        [x,y] = getItemCoords();
       }
       for (item in itemArray) {
         if (item.minX === x/100 && item.minY === y/100) {
@@ -109,15 +121,13 @@ function popAmmo() {
 function popHealth() {
   //populate health on map
   for(let i = 0; i < healthPP; i++) {
-    let x = Math.floor(random.nextGaussian(50,15));
-    let y = Math.floor(random.nextGaussian(50,15));
+    let [x,y] = getItemCoords();
     let added = false;
     
     while (!added) {
       let able = true;
       while (islandMap[y][x] !== 0) {
-        x = Math.floor(random.nextGaussian(50,15));
-        y = Math.floor(random.nextGaussian(50,15));
+        [x,y] = getItemCoords();
       }
       for (item in itemArray) {
         if (item.minX === x/100 && item.minY === y/100) {
@@ -142,15 +152,13 @@ function popHealth() {
 function popGuns() {
   //populate guns on map
   for(let i = 0; i < gunsPP; i++) {
-    let x = Math.floor(random.nextGaussian(50,15));
-    let y = Math.floor(random.nextGaussian(50,15));
+    let [x,y] = getItemCoords();
     let added = false;
     
     while (!added) {
       let able = true;
       while (islandMap[y][x] !== 0) {
-        x = Math.floor(random.nextGaussian(50,15));
-        y = Math.floor(random.nextGaussian(50,15));
+        [x,y] = getItemCoords();
       }
       for (item in itemArray) {
         if (item.minX === x/100 && item.minY === y/100) {
@@ -175,15 +183,13 @@ function popGuns() {
 function popSpeed() {
   //populate speed boost on map
   for(let i = 0; i < speedPP; i++) {
-    let x = Math.floor(random.nextGaussian(50,15));
-    let y = Math.floor(random.nextGaussian(50,15));
+    let [x,y] = getItemCoords();
     let added = false;
     
     while (!added) {
       let able = true;
       while (islandMap[y][x] !== 0) {
-        x = Math.floor(random.nextGaussian(50,15));
-        y = Math.floor(random.nextGaussian(50,15));
+        [x,y] = getItemCoords();
       }
       for (item in itemArray) {
         if (item.minX === x/100 && item.minY === y/100) {
@@ -208,15 +214,13 @@ function popSpeed() {
 function popDmg() {
   //popluate damage boost on map
   for(let i = 0; i < dmgPP; i++) {
-    let x = Math.floor(random.nextGaussian(50,15));
-    let y = Math.floor(random.nextGaussian(50,15));
+    let [x,y] = getItemCoords();
     let added = false;
     
     while (!added) {
       let able = true;
       while (islandMap[y][x] !== 0) {
-        x = Math.floor(random.nextGaussian(50,15));
-        y = Math.floor(random.nextGaussian(50,15));
+        [x,y] = getItemCoords();
       }
       for (item in itemArray) {
         if (item.minX === x/100 && item.minY === y/100) {
@@ -241,15 +245,13 @@ function popDmg() {
 function popGunSpeed() {
   //populate gun speed boost on map
   for(let i = 0; i < gunSpdPP; i++) {
-    let x = Math.floor(random.nextGaussian(50,15));
-    let y = Math.floor(random.nextGaussian(50,15));
+    let [x,y] = getItemCoords();
     let added = false;
     
     while (!added) {
       let able = true;
       while (islandMap[y][x] !== 0) {
-        x = Math.floor(random.nextGaussian(50,15));
-        y = Math.floor(random.nextGaussian(50,15));
+        [x,y] = getItemCoords();
       }
       for (item in itemArray) {
         if (item.minX === x/100 && item.minY === y/100) {
