@@ -7,10 +7,11 @@ const LobbyNetIds = require('../client_files/shared/lobby-net-ids');
 const Queue = require('../client_files/shared/queue.js');
 const Token = require('../Token');
 const game = require('./game');
+const config = require('./config');
 
 
 let props = {
-  numPlayersRequired: 2,
+  numPlayersRequired: config.numPlayersRequired,
   countdownTime: 2
 };
 

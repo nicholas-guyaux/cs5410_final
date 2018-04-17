@@ -9,6 +9,9 @@ const GameNetIds = require('../client_files/shared/game-net-ids');
 const Queue = require('../client_files/shared/queue.js');
 const GameMap = require ('./components/gamemap.js');
 const Token = require('../Token');
+const config = require('./config');
+
+var waitingForPlayers = false;
 
 const SIMULATION_UPDATE_RATE_MS = 16;
 const STATE_UPDATE_LAG = 100;
@@ -184,8 +187,7 @@ function processDeath(player){
   //PlayerCount--
   //Update to player = death
   //Update to others = otherDeath
-  
-  GameState.playerCount--;
+  player.dead = true;
   return;
 }
 
@@ -200,11 +202,10 @@ function update(elapsedTime, currentTime, totalTime) {
       processDeath(GameState.gameClients[clientId].state.player);
     }
 
-  if(GameState.playersAlive === 1){
+  if(GameState.alivePlayers.length <= 1){
     // endGame
     // tell the player they won;
     GameState.inProgress = false;
-    GameState.playersAlive--;
   }
   bulletTree.clear();
   for (let i = 0; i < newBullets.length; i++) {
@@ -432,19 +433,30 @@ function gameLoop(currentTime, elapsedTime) {
   }
 }
 
+
+var timeout = (ms) => new Promise(res => setTimeout(res, ms));
 //------------------------------------------------------------------
 //
 // Get the socket.io server up and running so it can begin
 // collecting inputs from the connected clients.
 //
 //------------------------------------------------------------------
-
-
-function initialize() {
-  GameState.newGame();
-  gameLoop(present(), 0);
-  itemTree = rbush();
-  itemTree.load(GameState.newGame());
+async function initialize() {
+  try {
+    itemTree = rbush();
+    itemTree.load(GameState.newGame());
+    // wait for atleast two players to come in
+    for(var i = 0; i < 100; ++i) {
+      await timeout(100);
+      if(GameState.alivePlayers.length >= 2) {
+        break;
+      }
+    }
+    GameState.startTime = present();
+    gameLoop(present(), 0);
+  } catch (e) {
+    console.error(e);
+  }
 }
 
 function initializeSocketIO(io) {
@@ -529,6 +541,7 @@ function initializeSocketIO(io) {
       }
     };
     GameState.gameClients[socket.id] = newClient;
+    GameState.alivePlayers.push(newPlayer);
 
     //
     // Ack message emitted to new client with info about its new player
