@@ -7,6 +7,7 @@
   "dependencies": {
     "jsonwebtoken": "8.2.0",
     "present": "1.0.0",
+    "rbush": "^2.0.2",
     "socket.io": "2.0.*"
   }
 }

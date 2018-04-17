@@ -75,31 +75,8 @@ function getRandomIntInclusive(min, max) {
   return Math.floor(Math.random() * (max - min + 1)) + min; //The maximum is inclusive and the minimum is inclusive 
 }
 
-function getRandomPointInRect (rect) {
-  return Geometry.Point(getRandomIntInclusive(rect.left, rect.right), getRandomIntInclusive(rect.top, rect.bottom));
-}
-
 function fillRect (rect) {
   ctx.fillRect(rect.x, rect.y, rect.width, rect.height);
-}
-
-/**
- * https://en.wikipedia.org/wiki/Linear_interpolation
- * Precise method, which guarantees y = rangeEnd when x = 1.
- * @param {Number} rangeStart 
- * output range start
- * @param {Number} rangeEnd 
- * output range end
- * @param {Float} x 
- * a number between 0 and 1 on the input range.
- */
-function lerp(rangeStart, rangeEnd, x) {
-  return (1 - x) * rangeStart + x * rangeEnd;
-}
-
-function lerpBetweenPoints (a, b, time, maxTime=2000) {
-  var tRatio = time / maxTime;
-  return Geometry.Point(lerp(a.x, b.x, tRatio), lerp(a.y, b.y, tRatio));
 }
 
 function drawLine (lineSeg) {
@@ -107,15 +84,6 @@ function drawLine (lineSeg) {
   ctx.moveTo(lineSeg.a.x, lineSeg.a.y);
   ctx.lineTo(lineSeg.b.x, lineSeg.b.y);
   ctx.stroke();
-}
-
-function getRectCenteredAtPoint (point, width, height) {
-  return Geometry.Rectangle({
-    x: point.x - width / 2,
-    y: point.y - height / 2,
-    width: width,
-    height: height,
-  })
 }
 
 function strokeRect (rect) {

@@ -8,11 +8,14 @@
 
 let random = require ('../utils/random');
 let Coords = require ('../../client_files/shared/Coords');
+let Geometry = require ('../../client_files/shared/Geometry');
 let settings = require ('../../client_files/shared/settings');
+let GameMap = require('./gameMap')
 var fs = require('fs');
 var path = require('path');
 const waterUnitsFilePath = path.join(__dirname, '../../client_files/assets/data/water_units.json');
 const water_units = JSON.parse(fs.readFileSync(waterUnitsFilePath, 'utf8'));
+
 
 const boatImg = water_units.frames["ship_small_body.png"];
 //------------------------------------------------------------------
@@ -21,12 +24,14 @@ const boatImg = water_units.frames["ship_small_body.png"];
 // at some random location.
 //
 //------------------------------------------------------------------
-function createPlayer() {
+function createPlayer(maxHealth, maxEnergy, maxAmmo) {
     let that = {};
+    let isDropped = false;
 
+    // this is top left position
     let position = {
-        x: 0,
-        y: 0
+        x: null,
+        y: null,
     };
 
     let size = {
@@ -40,9 +45,32 @@ function createPlayer() {
     let rotateRate = Math.PI / 1000;    // radians per millisecond
     let speed = 0.0002*Coords.viewport.width;                 // unit distance per millisecond
     let reportUpdate = false;    // Indicates if this model was updated during the last update
+    
+    let health = {current: maxHealth, max: maxHealth};
+    let energy = {current: maxEnergy, max: maxEnergy};
+    let useTurbo = false;
+    let ammo = {current: 0, max: maxAmmo};
+    let bulletShots = { hit: 0, total: 0 };
+    let killCount = 0;
+    let gun = false;
+    let buffs = { dmg: false, speed: false, fireRate: false};
+    let currentFireRateWait = 0;
+
+    that.getCircle = function () {
+      return Geometry.Circle({
+        x: position.x + size.width / 2,
+        y: position.y + size.height / 2,
+        radius: size.radius,
+      });
+    }
 
     Object.defineProperty(that, 'direction', {
         get: () => direction
+    });
+
+    Object.defineProperty(that, 'isDropped', {
+      get: () => isDropped,
+      set: (val) => { isDropped = !!val; }
     });
 
     Object.defineProperty(that, 'position', {
@@ -55,7 +83,12 @@ function createPlayer() {
 
     Object.defineProperty(that, 'speed', {
         get: () => speed
-    })
+    });
+
+    Object.defineProperty(that, 'gun', {
+      get: () => gun,
+      set: value => gun = value
+    });
 
     Object.defineProperty(that, 'rotateRate', {
         get: () => rotateRate
@@ -70,6 +103,38 @@ function createPlayer() {
         get: () => size.radius
     });
 
+    Object.defineProperty(that, 'health', {
+      get: () => health,
+      set: value => health = value
+    });
+
+    Object.defineProperty(that, 'energy', {
+      get: () => energy
+    });
+
+    Object.defineProperty(that, 'ammo', {
+      get: () => ammo,
+      set: value => ammo = value
+    });
+
+    Object.defineProperty(that, 'bulletShots', {
+      get: () => bulletShots
+    });
+
+    Object.defineProperty(that, 'killCount', {
+      get: () => killCount
+    });
+
+    Object.defineProperty(that, 'buffs', {
+      get: () => buffs,
+      set: value => buffs = value
+    });
+
+    Object.defineProperty(that, 'currentFireRateWait', {
+      get: () => currentFireRateWait,
+      set: value => currentFireRateWait = value
+    })
+
     //------------------------------------------------------------------
     //
     // Moves the player forward based on how long it has been since the
@@ -77,12 +142,32 @@ function createPlayer() {
     //
     //------------------------------------------------------------------
     that.move = function(elapsedTime) {
-        reportUpdate = true;
-        let vectorX = Math.cos(direction);
-        let vectorY = Math.sin(direction);
+      reportUpdate = true;
+      let vectorX = Math.cos(direction);
+      let vectorY = Math.sin(direction);
 
-        position.x += (vectorX * elapsedTime * speed);
-        position.y += (vectorY * elapsedTime * speed);
+      let moveX = false;
+      let moveY = false;
+
+      let centerX = position.x + size.width/2;
+      let centerY = position.y + size.height/2;
+      
+      moveY = GameMap.collision(centerX, centerY + (vectorY * elapsedTime * speed), Math.max(size.width, size.height));
+      moveX = GameMap.collision(centerX + (vectorX * elapsedTime * speed), centerY, Math.max(size.width, size.height));
+     
+      let turboAdjust = 1;
+      if(useTurbo)
+        turboAdjust = 2;
+
+      if (moveX) {
+        position.x += (vectorX * elapsedTime * speed * turboAdjust);
+      }
+      if (moveY) {
+        position.y += (vectorY * elapsedTime * speed * turboAdjust);
+      }
+      if((!moveY || !moveX) && useTurbo){
+        health.current -= 1;
+      }
     };
 
     //------------------------------------------------------------------
@@ -107,15 +192,33 @@ function createPlayer() {
         direction -= (rotateRate * elapsedTime);
     };
 
+    that.turbo = function() {
+      if(energy.current === energy.max){
+        useTurbo = true;
+      }
+    }
+
     //------------------------------------------------------------------
     //
     // Function used to update the player during the game loop.
     //
     //------------------------------------------------------------------
-    that.update = function(when) {
+    that.update = function(elapsedTime) {
+      if(useTurbo){
+        energy.current -= 2;
+        reportUpdate = true;
+        if(energy.current <= 0){
+          useTurbo = false
+        }
+      }
+      else if(energy.current < energy.max){
+        energy.current++;
+        reportUpdate = true;
+      }
+      currentFireRateWait += elapsedTime;
     };
 
     return that;
 }
 
-module.exports.create = () => createPlayer();
+module.exports.create = (...args) => createPlayer(...args);

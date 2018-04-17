@@ -25,8 +25,8 @@
       value: 'lobby-msg',
       writable: false
     },
-    'GAME_COUNTDOWN': {
-      value: 'game-starting',
+    'START_COUNTDOWN': {
+      value: 'start-countdown',
       writeable: false
     },
     'START_GAME': {

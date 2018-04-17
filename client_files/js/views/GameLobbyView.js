@@ -69,8 +69,25 @@ const GameLobbyView = (function GameLobbyView (AudioPool) {
       MainView.loadView(GameView.name);
     });
 
+    socket.on(LobbyNetIds.START_COUNTDOWN, function (data){
+      //Start countdown
+      console.log('begin countdown');
+      showCountdown(data.countdown);
+    });
+
     AudioPool.playMusic('menu');
     keyboard.activate();
+  }
+
+  function showCountdown(seconds) {
+    var numReq = document.getElementById('game-lobby-status');
+    numReq.innerHTML = 'Game will begin in ' + seconds--;
+    var interval = setInterval(function () {
+      numReq.innerHTML = 'Game will begin in ' + seconds--;
+      if(seconds === 0) {
+        clearInterval(interval);
+      }
+    }, 1000);
   }
 
   function unrender () {

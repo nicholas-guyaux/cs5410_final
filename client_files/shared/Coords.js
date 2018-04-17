@@ -37,6 +37,13 @@
       });
     }
 
+    worldRect.ratio = Geometry.Rectangle({
+      height: 1,
+      width: 1,
+      x: 0,
+      y: 0,
+    });
+
     return worldRect;
   }
 
