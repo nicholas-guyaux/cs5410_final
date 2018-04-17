@@ -7,6 +7,9 @@ const Graphics = (function() {
   let canvas = document.createElement('canvas');
   let context = canvas.getContext('2d');
 
+  let fogCanvas = document.createElement('canvas');
+  let fogContext = fogCanvas.getContext('2d');
+
   var viewport = Coords.viewport;
   var world = Coords.world;
 
@@ -47,6 +50,9 @@ const Graphics = (function() {
 
     viewport.canvas.width = canvas.width;
     viewport.canvas.height = canvas.height;
+
+    fogCanvas.width = canvas.width;
+    fogCanvas.height = canvas.height;
 
     //
     // Have to figure out where the upper left corner of the unit world is
@@ -163,14 +169,21 @@ const Graphics = (function() {
     );
   }
 
-  function drawCircle(fillStyle, center, radius) {
-    context.beginPath();
-    context.arc(center.x * Coords.world.width,
+  function drawCircle(fillStyle, center, radius, alpha, ctx) {
+    if (typeof ctx === 'undefined') {
+      ctx = context;
+    }
+    if (typeof alpha !== 'undefined') {
+      ctx.globalAlpha = alpha;
+    }
+    ctx.beginPath();
+    ctx.arc(center.x * Coords.world.width,
         center.y * Coords.world.width, 2 * radius * Coords.world.width,
         2 * Math.PI, false);
-    context.closePath();
-    context.fillStyle = fillStyle;
-    context.fill();
+    ctx.closePath();
+    ctx.fillStyle = fillStyle;
+    ctx.fill();
+    ctx.globalAlpha = 1;
   }
 
   function scalingFactor () {
@@ -220,6 +233,37 @@ const Graphics = (function() {
     }
   }
 
+  function createFogEffect(polygon) {
+    if (polygon.length < 2) {
+      return;
+    }
+    
+    fogContext.globalAlpha = 0.7;
+    fogContext.fillStyle = '#000000';
+    fogContext.fillRect(0, 0, 1000, 1000);
+
+    // Convert polygon to true coordinates       
+    for (let point of polygon) {
+      point.x *= Coords.world.width;
+      point.y *= Coords.world.height;
+    }
+
+    fogContext.globalCompositeOperation = 'destination-out';
+
+    fogContext.beginPath();
+    fogContext.moveTo(polygon[0].x, polygon[0].y);
+    for (let pointIdx = 1; pointIdx < polygon.length; pointIdx++) {
+      fogContext.lineTo(polygon[pointIdx].x, polygon[pointIdx].y);
+    }
+    fogContext.closePath();
+    fogContext.fill();
+
+
+    fogContext.globalCompositeOperation = 'source-over';
+    context.drawImage(fogCanvas, 0, 0);
+    fogContext.clear();
+  }
+
   function finalizeRender() {
     onScreenContext.clear();
     onScreenContext.drawImage(canvas, 0, 0, canvas.width, canvas.height);
@@ -240,6 +284,7 @@ const Graphics = (function() {
     finalizeRender: finalizeRender,
     enableClipping: enableClipping,
     disableClipping: disableClipping,
+    createFogEffect: createFogEffect,
     drawFromTiledCanvas: drawFromTiledCanvas,
     get viewport () {
       return viewport;

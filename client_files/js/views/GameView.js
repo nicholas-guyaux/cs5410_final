@@ -39,8 +39,8 @@ const GameView = (function() {
     messageId: 1,
     commandKeys: null,
     nextExplosionId: 1,
-    FOVDistance: .1,
-    FOVWidth: .2
+    FOVDistance: 0.05,
+    FOVWidth: 0.1
   };
 
   //
@@ -370,31 +370,24 @@ const GameView = (function() {
     };
   }
 
-  function renderFOV() {
-    let playerPos = {x: playerSelf.model.position.x, y: playerSelf.model.position.y};
-    let FOVPoint1 = {x: (playerPos.x + props.FOVDistance), y: playerPos.y - (props.FOVWidth / 2)};
-    let FOVPoint2 = {x: (playerPos.x + props.FOVDistance), y: playerPos.y + (props.FOVWidth / 2)};
-
-    FOVPoint1 = rotatePointAboutPoint(playerPos, FOVPoint1, playerSelf.model.direction);
-    FOVPoint2 = rotatePointAboutPoint(playerPos, FOVPoint2, playerSelf.model.direction);
-    FOVPolygon = [playerPos, FOVPoint1, FOVPoint2];
-
-    Graphics.enableClipping(FOVPolygon);
-  }
-
   //
   // Render function for gameLoop
   function renderFrame() {
     totalTime = props.lastTimeStamp;
     Graphics.clear();
     Graphics.translateToViewport();
-    renderFOV();
+    
+    // let playerPos = {x: playerSelf.model.position.x, y: playerSelf.model.position.y};
+    // let FOVPoint1 = {x: (playerPos.x + props.FOVDistance), y: playerPos.y - (props.FOVWidth / 2)};
+    // let FOVPoint2 = {x: (playerPos.x + props.FOVDistance), y: playerPos.y + (props.FOVWidth / 2)};
+
+    // FOVPoint1 = rotatePointAboutPoint(playerPos, FOVPoint1, playerSelf.model.direction);
+    // FOVPoint2 = rotatePointAboutPoint(playerPos, FOVPoint2, playerSelf.model.direction);
+    // FOVPolygon = [playerPos, FOVPoint1, FOVPoint2];
+    // Graphics.enableClipping(FOVPolygon); // clipping for objects forbidden outside FOV
+
     GameMap.draw();
     Renderer.renderPlayer(playerSelf.model, playerSelf.textureSet, totalTime);
-    for (let id in playerOthers) {
-      let player = playerOthers[id];
-      Renderer.renderPlayer(player.model, player.textureSet, totalTime);
-    }
 
     for (let bullet in bullets) {
       Renderer.renderBullet(bullets[bullet]);
@@ -404,10 +397,24 @@ const GameView = (function() {
     //   renderer.AnimatedSprite.render(explosions[id]);
     // }
 
-    // Graphics.drawCircle('#000000', {x: 0, y: 0}, 1000);
+    let playerPos = {x: playerSelf.model.position.x, y: playerSelf.model.position.y};
+    let FOVPoint1 = {x: (playerPos.x + props.FOVDistance), y: playerPos.y - (props.FOVWidth / 2)};
+    let FOVPoint2 = {x: (playerPos.x + props.FOVDistance), y: playerPos.y + (props.FOVWidth / 2)};
 
-    Graphics.finalizeRender();
+    FOVPoint1 = rotatePointAboutPoint(playerPos, FOVPoint1, playerSelf.model.direction);
+    FOVPoint2 = rotatePointAboutPoint(playerPos, FOVPoint2, playerSelf.model.direction);
+    FOVPolygon = [playerPos, FOVPoint1, FOVPoint2];
+
+    Graphics.createFogEffect(FOVPolygon);  // fog only outside FOV
+
+    Graphics.enableClipping(FOVPolygon); // clipping for objects forbidden outside FOV
+    // Render other players, items, etc. here (things only visible inside FOV)
+    for (let id in playerOthers) {
+      let player = playerOthers[id];
+      Renderer.renderPlayer(player.model, player.textureSet, totalTime);
+    }
     Graphics.disableClipping();
+    Graphics.finalizeRender();
   }
 
   function gameLoop(time) {
