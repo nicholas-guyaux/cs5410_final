@@ -471,19 +471,10 @@ const GameView = (function() {
     // Graphics.enableClipping(FOVPolygon); // clipping for objects forbidden outside FOV
 
     GameMap.draw();
-   
-
-    
-
     // for (let id in explosions) {
     //   renderer.AnimatedSprite.render(explosions[id]);
     // }
-    Renderer.renderPlayer(playerSelf.model, playerSelf.textureSet, totalTime);
-    
-    
-
-    
-
+    // Renderer.renderPlayer(playerSelf.model, playerSelf.textureSet, totalTime);
     let playerPos = {x: playerSelf.model.position.x + playerSelf.model.size.width / 2, y: playerSelf.model.position.y + playerSelf.model.size.height / 2};
     let FOVPoint1 = {x: (playerPos.x + props.FOVDistance), y: playerPos.y - (props.FOVWidth / 2)};
     let FOVPoint2 = {x: (playerPos.x + props.FOVDistance), y: playerPos.y + (props.FOVWidth / 2)};
@@ -508,9 +499,9 @@ const GameView = (function() {
       Renderer.renderPlayer(player.model, player.textureSet, totalTime);
     } 
     
-    Graphics.disableClipping();
-    Graphics.createFogEffect(FOVPolygon2, props.FOVDistance);
-    Graphics.disableFogClipping();
+    Graphics.disableClipping(); 
+    //Graphics.createFogEffect(FOVPolygon2, props.FOVDistance);
+    //Graphics.disableFogClipping();
     Renderer.minimap();
     Renderer.renderPlayer(playerSelf.model, playerSelf.textureSet, totalTime);
     

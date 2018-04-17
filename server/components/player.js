@@ -124,7 +124,8 @@ function createPlayer(maxHealth, maxEnergy, maxAmmo) {
     });
 
     Object.defineProperty(that, 'killCount', {
-      get: () => killCount
+      get: () => killCount,
+      set: value => killCount = value
     });
 
     Object.defineProperty(that, 'buffs', {
@@ -135,7 +136,7 @@ function createPlayer(maxHealth, maxEnergy, maxAmmo) {
     Object.defineProperty(that, 'currentFireRateWait', {
       get: () => currentFireRateWait,
       set: value => currentFireRateWait = value
-    })
+    });
 
     //------------------------------------------------------------------
     //

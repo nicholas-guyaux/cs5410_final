@@ -137,6 +137,10 @@ function checkPlayerVsBulletCollisions(player, clientId){
         });
         GameState.gameClients[results[i].clientId].state.player.bulletShots.hit++;
         player.health.current -= results[i].damage;
+        if (player.health.current <= 0) {
+          GameState.gameClients[results[i].clientId].state.player.killCount++;
+          console.log('kills:',GameState.gameClients[results[i].clientId].state.player.killCount);
+        }
         player.reportUpdate = true;
         bulletTree.remove(results[i]);
       }
