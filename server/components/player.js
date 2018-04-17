@@ -52,6 +52,7 @@ function createPlayer(maxHealth, maxEnergy, maxAmmo) {
     let bulletShots = { hit: 0, total: 0 };
     let killCount = 0;
     let buffs = { dmg: false, speed: false, fireRate: false};
+    let currentFireRateWait = 0;
 
     that.getCircle = function () {
       return Geometry.Circle({
@@ -113,6 +114,11 @@ function createPlayer(maxHealth, maxEnergy, maxAmmo) {
     Object.defineProperty(that, 'buffs', {
       get: () => buffs
     });
+
+    Object.defineProperty(that, 'currentFireRateWait', {
+      get: () => currentFireRateWait,
+      set: value => currentFireRateWait = value
+    })
 
     //------------------------------------------------------------------
     //
@@ -194,6 +200,7 @@ function createPlayer(maxHealth, maxEnergy, maxAmmo) {
         energy.current++;
         reportUpdate = true;
       }
+      currentFireRateWait += elapsedTime;
     };
 
     return that;

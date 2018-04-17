@@ -14,6 +14,8 @@ const maxHealth = 100;
 const maxAmmo = 50;
 const maxEnergy = 200;
 const defaultBulletDamage = 5;
+const fireRate = 300;
+const upgradedFireRate = 150;
 const healthPP = 5;
 const ammoPP = 5;
 const gunsPP = 5;
@@ -249,5 +251,7 @@ module.exports = {
   maxHealth: maxHealth,
   maxEnergy: maxEnergy,
   maxAmmo: maxAmmo,
-  defaultBulletDamage: defaultBulletDamage
+  defaultBulletDamage: defaultBulletDamage,
+  fireRate: fireRate,
+  upgradedFireRate: upgradedFireRate
 };
