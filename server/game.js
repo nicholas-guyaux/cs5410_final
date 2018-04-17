@@ -83,9 +83,10 @@ function processInput(elapsedTime, totalTime) {
         break;
       case GameNetIds.INPUT_FIRE:
         var playerFireRate = client.state.player.buffs.fireRate ? GameState.upgradedFireRate : GameState.fireRate;
-        if(client.state.player.currentFireRateWait >= playerFireRate){
+        if(client.state.player.currentFireRateWait >= playerFireRate && client.state.player.ammo.current > 0){
           createBullet(input.clientId, client.state.player);
           client.state.player.currentFireRateWait = 0;
+          client.state.player.ammo.current--;
         }
         break;
       case GameNetIds.INPUT_TURBO:
@@ -151,7 +152,7 @@ function checkPlayerVsBuffCollision(player){
         case 'gun':
           if (!player.gun) {
             player.gun = true;
-            player.ammo = player.ammo.max;
+            player.ammo.current = player.ammo.max;
             itemTree.remove(result[i]);
           }
           break;
