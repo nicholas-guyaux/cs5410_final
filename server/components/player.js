@@ -119,7 +119,8 @@ function createPlayer(maxHealth, maxEnergy, maxAmmo) {
     });
 
     Object.defineProperty(that, 'bulletShots', {
-      get: () => bulletShots
+      get: () => bulletShots,
+      set: value => bulletShots = value
     });
 
     Object.defineProperty(that, 'killCount', {
