@@ -27,6 +27,7 @@ const boatImg = water_units.frames["ship_small_body.png"];
 function createPlayer(maxHealth, maxEnergy, maxAmmo) {
     let that = {};
     let isDropped = false;
+    that.dead = false;
 
     // this is top left position
     let position = {
