@@ -184,6 +184,16 @@ const Graphics = (function() {
     );
   }
 
+  function drawCircle(fillStyle, center, radius) {
+    context.beginPath();
+    context.arc(center.x * Coords.world.width,
+        center.y * Coords.world.width, 2 * radius * Coords.world.width,
+        2 * Math.PI, false);
+    context.closePath();
+    context.fillStyle = fillStyle;
+    context.fill();
+  }
+
   function scalingFactor () {
     return 1;//canvas.width / (Coords.world.width * Coords.viewport.width);
   }
@@ -220,6 +230,7 @@ const Graphics = (function() {
     rotateCanvas : rotateCanvas,
     drawImage : drawImage,
     drawRectangle : drawRectangle,
+    drawCircle: drawCircle,
     drawFilledRectangle : drawFilledRectangle,
     drawTiledImage : drawTiledImage,
     drawPattern : drawPattern,

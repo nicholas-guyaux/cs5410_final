@@ -98,7 +98,8 @@ MyGame.loader = (function() {
     // }, {
       scripts: [ //Components / Player Models
         'js/components/player',
-        'js/components/player-other'
+        'js/components/player-other',
+        'js/components/bullet'
       ],
       message: 'Player models loaded',
       onComplete: null,

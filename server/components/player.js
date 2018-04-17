@@ -8,6 +8,7 @@
 
 let random = require ('../utils/random');
 let Coords = require ('../../client_files/shared/Coords');
+let Geometry = require ('../../client_files/shared/Geometry');
 let settings = require ('../../client_files/shared/settings');
 let GameMap = require('./gameMap')
 var fs = require('fs');
@@ -27,6 +28,7 @@ function createPlayer(maxHealth, maxEnergy, maxAmmo) {
     let that = {};
     let isDropped = false;
 
+    // this is top left position
     let position = {
         x: null,
         y: null,
@@ -51,6 +53,14 @@ function createPlayer(maxHealth, maxEnergy, maxAmmo) {
     let bulletShots = { hit: 0, total: 0 };
     let killCount = 0;
     let buffs = { dmg: false, speed: false, fireRate: false};
+
+    that.getCircle = function () {
+      return Geometry.Circle({
+        x: position.x + size.width / 2,
+        y: position.y + size.height / 2,
+        radius: size.radius,
+      });
+    }
 
     Object.defineProperty(that, 'direction', {
         get: () => direction
