@@ -13,6 +13,10 @@
       value: 'input',
       writable: false
     },
+    'INPUT_DROP': {
+      value: 'drop-self',
+      writable: false
+    },
     'INPUT_MOVE_FORWARD': {
       value: 'move-forward',
       writable: false
@@ -80,6 +84,10 @@
     'UPDATE_OTHER': {
       value: 'update-other',
       writable: false
+    },
+    'UPDATE_VEHICLE': {
+      value: 'update-vehicle',
+      writable: false,
     },
     "GAME_KICK": {
       value: 'game-kick',

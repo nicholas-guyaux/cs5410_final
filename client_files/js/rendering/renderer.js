@@ -110,10 +110,36 @@ const Renderer = (function(graphics) {
       width: lerp(0, minimap.width, Coords.viewport.width),
       height: lerp(0, minimap.height, Coords.viewport.height),
     }
-    graphics.drawRectangle('yellow', viewport.x, viewport.y, viewport.width, viewport.height);
     graphics.setOpacity(0.7);
     graphics.drawImage(MyGame.assets['minimap'], minimap.center, minimap);
     graphics.restoreContext();
+    graphics.drawRectangle('yellow', viewport.x, viewport.y, viewport.width, viewport.height);
+  }
+
+  var clipping = TiledImageClipping({
+    width: MyGame.assets['plane'].width / 4,
+    height: MyGame.assets['plane'].height
+  });
+  function renderVehicle (totalTime, vehicle) {
+    if(!vehicle.x) {
+      return;
+    }
+    const vCirc = vehicle.getCircleInViewport();
+    graphics.saveContext();
+    Graphics.rotateCanvas(vCirc, vehicle.direction + Math.PI / 2);
+    Graphics.drawImage(MyGame.assets['plane'], vCirc, {
+      width: vehicle.width,
+      height: vehicle.height, 
+    }, clipping(Math.floor(totalTime / 50) % 4));
+    graphics.restoreContext();
+  }
+
+  function renderGameStart(totalTime, vehicle) {
+    Graphics.drawImage(MyGame.assets['minimap'], Coords.viewport.center, Coords.viewport);
+    renderVehicle(totalTime, vehicle);
+    var vCirc = vehicle.getCircleInViewport();
+    Graphics.drawStrokedCircle('white', vCirc, vCirc.radius)
+    Graphics.finalizeRender();
   }
 
   function renderBullet(model) {
@@ -128,6 +154,8 @@ const Renderer = (function(graphics) {
     renderPlayer,
     renderBullet,
     minimap,
+    renderVehicle,
+    renderGameStart,
     renderItems
     // renderRemotePlayer
   };

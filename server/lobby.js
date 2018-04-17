@@ -11,7 +11,6 @@ const game = require('./game');
 
 let props = {
   numPlayersRequired: 2,
-  gameInProgress: false,
   countdownTime: 2
 };
 
@@ -154,10 +153,8 @@ function initializeSocketIO(io) {
 
     notifyConnect(newClient);
 
-    if ((Object.keys(GameState.lobbyClients).length >= props.numPlayersRequired) && !props.gameInProgress) {
-      props.gameInProgress = true;
-      game.initialize(Object.keys(GameState.lobbyClients).length);//sends # of players
-
+    if ((Object.keys(GameState.lobbyClients).length >= props.numPlayersRequired) && !GameState.inProgress) {
+      GameState.inProgress = true;
       for (let clientId in GameState.lobbyClients) {
         if (!GameState.lobbyClients.hasOwnProperty(clientId)) {
           continue;
@@ -170,6 +167,7 @@ function initializeSocketIO(io) {
         console.log('the final countdown'); 
       }
       setTimeout(function(){
+        game.initialize(Object.keys(GameState.lobbyClients).length);//sends # of players  
         for (let clientId in GameState.lobbyClients) {
           if (!GameState.lobbyClients.hasOwnProperty(clientId)) {
             continue;

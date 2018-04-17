@@ -1,4 +1,7 @@
 // TODO: Add all gamestate data structures and methods here
+const Vehicle = require('./components/vehicle');
+const Dropper = require('./components/dropper');
+const present = require('present');
 
 const random = require ('./utils/random');
 const GameMap = require ('./components/gamemap.js')
@@ -22,14 +25,39 @@ const gunsPP = 5;
 const speedPP = 5;
 const dmgPP = 5;
 const gunSpdPP = 5;
+const vehicleStartTime = 12 * 1000;
+
+// TODO: Wipes and preps the gamestate for a new game
+// we are adding other things to GameState in newGame
+var GameState = {
+  newGame: newGame,
+  lobbyClients: lobbyClients,
+  gameClients: gameClients,
+  maxHealth: maxHealth,
+  maxEnergy: maxEnergy,
+  maxAmmo: maxAmmo,
+  alivePlayers: alivePlayers,
+  playerCount: playerCount,
+  update: update,
+  vehicle: null,
+  dropper: null,
+  inProgress: false,
+  defaultBulletDamage: defaultBulletDamage,
+  fireRate: fireRate,
+  upgradedFireRate: upgradedFireRate
+};
 
 // TODO: Wipes and preps the gamestate for a new game
 function newGame() {
   //set number of players and reset item array and alivePlayer array
   islandMap = GameMap.getGridMap();
-  playerCount = Object.keys(gameClients).length;
-  itemArray = [];
-  alivePlayers = [];
+  GameState.playerCount = Object.keys(gameClients).length;
+  GameState.itemArray = [];
+  GameState.alivePlayers = [];
+  GameState.inProgress = true;
+  GameState.startTime = present();
+  GameState.vehicle = Vehicle(vehicleStartTime);
+  GameState.dropper = Dropper(GameState.vehicle);
   popItems();
   return itemArray;
 }
@@ -243,15 +271,13 @@ function popGunSpeed() {
   }
 }
 
+function update (elapsed, currentTime, totalTime) {
+  GameState.vehicle.update(elapsed, totalTime);
+  const clientStates = Object.values(GameState.gameClients).map(client => client.state);
+  GameState.dropper.update(currentTime, clientStates);
+  for (let clientId in GameState.gameClients) {
+    GameState.gameClients[clientId].state.player.update(currentTime);
+  }
+}
 
-module.exports = {
-  newGame: newGame,
-  lobbyClients: lobbyClients,
-  gameClients: gameClients,
-  maxHealth: maxHealth,
-  maxEnergy: maxEnergy,
-  maxAmmo: maxAmmo,
-  defaultBulletDamage: defaultBulletDamage,
-  fireRate: fireRate,
-  upgradedFireRate: upgradedFireRate
-};
+module.exports = GameState;

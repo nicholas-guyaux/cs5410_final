@@ -1,6 +1,38 @@
 function GameState (spec) {
   var that = {};
-  that.plane = ImageAsset('../../assets/images/plane.png')
+  that.plane = ImageAsset('../../assets/images/plane.png');
+
+  /**
+   * https://en.wikipedia.org/wiki/Linear_interpolation
+   * Precise method, which guarantees y = rangeEnd when x = 1.
+   * @param {Number} rangeStart 
+   * output range start
+   * @param {Number} rangeEnd 
+   * output range end
+   * @param {Float} x 
+   * a number between 0 and 1 on the input range.
+   */
+  function lerp(rangeStart, rangeEnd, x) {
+    return (1 - x) * rangeStart + x * rangeEnd;
+  }
+
+  function lerpBetweenPoints (a, b, time, maxTime=2000) {
+    var tRatio = time / maxTime;
+    return Geometry.Point(lerp(a.x, b.x, tRatio), lerp(a.y, b.y, tRatio));
+  }
+
+  function getRectCenteredAtPoint (point, width, height) {
+    return Geometry.Rectangle({
+      x: point.x - width / 2,
+      y: point.y - height / 2,
+      width: width,
+      height: height,
+    })
+  }
+
+  function getRandomPointInRect (rect) {
+    return Geometry.Point(getRandomIntInclusive(rect.left, rect.right), getRandomIntInclusive(rect.top, rect.bottom));
+  }
 
 
   that.worldRect = World();
