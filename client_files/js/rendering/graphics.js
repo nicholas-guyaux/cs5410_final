@@ -340,6 +340,29 @@ const Graphics = (function() {
     context.globalAlpha = alphaOpacity;
   }
 
+  //------------------------------------------------------------------
+  //
+  // Draw an image out of a spritesheet into the local canvas coordinate system.
+  //
+  //------------------------------------------------------------------
+  function drawImageSpriteSheet(spriteSheet, spriteSize, sprite, center, size) {
+    let localCenter = {
+        x: center.x * canvas.width,
+        y: center.y * canvas.width
+    };
+    let localSize = {
+        width: size.width * canvas.width,
+        height: size.height * canvas.height
+    };
+
+    context.drawImage(spriteSheet,
+        sprite * spriteSize.width, 0,                 // which sprite to render
+        spriteSize.width, spriteSize.height,    // size in the spritesheet
+        localCenter.x - localSize.width / 2,
+        localCenter.y - localSize.height / 2,
+        localSize.width, localSize.height);
+  }
+
   return {
     initialize : initialize,
     clear : clear,
@@ -347,6 +370,7 @@ const Graphics = (function() {
     restoreContext : restoreContext,
     rotateCanvas : rotateCanvas,
     drawImage : drawImage,
+    drawImageSpriteSheet: drawImageSpriteSheet,
     drawRectangle : drawRectangle,
     drawStrokedCircle: drawStrokedCircle,
     drawCircle: drawCircle,

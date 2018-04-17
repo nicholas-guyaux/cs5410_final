@@ -99,12 +99,13 @@ MyGame.loader = (function() {
       scripts: [ //Components / Player Models
         'js/components/player',
         'js/components/player-other',
-        'js/components/bullet'
+        'js/components/bullet',
+        'js/components/animated-sprite'
       ],
       message: 'Player models loaded',
       onComplete: null,
     }, {
-      scripts: ['js/rendering/renderer'],
+      scripts: ['js/rendering/renderer','js/rendering/animated-sprite'],
       message: 'Renderer loaded',
       onComplete: null,
     }, {
@@ -159,6 +160,9 @@ MyGame.loader = (function() {
     }, {
       key: 'speed',
       source: 'assets/images/speed.png'
+    },{
+      key: 'explosion',
+      source: 'assets/images/explosion.png'
     }];
 
     function loadScripts(scripts, onComplete){

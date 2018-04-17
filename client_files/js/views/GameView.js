@@ -1,3 +1,5 @@
+// const AnimatedSprite = require('./components/animated-sprite');
+
 let playerCount = 0;
 let maxHealth = 100;
 let maxAmmo = 50;
@@ -350,14 +352,14 @@ const GameView = (function() {
   }
 
   function bulletHit(data) {
-    // explosions[nextExplosionId] = components.AnimatedSprite({
-    //   id: nextExplosionId++,
-    //   spriteSheet: MyGame.assets['explosion'],
-    //   spriteSize: { width: 0.07, height: 0.07 },
-    //   spriteCenter: data.position,
-    //   spriteCount: 16,
-    //   spriteTime: [ 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50]
-    // });
+    explosions[props.nextExplosionId] = AnimatedSprite({
+      id: props.nextExplosionId++,
+      spriteSheet: MyGame.assets['explosion'],
+      spriteSize: { width: 0.07, height: 0.07 },
+      spriteCenter: data.position,
+      spriteCount: 16,
+      spriteTime: [ 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50]
+    });
 
     //
     // When we receive a hit notification, go ahead and remove the
@@ -471,10 +473,10 @@ const GameView = (function() {
     // Graphics.enableClipping(FOVPolygon); // clipping for objects forbidden outside FOV
 
     GameMap.draw();
-    // for (let id in explosions) {
-    //   renderer.AnimatedSprite.render(explosions[id]);
-    // }
-    // Renderer.renderPlayer(playerSelf.model, playerSelf.textureSet, totalTime);
+    for (let id in explosions) {
+      AnimatedSpriteDraw.render(explosions[id]);
+    }
+    Renderer.renderPlayer(playerSelf.model, playerSelf.textureSet, totalTime);
     let playerPos = {x: playerSelf.model.position.x + playerSelf.model.size.width / 2, y: playerSelf.model.position.y + playerSelf.model.size.height / 2};
     let FOVPoint1 = {x: (playerPos.x + props.FOVDistance), y: playerPos.y - (props.FOVWidth / 2)};
     let FOVPoint2 = {x: (playerPos.x + props.FOVDistance), y: playerPos.y + (props.FOVWidth / 2)};
@@ -499,9 +501,9 @@ const GameView = (function() {
       Renderer.renderPlayer(player.model, player.textureSet, totalTime);
     } 
     
-    Graphics.disableClipping(); 
-    //Graphics.createFogEffect(FOVPolygon2, props.FOVDistance);
-    //Graphics.disableFogClipping();
+    Graphics.disableClipping();
+    Graphics.createFogEffect(FOVPolygon2, props.FOVDistance);
+    Graphics.disableFogClipping();
     Renderer.minimap();
     Renderer.renderPlayer(playerSelf.model, playerSelf.textureSet, totalTime);
     
