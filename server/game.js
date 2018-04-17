@@ -47,7 +47,8 @@ function createBullet(clientId, playerModel) {
       y: playerModel.position.y + playerModel.size.height / 2,
     },
     direction: playerModel.direction,
-    speed: playerModel.speed
+    speed: playerModel.speed,
+    damage: GameState.defaultBulletDamage
   });
 
   newBullets.push(bullet);
@@ -252,6 +253,8 @@ function update(elapsedTime, currentTime, totalTime) {
               bulletId: results[i].id,
               position: GameState.gameClients[clientId].state.player.position
             });
+            GameState.gameClients[clientId].state.player.health.current -= results[i].damage;
+            GameState.gameClients[clientId].state.player.reportUpdate = true;
             bulletTree.remove(results[i]);
           }
         }
