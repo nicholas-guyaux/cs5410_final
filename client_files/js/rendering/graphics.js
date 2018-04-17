@@ -15,6 +15,11 @@ const Graphics = (function() {
     y: 0,
   };
 
+  let props = {
+    clippingEnabled: false,
+    fogClippingEnabled: false
+  };
+
   const imageCanvasMap = new Map();
 
   function createImageCanvas(name, image) {
@@ -185,14 +190,15 @@ const Graphics = (function() {
     );
   }
 
-  function drawCircle(fillStyle, center, radius) {
-    context.beginPath();
-    context.arc(center.x * Coords.world.width,
+  function drawCircle(fillStyle, center, radius, alpha=1, ctx=context) {
+    ctx.beginPath();
+    ctx.arc(center.x * Coords.world.width,
         center.y * Coords.world.width, 2 * radius * Coords.world.width,
         2 * Math.PI, false);
-    context.closePath();
-    context.fillStyle = fillStyle;
-    context.fill();
+    ctx.closePath();
+    ctx.fillStyle = fillStyle;
+    ctx.fill();
+    ctx.globalAlpha = 1;
   }
 
   function drawStrokedCircle(strokeStyle, center, radius) {
@@ -224,6 +230,91 @@ const Graphics = (function() {
     context.fillRect(coords.x, coords.y, size.width * canvas.width, size.height * canvas.height);
   }
 
+  function enableClipping(polygon) {
+    // Convert polygon to true coordinates       
+    for (let point of polygon) {
+      point.x *= Coords.world.width;
+      point.y *= Coords.world.height;
+    }
+
+    if (!props.clippingEnabled && (polygon.length >= 2)) {
+      context.save();
+      props.clippingEnabled = true;
+
+      context.beginPath();
+      context.moveTo(polygon[0].x, polygon[0].y);
+      for (let pointIdx = 1; pointIdx < polygon.length; pointIdx++) {
+        context.lineTo(polygon[pointIdx].x, polygon[pointIdx].y);
+      }
+      context.closePath();
+      context.clip();
+    }
+  }
+
+  function disableClipping() {
+    if (props.clippingEnabled) {
+      context.restore();
+      props.clippingEnabled = false;
+      props.fogClippingEnabled = false;
+    }
+  }
+
+  function disableFogClipping() {
+    if (props.fogClippingEnabled) {
+      context.restore();
+      props.fogClippingEnabled = false;
+    }
+  }
+
+  function createFogEffect(polygon, FOVDistance) {
+    if (!props.fogClippingEnabled && (polygon.length < 2)) {
+      return;
+    }
+    const CUSHION = FOVDistance * Coords.world.width * 2; // 10 is just a big number
+    context.save();
+    props.fogClippingEnabled = true;
+
+    let xMinIndex = null;
+    let xMin = Coords.world.width;
+    // Convert polygon to true coordinates
+    for (let i = 0; i < polygon.length; i++) {
+      polygon[i].x *= Coords.world.width;
+      polygon[i].y *= Coords.world.height;
+      if (polygon[i].x < xMin) {
+        xMin = polygon[i].x;
+        xMinIndex = i;
+      }
+    }
+    if (xMinIndex !== 0) {
+      let temp = polygon[0];
+      polygon[0] = polygon[xMinIndex];
+      polygon[xMinIndex] = temp;
+    }
+
+    context.beginPath();
+    context.moveTo(Coords.viewport.world.x - CUSHION,
+      Coords.viewport.world.y - CUSHION);
+    for (let pointIdx = 0; pointIdx < polygon.length; pointIdx++) {
+      context.lineTo(polygon[pointIdx].x, polygon[pointIdx].y);
+    }
+    context.lineTo(polygon[0].x, polygon[0].y);
+    context.lineTo(Coords.viewport.world.x - CUSHION,
+        Coords.viewport.world.y - CUSHION);
+    context.lineTo(Coords.viewport.world.x + Coords.viewport.world.width + CUSHION,
+      Coords.viewport.world.y - CUSHION);
+    context.lineTo(Coords.viewport.world.x + Coords.viewport.world.width + CUSHION,
+        Coords.viewport.world.y + Coords.viewport.world.height + CUSHION);
+    context.lineTo(Coords.viewport.world.x - CUSHION,
+        Coords.viewport.world.y + Coords.viewport.world.height + CUSHION);
+    context.closePath();
+    context.clip();
+
+    context.globalAlpha = 0.7;
+    context.fillStyle = '#000000';
+    context.fillRect(Coords.viewport.world.x, Coords.viewport.world.y, Coords.viewport.world.width, Coords.viewport.world.height);
+    context.globalAlpha = 1;
+  }
+
   function finalizeRender() {
     onScreenContext.clear();
     onScreenContext.drawImage(canvas, 0, 0, canvas.width, canvas.height);
@@ -248,6 +339,10 @@ const Graphics = (function() {
     drawPattern : drawPattern,
     resizeCanvas: resizeCanvas,
     finalizeRender: finalizeRender,
+    enableClipping: enableClipping,
+    disableClipping: disableClipping,
+    disableFogClipping: disableFogClipping,
+    createFogEffect: createFogEffect,
     drawFromTiledCanvas: drawFromTiledCanvas,
     setOpacity: setOpacity,
     setFullMapCanvas: setFullMapCanvas,
@@ -258,5 +353,5 @@ const Graphics = (function() {
       return world;
     },
     translateToViewport: translateToViewport,
-  }
+  };
 }());

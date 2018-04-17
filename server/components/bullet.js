@@ -24,6 +24,7 @@ function createBullet(spec) {
     that.minX = 0;
     that.minY = 0;
 
+
     Object.defineProperty(that, 'clientId', {
         get: () => spec.clientId
     });

@@ -58,7 +58,9 @@ const GameView = (function() {
     lastTimeStamp: performance.now(),
     messageId: 1,
     commandKeys: null,
-    nextExplosionId: 1
+    nextExplosionId: 1,
+    FOVDistance: 0.15,
+    FOVWidth: 0.15
   };
 
   //
@@ -428,6 +430,24 @@ const GameView = (function() {
     }
   }
 
+  // This function was written by Dr. Dean Mathias
+  function rotatePointAboutPoint(center, pt, angle) {
+    let sin = Math.sin(angle);
+    let cos = Math.cos(angle);
+    let pTranslate = {
+      x: pt.x - center.x,
+      y: pt.y - center.y
+    }
+
+    let x = pTranslate.x * cos - pTranslate.y * sin;
+    let y = pTranslate.x * sin + pTranslate.y * cos;
+
+    return {
+      x: x + center.x,
+      y: y + center.y
+    };
+  }
+
   //
   // Render function for gameLoop
   function renderFrame() {
@@ -440,8 +460,17 @@ const GameView = (function() {
     Graphics.setFullMapCanvas(false);
     Graphics.clear();
     Graphics.translateToViewport();
+    
+    // let playerPos = {x: playerSelf.model.position.x, y: playerSelf.model.position.y};
+    // let FOVPoint1 = {x: (playerPos.x + props.FOVDistance), y: playerPos.y - (props.FOVWidth / 2)};
+    // let FOVPoint2 = {x: (playerPos.x + props.FOVDistance), y: playerPos.y + (props.FOVWidth / 2)};
+
+    // FOVPoint1 = rotatePointAboutPoint(playerPos, FOVPoint1, playerSelf.model.direction);
+    // FOVPoint2 = rotatePointAboutPoint(playerPos, FOVPoint2, playerSelf.model.direction);
+    // FOVPolygon = [playerPos, FOVPoint1, FOVPoint2];
+    // Graphics.enableClipping(FOVPolygon); // clipping for objects forbidden outside FOV
+
     GameMap.draw();
-    Renderer.renderItems(playerSelf.model.localItems, itemImages);
     for (let id in playerOthers) {
         let player = playerOthers[id];
         Renderer.renderPlayer(player.model, player.textureSet, totalTime);
@@ -455,11 +484,30 @@ const GameView = (function() {
     //   renderer.AnimatedSprite.render(explosions[id]);
     // }
     Renderer.renderPlayer(playerSelf.model, playerSelf.textureSet, totalTime);
-
+    
     
 
     Renderer.minimap();
 
+    let playerPos = {x: playerSelf.model.position.x + playerSelf.model.size.width / 2, y: playerSelf.model.position.y + playerSelf.model.size.height / 2};
+    let FOVPoint1 = {x: (playerPos.x + props.FOVDistance), y: playerPos.y - (props.FOVWidth / 2)};
+    let FOVPoint2 = {x: (playerPos.x + props.FOVDistance), y: playerPos.y + (props.FOVWidth / 2)};
+
+    FOVPoint1 = rotatePointAboutPoint(playerPos, FOVPoint1, playerSelf.model.direction);
+    FOVPoint2 = rotatePointAboutPoint(playerPos, FOVPoint2, playerSelf.model.direction);
+    FOVPolygon = [playerPos, FOVPoint1, FOVPoint2];
+    FOVPolygon2 = FOVPolygon.map(obj => Object.assign({}, obj));
+
+    Graphics.enableClipping(FOVPolygon); // clipping for objects forbidden outside FOV
+    // Render other players, items, etc. here (things only visible inside FOV)
+    for (let id in playerOthers) {
+      let player = playerOthers[id];
+      Renderer.renderPlayer(player.model, player.textureSet, totalTime);
+    }
+    Renderer.renderItems(playerSelf.model.localItems, itemImages);    
+    Graphics.disableClipping();
+    Graphics.createFogEffect(FOVPolygon2, props.FOVDistance);
+    Graphics.disableFogClipping();
     Graphics.finalizeRender();
   }
 

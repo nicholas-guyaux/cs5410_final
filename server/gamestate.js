@@ -276,7 +276,7 @@ function update (elapsed, currentTime, totalTime) {
   const clientStates = Object.values(GameState.gameClients).map(client => client.state);
   GameState.dropper.update(currentTime, clientStates);
   for (let clientId in GameState.gameClients) {
-    GameState.gameClients[clientId].state.player.update(currentTime);
+    GameState.gameClients[clientId].state.player.update(elapsed);
   }
 }
 
