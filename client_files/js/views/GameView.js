@@ -225,6 +225,7 @@ const GameView = (function() {
     playerSelf.model.direction = data.player.direction;
     playerSelf.model.energy = data.player.energy;
     playerSelf.model.useTurbo = data.player.useTurbo;
+    playerSelf.model.isDropped = data.player.isDropped;
     
     // Remove messages from the queue up through the last one identified
     // by the server as having been processed.

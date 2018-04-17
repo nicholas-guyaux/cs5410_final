@@ -113,7 +113,8 @@ function updateClients(elapsedTime) {
           health: client.state.player.health,
           energy: client.state.player.energy,
           useTurbo: client.state.player.useTurbo,
-          updateWindow: props.lastUpdate
+          updateWindow: props.lastUpdate,
+          isDropped: client.state.player.isDropped,
         }
     };
 

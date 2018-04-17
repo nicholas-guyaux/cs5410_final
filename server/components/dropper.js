@@ -2,11 +2,11 @@ var gameMap = require('./gameMap');
 var Player = require('./player');
 var Random = require('./random');
 
-module.exports = function dropper (vehicle, droppableAfter) {
+module.exports = function dropper (vehicle) {
   function canPlace (player) {
-    var pCenterX = player.x + player.width / 2;
-    var pCenterY = player.y + player.height / 2;
-    if(vehicle.circle.containsPoint(player.position) && gameMap.collision(pCenterX, pCenterY, Math.max(player.width, player.height))) {
+    var pCenterX = player.position.x + player.size.width / 2;
+    var pCenterY = player.position.y + player.size.height / 2;
+    if(vehicle.circle.containsPoint(player.position) && gameMap.collision(pCenterX, pCenterY, Math.max(player.size.width, player.size.height))) {
       return true;
     } else {
       return false;
@@ -14,18 +14,15 @@ module.exports = function dropper (vehicle, droppableAfter) {
   }
 
   function onDropSelection (clientState, clickPosition, totalTime) {
-    if(droppableAfter < totalTime) {
-      return;
-    }
-    const player = Player();
-    player.position.x = clickPosition.x - player.size.width / 2;
-    player.position.y = clickPosition.y - player.size.height / 2;
-    if(canPlace(player)) {
-      Object.assign(clientState.player, player);
+    clientState.player.position.x = clickPosition.x - clientState.player.size.width / 2;
+    clientState.player.position.y = clickPosition.y - clientState.player.size.height / 2;
+    if(canPlace(clientState.player)) {
       clientState.player.isDropped = true;
       clientState.player.reportUpdate = true;
-      return player;
+      return clientState.player;
     } else {
+      clientState.player.position.x = null;
+      clientState.player.position.y = null;
       return false;
     }
   }
@@ -41,7 +38,7 @@ module.exports = function dropper (vehicle, droppableAfter) {
         do {
           var randomRadius = Random.nextRange(0, vehicle.circle.radius);
           var randomPointInDropCircle = Random.nextCircleVector(randomRadius);
-        } while(onDropSelection(clientState, randomPointInDropCircle, totalTime));
+        } while(!onDropSelection(clientState, randomPointInDropCircle, totalTime));
       }
     }
   }
