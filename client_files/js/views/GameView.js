@@ -8,6 +8,14 @@ const GameView = (function() {
   var vehicle = null;
   let keyboard = KeyboardHandler(false, 'keyCode');
   let receivedMessages = Queue.create();
+  var itemImages = {
+    'ammo': MyGame.assets['ammo'],
+    'health': MyGame.assets['health'],
+    'dmg': MyGame.assets['dmg'],
+    'speed': MyGame.assets['speed'],
+    'gun': MyGame.assets['gun'],
+    'gunSpd': MyGame.assets['gunSpd']
+  }
   var boatTextureSet = {
     water: {
       spriteSet: MyGame.assets['water_units'],
@@ -258,6 +266,8 @@ const GameView = (function() {
     playerSelf.model.useTurbo = data.player.useTurbo;
     playerSelf.model.isDropped = data.player.isDropped;
     
+    playerSelf.model.localItems = data.player.items;
+    //console.log(playerSelf.model.localItems);
     // Remove messages from the queue up through the last one identified
     // by the server as having been processed.
     let done = false;
@@ -431,6 +441,7 @@ const GameView = (function() {
     Graphics.clear();
     Graphics.translateToViewport();
     GameMap.draw();
+    Renderer.renderItems(playerSelf.model.localItems, itemImages);
     for (let id in playerOthers) {
         let player = playerOthers[id];
         Renderer.renderPlayer(player.model, player.textureSet, totalTime);
@@ -444,6 +455,8 @@ const GameView = (function() {
     //   renderer.AnimatedSprite.render(explosions[id]);
     // }
     Renderer.renderPlayer(playerSelf.model, playerSelf.textureSet, totalTime);
+
+    
 
     Renderer.minimap();
 

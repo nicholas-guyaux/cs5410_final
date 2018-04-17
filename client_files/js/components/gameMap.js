@@ -120,6 +120,9 @@
   
       return pkt;
     },
+    getGridMap:function() {
+      return this.gridMap;
+    },
     collision:function(playerX, playerY, playerSize) {
       if(playerX >= 1 || playerY >= 1 || playerX <= 0 || playerY <= 0) {
         return false;

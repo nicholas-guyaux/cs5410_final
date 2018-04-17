@@ -11,7 +11,7 @@ const game = require('./game');
 
 let props = {
   numPlayersRequired: 2,
-  countdownTime: 1
+  countdownTime: 10
 };
 
 //------------------------------------------------------------------
@@ -164,6 +164,7 @@ function initializeSocketIO(io) {
           clientId: existingClient.socket.id,
           countdown: props.countdownTime
         });
+        console.log('the final countdown'); 
       }
       setTimeout(function(){
         game.initialize(Object.keys(GameState.lobbyClients).length);//sends # of players  

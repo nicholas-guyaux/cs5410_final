@@ -2,6 +2,7 @@
 
 const present = require('present');
 const GameState = require('./gamestate');
+const rbush = require('rbush');
 const Player = require('./components/player');
 const Bullet = require('./components/bullet');
 const GameNetIds = require('../client_files/shared/game-net-ids');
@@ -45,6 +46,8 @@ function createBullet(clientId, playerModel) {
   newBullets.push(bullet);
 }
 
+var tree = rbush();
+
 function processInput(elapsedTime, totalTime) {
   //
   // Double buffering on the queue so we don't asynchronously receive inputs
@@ -70,7 +73,11 @@ function processInput(elapsedTime, totalTime) {
         client.state.player.rotateRight(input.message.elapsedTime);
         break;
       case GameNetIds.INPUT_FIRE:
-        createBullet(input.clientId, client.state.player);
+        var playerFireRate = client.state.player.buffs.fireRate ? GameState.upgradedFireRate : GameState.fireRate;
+        if(client.state.player.currentFireRateWait >= playerFireRate){
+          createBullet(input.clientId, client.state.player);
+          client.state.player.currentFireRateWait = 0;
+        }
         break;
       case GameNetIds.INPUT_TURBO:
         client.state.player.turbo(input.message.elapsedTime);
@@ -175,7 +182,8 @@ function update(elapsedTime, currentTime, totalTime) {
         })) {
           hit = true;
           hits.push({
-            clientId: clientId,
+            hitClientId: clientId,
+            sourceClientId: activeBullets[i].clientId,
             bulletId: activeBullets[i].id,
             position: GameState.gameClients[clientId].state.player.position
           });
@@ -228,6 +236,13 @@ function updateClients(elapsedTime) {
   // to all other clients
   for (let clientId in GameState.gameClients) {
     let client = GameState.gameClients[clientId];
+    let buffs = tree.search({
+      minX: client.state.player.position.x - .15,
+      minY: client.state.player.position.y - .15,
+      maxX: client.state.player.position.x + .15,
+      maxY: client.state.player.position.y + .15
+    });
+    //let buffs = tree.all();
     let update = {
         clientId: clientId,
         lastMessageId: client.lastMessageId,
@@ -239,7 +254,8 @@ function updateClients(elapsedTime) {
           useTurbo: client.state.player.useTurbo,
           updateWindow: props.lastUpdate,
           isDropped: client.state.player.isDropped,
-        }
+          items: buffs
+        }        
     };
 
     if(!client.state.player.isDropped) {
@@ -296,7 +312,7 @@ function gameLoop(currentTime, elapsedTime) {
   update(elapsedTime, currentTime, currentTime - GameState.startTime);
   updateClients(elapsedTime);
 
-  if (!props.quit) {
+  if (GameState.inProgress) {
     setTimeout(() => {
       let now = present();
       gameLoop(now, now - currentTime);
@@ -315,6 +331,8 @@ function gameLoop(currentTime, elapsedTime) {
 function initialize() {
   GameState.newGame();
   gameLoop(present(), 0);
+  tree = rbush();
+  tree.load(GameState.newGame());
 }
 
 function initializeSocketIO(io) {
@@ -488,7 +506,7 @@ function initializeSocketIO(io) {
 //
 //------------------------------------------------------------------
 function terminate() {
-  props.quit = true;
+  GameState.inProgress = false;
 }
 
 module.exports = {
