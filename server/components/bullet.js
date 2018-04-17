@@ -19,6 +19,7 @@ function createBullet(spec) {
     let speed = spec.speed + 0.00005;    // unit distance per millisecond
     let timeRemaining = 1500;   // milliseconds
     let currentFireRateWait = 0;
+    let damage = spec.damage;
     that.maxX = 0;
     that.maxY = 0;
     that.minX = 0;
@@ -51,6 +52,10 @@ function createBullet(spec) {
 
     Object.defineProperty(that, 'timeRemaining', {
         get: () => timeRemaining
+    });
+
+    Object.defineProperty(that, 'damage', {
+      get: () => damage
     });
 
     //------------------------------------------------------------------
