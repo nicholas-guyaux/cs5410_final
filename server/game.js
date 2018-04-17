@@ -44,6 +44,7 @@ function createBullet(clientId, playerModel) {
   });
 
   newBullets.push(bullet);
+  playerModel.ammo.current--;
 }
 
 var tree = rbush();
@@ -104,6 +105,59 @@ function checkPlayerVsBulletCollisions(player){
   //if hit, take damage to self
 }
 function checkPlayerVsBuffCollision(player){
+  if(tree.collides({minX:player.position.x, minY: player.position.y, maxX:Math.max(player.size.height, player.size.width) + player.position.x, maxY:Math.max(player.size.height, player.size.width) + player.position.y})) {
+    var result = tree.search({
+      minX: player.position.x,
+      minY: player.position.y,
+      maxX: Math.max(player.size.height, player.size.width) + player.position.x,
+      maxY: Math.max(player.size.height, player.size.width) + player.position.y
+    });
+    for (let i = 0; i < result.length; i++) {
+      switch(result[i].type){
+        case 'ammo':
+          if (player.ammo.current < player.ammo.max) {
+            player.ammo.current += 20;
+            player.ammo.current = Math.min(player.ammo.current, player.ammo.max);
+            tree.remove(result[i]);
+          }
+          break;
+        case 'health':
+          if (player.health.current < player.health.max) {
+            player.health.current += 20;
+            player.health.current = Math.min(player.health.current, player.health.max);
+            tree.remove(result[i]);
+          }
+          break;
+        case 'speed':
+          if (!player.buffs.speed) {
+            player.buffs.speed = true;
+            tree.remove(result[i]);
+          }
+          break;
+        case 'gun':
+          if (!player.gun) {
+            player.gun = true;
+            player.ammo = player.ammo.max;
+            tree.remove(result[i]);
+          }
+          break;
+        case 'gunSpd':
+          if (!player.buffs.fireRate) {
+            player.buffs.fireRate = true;
+            tree.remove(result[i]);
+          }
+          break;
+        case 'dmg':
+          if (!player.buffs.dmg) {
+            player.buffs.dmg = true;
+            tree.remove(result[i]);
+          }
+          break;
+      }
+
+
+    }
+  }
   //if hit, pick up buff if not already obtained
 }
 function checkPlayerVsDeathCircleCollision(player){

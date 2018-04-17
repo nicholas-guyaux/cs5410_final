@@ -86,7 +86,7 @@ const Renderer = (function(graphics) {
         x:item.minX + size.width / 2,
         y:item.minY + size.height / 2
       };
-      console.log(itemImages[item.type]);
+      
       graphics.drawImage(itemImages[item.type], center, size, false);
       graphics.restoreContext();
     }
