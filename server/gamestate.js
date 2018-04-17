@@ -281,3 +281,4 @@ function update (elapsed, currentTime, totalTime) {
 }
 
 module.exports = GameState;
+
