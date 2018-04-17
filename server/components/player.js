@@ -175,16 +175,14 @@ function createPlayer(maxHealth, maxEnergy, maxAmmo) {
     that.update = function(elapsedTime) {
       if(useTurbo){
         energy.current -= 2;
+        reportUpdate = true;
         if(energy.current <= 0){
           useTurbo = false
-          console.log('zero');
         }
       }
       else if(energy.current < energy.max){
         energy.current++;
-        if(energy.current == energy.max){
-          console.log('ready');
-        }
+        reportUpdate = true;
       }
     };
 
