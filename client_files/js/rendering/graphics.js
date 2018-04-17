@@ -270,7 +270,7 @@ const Graphics = (function() {
     if (!props.fogClippingEnabled && (polygon.length < 2)) {
       return;
     }
-    const CUSHION = FOVDistance * Coords.world.width * 10; // 10 is just a big number
+    const CUSHION = FOVDistance * Coords.world.width * 2; // 10 is just a big number
     context.save();
     props.fogClippingEnabled = true;
 
@@ -293,7 +293,7 @@ const Graphics = (function() {
 
     context.beginPath();
     context.moveTo(Coords.viewport.world.x - CUSHION,
-        Coords.viewport.world.y - CUSHION);
+      Coords.viewport.world.y - CUSHION);
     for (let pointIdx = 0; pointIdx < polygon.length; pointIdx++) {
       context.lineTo(polygon[pointIdx].x, polygon[pointIdx].y);
     }
