@@ -119,13 +119,13 @@ function updateClients(elapsedTime) {
   // to all other clients
   for (let clientId in GameState.gameClients) {
     let client = GameState.gameClients[clientId];
-    // let buffs = tree.search({
-    //   minX: client.state.player.position.x - .15,
-    //   minY: client.state.player.position.y - .15,
-    //   maxX: client.state.player.position.x + .15,
-    //   maxY: client.state.player.position.y + .15
-    // });
-    let buffs = tree.all();
+    let buffs = tree.search({
+      minX: client.state.player.position.x - .15,
+      minY: client.state.player.position.y - .15,
+      maxX: client.state.player.position.x + .15,
+      maxY: client.state.player.position.y + .15
+    });
+    //let buffs = tree.all();
     let update = {
         clientId: clientId,
         lastMessageId: client.lastMessageId,

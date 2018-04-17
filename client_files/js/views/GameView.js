@@ -321,13 +321,14 @@ const GameView = (function() {
     Graphics.clear();
     Graphics.translateToViewport();
     GameMap.draw();
+    Renderer.renderItems(playerSelf.model.localItems, itemImages);
     for (let id in playerOthers) {
         let player = playerOthers[id];
         Renderer.renderPlayer(player.model, player.textureSet, totalTime);
     }
     Renderer.renderPlayer(playerSelf.model, playerSelf.textureSet, totalTime);
 
-    Renderer.renderItems(playerSelf.model.localItems, itemImages);
+    
 
     Renderer.minimap();
 
