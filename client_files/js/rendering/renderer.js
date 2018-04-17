@@ -98,12 +98,17 @@ const Renderer = (function(graphics) {
     graphics.restoreContext();
   }
 
+  function renderBullet(model) {
+    Graphics.drawCircle('#FFFFFF', model.position, model.radius);
+  }
+
   // function renderRemotePlayer(model, textureSet, elapsed) {
   //   return renderPlayer(model, textureSet, elapsed);
   // }
 
   return {
     renderPlayer,
+    renderBullet,
     minimap,
     // renderRemotePlayer
   };

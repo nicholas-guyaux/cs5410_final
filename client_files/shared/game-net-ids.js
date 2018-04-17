@@ -29,6 +29,14 @@
       value: 'fire',
       writable: false
     },
+    'BULLET_HIT': {
+      value: 'bullet-hit',
+      writable: false
+    },
+    'BULLET_NEW': {
+      value: 'bullet-new',
+      writable: false
+    },
     "INPUT_TURBO": {
       value: 'turbo',
       writable: false
