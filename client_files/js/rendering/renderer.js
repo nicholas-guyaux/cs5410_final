@@ -106,16 +106,10 @@ const Renderer = (function(graphics) {
     if(!vehicle.x) {
       return;
     }
-    const vRect = Geometry.Rectangle({
-      width: vehicle.width,
-      height: vehicle.height,
-      // get x and y in viewport
-      x: (vehicle.x - vehicle.width / 2)*Coords.viewport.width+Coords.viewport.x,
-      y: (vehicle.y - vehicle.height / 2)*Coords.viewport.height+Coords.viewport.y,
-    })
+    const vCirc = vehicle.getCircleInViewport();
     graphics.saveContext();
-    Graphics.rotateCanvas(vRect.center, vehicle.direction + Math.PI / 2);
-    Graphics.drawImage(MyGame.assets['plane'], vRect.center, {
+    Graphics.rotateCanvas(vCirc, vehicle.direction + Math.PI / 2);
+    Graphics.drawImage(MyGame.assets['plane'], vCirc, {
       width: vehicle.width,
       height: vehicle.height, 
     }, clipping(Math.floor(totalTime / 50) % 4));
@@ -125,6 +119,8 @@ const Renderer = (function(graphics) {
   function renderGameStart(totalTime, vehicle) {
     Graphics.drawImage(MyGame.assets['minimap'], Coords.viewport.center, Coords.viewport);
     renderVehicle(totalTime, vehicle);
+    var vCirc = vehicle.getCircleInViewport();
+    Graphics.drawStrokedCircle('white', vCirc, vCirc.radius)
     Graphics.finalizeRender();
   }
 

@@ -132,6 +132,20 @@ const GameView = (function() {
       playerSelf.model.move(elapsedTime);
     });
 
+    Events.on($('#game-canvas'), 'click', function (e) {
+      var x = e.pageX - this.offsetLeft;
+      var y = e.pageY - this.offsetTop; 
+      let message = {
+        id: props.messageId++,
+        position: {
+          x: x / Coords.viewport.canvas.width,
+          y: y / Coords.viewport.canvas.height,
+        },
+        type: GameNetIds.INPUT_DROP
+      };
+      socket.emit(GameNetIds.INPUT, message);
+    });
+
     keyboard.addAction(props.commandKeys.ROTATE_RIGHT, elapsedTime => {
       let message = {
         id: props.messageId++,
@@ -368,6 +382,7 @@ const GameView = (function() {
           break;
         case GameNetIds.UPDATE_VEHICLE:
           updateVehicle(message.data);
+          break;
         case GameNetIds.BULLET_NEW:
           bulletNew(message.data);
           break;

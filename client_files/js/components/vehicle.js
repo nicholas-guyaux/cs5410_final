@@ -14,6 +14,7 @@ function clampLerp(rangeStart, rangeEnd, x) {
 
 function Vehicle () {
   var vehicle ={
+    // center x and y
     x: null,
     y: null,
     // division by 4 because there are 4 adjacent images in tileset.
@@ -35,16 +36,21 @@ function Vehicle () {
         // goal.updateWindow -= elapsedTime;
       }
     },
-    getRect () {
+    getRectInViewport () {
       return Geometry.Rectangle({
         width: vehicle.width,
         height: vehicle.height,
-        x: vehicle.x - vehicle.width / 2,
-        y: vehicle.y - vehicle.height / 2,
+        // get x and y in viewport
+        x: (vehicle.x - vehicle.width / 2)*Coords.viewport.width,
+        y: (vehicle.y - vehicle.height / 2)*Coords.viewport.height,
       })
     },
-    getCircle() {
-      return Geometry.Circle(vehicle);
+    getCircleInViewport () {
+      return Geometry.Circle({
+        x: vehicle.x*Coords.viewport.width,
+        y: vehicle.y*Coords.viewport.height,
+        radius: vehicle.radius*Coords.viewport.width,
+      });
     }
   };
   return vehicle;

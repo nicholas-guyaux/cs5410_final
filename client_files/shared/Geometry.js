@@ -234,7 +234,7 @@
         }
       },
       containsPoint (point) {
-        return LineSegment(that.point, point);
+        return LineSegment(that.point, point).distance <= that.radius;
       }
     }
 

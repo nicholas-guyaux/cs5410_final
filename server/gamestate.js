@@ -23,14 +23,17 @@ var GameState = {
   maxHealth: maxHealth,
   maxEnergy: maxEnergy,
   maxAmmo: maxAmmo,
+  alivePlayers: alivePlayers,
   defaultBulletDamage: defaultBulletDamage,
   game: game,
   update: update,
   vehicle: null,
   dropper: null,
+  inProgress: false,
 };
 
 function newGame() {
+  GameState.inProgress = true;
   GameState.startTime = present();
   GameState.vehicle = Vehicle(vehicleStartTime);
   GameState.dropper = Dropper(GameState.vehicle, droppableAfterTime);

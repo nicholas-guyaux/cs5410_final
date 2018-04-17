@@ -13,6 +13,10 @@
       value: 'input',
       writable: false
     },
+    'INPUT_DROP': {
+      value: 'drop-self',
+      writable: false
+    },
     'INPUT_MOVE_FORWARD': {
       value: 'move-forward',
       writable: false

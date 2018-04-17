@@ -14,6 +14,9 @@ module.exports = function dropper (vehicle) {
   }
 
   function onDropSelection (clientState, clickPosition, totalTime) {
+    if(clientState.player.isDropped) {
+      return;
+    }
     clientState.player.position.x = clickPosition.x - clientState.player.size.width / 2;
     clientState.player.position.y = clickPosition.y - clientState.player.size.height / 2;
     if(canPlace(clientState.player)) {
@@ -36,8 +39,7 @@ module.exports = function dropper (vehicle) {
         }
         // get random point in circle
         do {
-          var randomRadius = Random.nextRange(0, vehicle.circle.radius);
-          var randomPointInDropCircle = Random.nextCircleVector(randomRadius);
+          var randomPointInDropCircle = Random.randomPointInCircle(vehicle.circle);
         } while(!onDropSelection(clientState, randomPointInDropCircle, totalTime));
       }
     }

@@ -45,7 +45,7 @@ function createBullet(clientId, playerModel) {
   newBullets.push(bullet);
 }
 
-function processInput(elapsedTime) {
+function processInput(elapsedTime, totalTime) {
   //
   // Double buffering on the queue so we don't asynchronously receive inputs
   // while processing.
@@ -75,6 +75,8 @@ function processInput(elapsedTime) {
       case GameNetIds.INPUT_TURBO:
         client.state.player.turbo(input.message.elapsedTime);
         break;
+      case GameNetIds.INPUT_DROP:
+        GameState.dropper.onDropSelection(client.state, input.message.position, totalTime);
     }
   }
 }
@@ -117,6 +119,9 @@ function processDeath(player){
   //PlayerCount--
   //Update to player = death
   //Update to others = otherDeath
+  
+  GameState.playerCount--;
+  return;
 }
 
 function update(elapsedTime, currentTime, totalTime) {
@@ -130,8 +135,11 @@ function update(elapsedTime, currentTime, totalTime) {
       processDeath(GameState.gameClients[clientId].state.player);
   }
 
-  if(GameState.playerCount === 1){
-    //endGame
+  if(GameState.playersAlive === 1){
+    // endGame
+    // tell the player they won;
+    GameState.inProgress = false;
+    GameState.playersAlive--;
   }
 
   for (let i = 0; i < newBullets.length; i++) {
@@ -284,7 +292,7 @@ function updateClients(elapsedTime) {
 //
 //------------------------------------------------------------------
 function gameLoop(currentTime, elapsedTime) {
-  processInput(elapsedTime);
+  processInput(elapsedTime, currentTime - GameState.startTime);
   update(elapsedTime, currentTime, currentTime - GameState.startTime);
   updateClients(elapsedTime);
 
@@ -382,7 +390,7 @@ function initializeSocketIO(io) {
   io.on('connection', function(socket) {
     console.log('Connection established: ', socket.id);
 
-    let newPlayer = Player.create();
+    let newPlayer = Player.create(GameState.maxHealth, GameState.maxEnergy, GameState.maxAmmo);
     let newClient = {
       lastMessageId: null,
       socket: socket,

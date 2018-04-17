@@ -30,7 +30,7 @@ function Vehicle (totalTime) {
       circle = Geometry.Circle({
         x: center.x,
         y: center.y,
-        radius: 0.25 * Math.min(Coords.world.ratio.width, Coords.world.ratio.height),
+        radius: 0.15 * Math.min(Coords.world.ratio.width, Coords.world.ratio.height),
       });
     } else {
       isFlying = false;

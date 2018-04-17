@@ -55,6 +55,15 @@ function nextCircleVector(scale) {
     };
 }
 
+function randomPointInCircle (circle) {
+  var randomRadius = nextDoubleRange(0, circle.radius);
+  var randomPointInUnitCircle = nextCircleVector(randomRadius);
+  return {
+    x: circle.x + randomPointInUnitCircle.x,
+    y: circle.y + randomPointInUnitCircle.y
+  };
+}
+
 // ------------------------------------------------------------------
 //
 // Generate a normally distributed random number.
@@ -95,6 +104,7 @@ function nextGaussian(mean, stdDev) {
 
 module.exports.nextDouble = nextDouble;
 module.exports.nextRange = nextRange;
+module.exports.randomPointInCircle = randomPointInCircle;
 module.exports.nextDoubleRange = nextDoubleRange;
 module.exports.nextCircleVector = nextCircleVector;
 module.exports.nextGaussian = nextGaussian;
