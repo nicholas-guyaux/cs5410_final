@@ -471,10 +471,7 @@ const GameView = (function() {
     // Graphics.enableClipping(FOVPolygon); // clipping for objects forbidden outside FOV
 
     GameMap.draw();
-    for (let id in playerOthers) {
-        let player = playerOthers[id];
-        Renderer.renderPlayer(player.model, player.textureSet, totalTime);
-    }
+   
 
     for (let bullet in bullets) {
       Renderer.renderBullet(bullets[bullet]);
@@ -504,13 +501,19 @@ const GameView = (function() {
       let player = playerOthers[id];
       Renderer.renderPlayer(player.model, player.textureSet, totalTime);
     }
-    Renderer.renderItems(playerSelf.model.localItems, itemImages);    
+    Renderer.renderItems(playerSelf.model.localItems, itemImages);   
+    for (let id in playerOthers) {
+      let player = playerOthers[id];
+      Renderer.renderPlayer(player.model, player.textureSet, totalTime);
+    } 
+    
     Graphics.disableClipping();
     Graphics.createFogEffect(FOVPolygon2, props.FOVDistance);
     Graphics.disableFogClipping();
+    Renderer.renderPlayer(playerSelf.model, playerSelf.textureSet, totalTime);
     Graphics.finalizeRender();
   }
-
+ 
   function gameLoop(time) {
     let elapsedTime = time - props.lastTimeStamp;
     props.lastTimeStamp = time;

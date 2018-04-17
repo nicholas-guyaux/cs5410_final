@@ -40,7 +40,8 @@ function createBullet(clientId, playerModel) {
       y: playerModel.position.y + playerModel.size.height / 2,
     },
     direction: playerModel.direction,
-    speed: playerModel.speed
+    speed: playerModel.speed,
+    damage: GameState.defaultBulletDamage
   });
 
   newBullets.push(bullet);
@@ -223,16 +224,63 @@ function update(elapsedTime, currentTime, totalTime) {
   keepBullets = [];
   // TODO: CHANGE so that for every player we only check that player's bullets
   // in that player's firing radius
-  for (let i = 0; i < activeBullets.length; i++) {
-    let hit = false;
-    for (let clientId in GameState.gameClients) {
-      //
-      // Don't allow a bullet to hit the player it was fired from.
-      if (clientId !== activeBullets[i].clientId) {
-        var clientCirc = GameState.gameClients[clientId].state.player.getCircle();
-        if (collided(activeBullets[i], {
-          position: clientCirc,
-          radius: clientCirc.radius,
+  for (let clientId in GameState.gameClients) {
+    let curPlayer = GameState.gameClients[clientId].state.player;
+    if (bulletTree.collides({
+      minX: curPlayer.position.x + curPlayer.size.width/2 - Math.max(curPlayer.size.width, curPlayer.size.height)/2,
+      minY: curPlayer.position.y + curPlayer.size.height/2 - Math.max(curPlayer.size.width, curPlayer.size.height)/2,
+      maxX: curPlayer.position.x + Math.max(curPlayer.size.width,curPlayer.size.height),
+      maxY: curPlayer.position.y + Math.max(curPlayer.size.width, curPlayer.size.height) })) {
+        var results = bulletTree.search({
+          minX: curPlayer.position.x + curPlayer.size.width/2 - Math.max(curPlayer.size.width, curPlayer.size.height)/2,
+          minY: curPlayer.position.y + curPlayer.size.height/2 - Math.max(curPlayer.size.width, curPlayer.size.height)/2,
+          maxX: curPlayer.position.x + Math.max(curPlayer.size.width,curPlayer.size.height),
+          maxY: curPlayer.position.y + Math.max(curPlayer.size.width,curPlayer.size.height) });
+        for (let i = 0; i < results.length; i++) {
+          //
+          // Don't allow a bullet to hit the player it was fired from.
+          if (clientId !== results[i].clientId) {
+            hit = true;
+            hits.push({
+              hitClientId: clientId,
+              sourceClientId: results[i].clientId,
+              bulletId: results[i].id,
+              position: GameState.gameClients[clientId].state.player.position
+            });
+            GameState.gameClients[clientId].state.player.health.current -= results[i].damage;
+            GameState.gameClients[clientId].state.player.reportUpdate = true;
+            bulletTree.remove(results[i]);
+          }
+        }
+        
+      }
+    //
+    // Don't allow a bullet to hit the player it was fired from.
+    // if (clientId !== activeBullets[i].clientId) {
+    //   var clientCirc = GameState.gameClients[clientId].state.player.getCircle();
+    //   if (collided(activeBullets[i], {
+    //     position: clientCirc,
+    //     radius: clientCirc.radius,
+    //   })) {
+    //     hit = true;
+    //     hits.push({
+    //       hitClientId: clientId,
+    //       sourceClientId: activeBullets[i].clientId,
+    //       bulletId: activeBullets[i].id,
+    //       position: GameState.gameClients[clientId].state.player.position
+    //     });
+    //   }
+    // }
+  }    
+  keepBullets = bulletTree.all();
+  for (let j = 1; j < islandMap.length-1; j++) {
+    for (let k = 1; k < islandMap[j].length-1; k++) {
+      if (islandMap[j][k] !== 0) {
+        if (bulletTree.collides({
+          minX: k /100,
+          minY: j/100,
+          maxX: (k+1)/100,
+          maxY: (j+1)/100
         })) {
           hit = true;
           hits.push({
