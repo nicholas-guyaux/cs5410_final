@@ -104,10 +104,10 @@ function collided(obj1, obj2) {
   return distance <= radii;
 }
 
-function checkCollisions(player){
+function checkCollisions(player, clientId){
   //Note: Player Vs Wall Collision done in player.move();
   checkPlayerVsPlayerCollisions(player);
-  checkPlayerVsBulletCollisions(player);
+  checkPlayerVsBulletCollisions(player,clientId);
   checkPlayerVsBuffCollision(player);
   checkPlayerVsDeathCircleCollision(player);
 }
@@ -115,7 +115,7 @@ function checkCollisions(player){
 function checkPlayerVsPlayerCollisions(player){
   //if hit, take damage to other
 }
-function checkPlayerVsBulletCollisions(player){
+function checkPlayerVsBulletCollisions(player, clientId){
   //if hit, take damage to self
 
   let searchArea = {
@@ -124,25 +124,24 @@ function checkPlayerVsBulletCollisions(player){
     maxX: player.position.x + Math.max(player.size.width,player.size.height),
     maxY: player.position.y + Math.max(player.size.width, player.size.height) };
   if (bulletTree.collides(searchArea)) {
-      var results = bulletTree.search(searchArea);
-      for (let i = 0; i < results.length; i++) {
-        //
-        // Don't allow a bullet to hit the player it was fired from.
-        if (clientId !== results[i].clientId) {
-          hits.push({
-            hitClientId: clientId,
-            sourceClientId: results[i].clientId,
-            bulletId: results[i].id,
-            position: results[i].position
-          });
-          GameState.gameClients[results[i].clientId].state.player.bulletShots.hit++;
-          player.health.current -= results[i].damage;
-          player.reportUpdate = true;
-          bulletTree.remove(results[i]);
-        }
+    var results = bulletTree.search(searchArea);
+    for (let i = 0; i < results.length; i++) {
+      //
+      // Don't allow a bullet to hit the player it was fired from.
+      if (clientId !== results[i].clientId) {
+        hits.push({
+          hitClientId: clientId,
+          sourceClientId: results[i].clientId,
+          bulletId: results[i].id,
+          position: results[i].position
+        });
+        GameState.gameClients[results[i].clientId].state.player.bulletShots.hit++;
+        player.health.current -= results[i].damage;
+        player.reportUpdate = true;
+        bulletTree.remove(results[i]);
       }
-      
     }
+  }
 }
 function checkPlayerVsBuffCollision(player){
   if(itemTree.collides({minX:player.position.x, minY: player.position.y, maxX:Math.max(player.size.height, player.size.width) + player.position.x, maxY:Math.max(player.size.height, player.size.width) + player.position.y})) {
@@ -220,9 +219,11 @@ function update(elapsedTime, currentTime, totalTime) {
   GameState.update(elapsedTime, currentTime, totalTime);  
   //for bullet in bullets
   //update bullet (bullets die on hitting player or land)
-  
+  bulletTree.clear();
+  bulletTree.load(activeBullets);
+
   for (let clientId in GameState.gameClients) {
-    checkCollisions(GameState.gameClients[clientId].state.player);
+    checkCollisions(GameState.gameClients[clientId].state.player, clientId);
     if(checkDeath(GameState.gameClients[clientId].state.player))
       processDeath(GameState.gameClients[clientId].state.player);
     }
@@ -232,10 +233,12 @@ function update(elapsedTime, currentTime, totalTime) {
     // tell the player they won;
     GameState.inProgress = false;
   }
-  bulletTree.clear();
+  activeBullets = bulletTree.all();
   for (let i = 0; i < newBullets.length; i++) {
     newBullets[i].update(elapsedTime);
   }
+  //let keepBullets = [];
+  bulletTree.clear();
   for (let i = 0; i < activeBullets.length; i++) {
     //
     // If update returns false, that means the bullet lifetime ended and
@@ -244,6 +247,7 @@ function update(elapsedTime, currentTime, totalTime) {
       bulletTree.insert(activeBullets[i]);
     }
   }
+  //bulletTree.load(keepBullets);
   
   //
   // Check to see if any bullets collide with any players (no friendly fire)
@@ -280,7 +284,6 @@ function update(elapsedTime, currentTime, totalTime) {
       }
     }
   }
-
   activeBullets = bulletTree.all();
 }
 
