@@ -7,9 +7,6 @@ const Graphics = (function() {
   let canvas = document.createElement('canvas');
   let context = canvas.getContext('2d');
 
-  let fogCanvas = document.createElement('canvas');
-  let fogContext = fogCanvas.getContext('2d');
-
   var viewport = Coords.viewport;
   var world = Coords.world;
 
@@ -19,7 +16,8 @@ const Graphics = (function() {
   };
 
   let props = {
-    clippingEnabled: false
+    clippingEnabled: false,
+    fogClippingEnabled: false
   };
 
   const imageCanvasMap = new Map();
@@ -50,9 +48,6 @@ const Graphics = (function() {
 
     viewport.canvas.width = canvas.width;
     viewport.canvas.height = canvas.height;
-
-    fogCanvas.width = canvas.width;
-    fogCanvas.height = canvas.height;
 
     //
     // Have to figure out where the upper left corner of the unit world is
@@ -169,13 +164,7 @@ const Graphics = (function() {
     );
   }
 
-  function drawCircle(fillStyle, center, radius, alpha, ctx) {
-    if (typeof ctx === 'undefined') {
-      ctx = context;
-    }
-    if (typeof alpha !== 'undefined') {
-      ctx.globalAlpha = alpha;
-    }
+  function drawCircle(fillStyle, center, radius, alpha=1, ctx=context) {
     ctx.beginPath();
     ctx.arc(center.x * Coords.world.width,
         center.y * Coords.world.width, 2 * radius * Coords.world.width,
@@ -230,39 +219,64 @@ const Graphics = (function() {
     if (props.clippingEnabled) {
       context.restore();
       props.clippingEnabled = false;
+      props.fogClippingEnabled = false;
     }
   }
 
-  function createFogEffect(polygon) {
-    if (polygon.length < 2) {
+  function disableFogClipping() {
+    if (props.fogClippingEnabled) {
+      context.restore();
+      props.fogClippingEnabled = false;
+    }
+  }
+
+  function createFogEffect(polygon, FOVDistance) {
+    if (!props.fogClippingEnabled && (polygon.length < 2)) {
       return;
     }
-    
-    fogContext.globalAlpha = 0.7;
-    fogContext.fillStyle = '#000000';
-    fogContext.fillRect(0, 0,
-        Coords.viewport.world.width, Coords.viewport.world.height);
+    const CUSHION = FOVDistance * Coords.world.width * 10; // 10 is just a big number
+    context.save();
+    props.fogClippingEnabled = true;
 
-    // Convert polygon to true coordinates       
-    for (let point of polygon) {
-      point.x *= Coords.world.width;
-      point.y *= Coords.world.height;
+    let xMinIndex = null;
+    let xMin = Coords.world.width;
+    // Convert polygon to true coordinates
+    for (let i = 0; i < polygon.length; i++) {
+      polygon[i].x *= Coords.world.width;
+      polygon[i].y *= Coords.world.height;
+      if (polygon[i].x < xMin) {
+        xMin = polygon[i].x;
+        xMinIndex = i;
+      }
     }
-    fogContext.globalAlpha = 1;
-    fogContext.globalCompositeOperation = 'destination-out';
-
-    fogContext.beginPath();
-    fogContext.moveTo(polygon[0].x, polygon[0].y);
-    for (let pointIdx = 1; pointIdx < polygon.length; pointIdx++) {
-      fogContext.lineTo(polygon[pointIdx].x, polygon[pointIdx].y);
+    if (xMinIndex !== 0) {
+      let temp = polygon[0];
+      polygon[0] = polygon[xMinIndex];
+      polygon[xMinIndex] = temp;
     }
-    fogContext.closePath();
-    fogContext.fill();
 
+    context.beginPath();
+    context.moveTo(Coords.viewport.world.x - CUSHION,
+        Coords.viewport.world.y - CUSHION);
+    for (let pointIdx = 0; pointIdx < polygon.length; pointIdx++) {
+      context.lineTo(polygon[pointIdx].x, polygon[pointIdx].y);
+    }
+    context.lineTo(polygon[0].x, polygon[0].y);
+    context.lineTo(Coords.viewport.world.x - CUSHION,
+        Coords.viewport.world.y - CUSHION);
+    context.lineTo(Coords.viewport.world.x + Coords.viewport.world.width + CUSHION,
+      Coords.viewport.world.y - CUSHION);
+    context.lineTo(Coords.viewport.world.x + Coords.viewport.world.width + CUSHION,
+        Coords.viewport.world.y + Coords.viewport.world.height + CUSHION);
+    context.lineTo(Coords.viewport.world.x - CUSHION,
+        Coords.viewport.world.y + Coords.viewport.world.height + CUSHION);
+    context.closePath();
+    context.clip();
 
-    fogContext.globalCompositeOperation = 'source-over';
-    context.drawImage(fogCanvas, Coords.viewport.world.x, Coords.viewport.world.y);
-    fogContext.clear();
+    context.globalAlpha = 0.7;
+    context.fillStyle = '#000000';
+    context.fillRect(Coords.viewport.world.x, Coords.viewport.world.y, Coords.viewport.world.width, Coords.viewport.world.height);
+    context.globalAlpha = 1;
   }
 
   function finalizeRender() {
@@ -285,6 +299,7 @@ const Graphics = (function() {
     finalizeRender: finalizeRender,
     enableClipping: enableClipping,
     disableClipping: disableClipping,
+    disableFogClipping: disableFogClipping,
     createFogEffect: createFogEffect,
     drawFromTiledCanvas: drawFromTiledCanvas,
     get viewport () {
@@ -294,5 +309,5 @@ const Graphics = (function() {
       return world;
     },
     translateToViewport: translateToViewport,
-  }
+  };
 }());

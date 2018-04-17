@@ -413,7 +413,8 @@ const GameView = (function() {
       Renderer.renderPlayer(player.model, player.textureSet, totalTime);
     }
     Graphics.disableClipping();
-    Graphics.createFogEffect(FOVPolygon2);  // fog only outside FOV - THIS IS THE PROBLEM!
+    Graphics.createFogEffect(FOVPolygon2, props.FOVDistance);
+    Graphics.disableFogClipping();
     Graphics.finalizeRender();
   }
 
