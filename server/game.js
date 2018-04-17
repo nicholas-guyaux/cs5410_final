@@ -48,11 +48,11 @@ function createBullet(clientId, playerModel) {
     },
     direction: playerModel.direction,
     speed: playerModel.speed,
-    damage: GameState.defaultBulletDamage
+    damage: GameState.defaultBulletDamage + playerModel.buffs.dmg
   });
 
   newBullets.push(bullet);
-  bulletTree.insert(bullet);
+  //bulletTree.insert(bullet);
 }
 
 
@@ -83,10 +83,11 @@ function processInput(elapsedTime, totalTime) {
         break;
       case GameNetIds.INPUT_FIRE:
         var playerFireRate = client.state.player.buffs.fireRate ? GameState.upgradedFireRate : GameState.fireRate;
-        if(client.state.player.currentFireRateWait >= playerFireRate && client.state.player.ammo.current > 0){
+        if(client.state.player.currentFireRateWait >= playerFireRate && client.state.player.ammo.current > 0 && client.state.player.gun){
           createBullet(input.clientId, client.state.player);
           client.state.player.currentFireRateWait = 0;
           client.state.player.ammo.current--;
+          client.state.player.bulletShots.total++;
         }
         break;
       case GameNetIds.INPUT_TURBO:
@@ -163,8 +164,8 @@ function checkPlayerVsBuffCollision(player){
           }
           break;
         case 'dmg':
-          if (!player.buffs.dmg) {
-            player.buffs.dmg = true;
+          if (player.buffs.dmg === 0) {
+            player.buffs.dmg = 5;
             itemTree.remove(result[i]);
           }
           break;
@@ -212,9 +213,7 @@ function update(elapsedTime, currentTime, totalTime) {
   bulletTree.clear();
   for (let i = 0; i < newBullets.length; i++) {
     newBullets[i].update(elapsedTime);
-    bulletTree.insert(newBullets[i]);
   }
-
   let keepBullets = [];
   for (let i = 0; i < activeBullets.length; i++) {
     //
@@ -224,7 +223,7 @@ function update(elapsedTime, currentTime, totalTime) {
       bulletTree.insert(activeBullets[i]);
     }
   }
-
+  
   //
   // Check to see if any bullets collide with any players (no friendly fire)
   //keepBullets = [];
@@ -233,27 +232,24 @@ function update(elapsedTime, currentTime, totalTime) {
   
   for (let clientId in GameState.gameClients) {
     let curPlayer = GameState.gameClients[clientId].state.player;
-    if (bulletTree.collides({
+    let searchArea = {
       minX: curPlayer.position.x + curPlayer.size.width/2 - Math.max(curPlayer.size.width, curPlayer.size.height)/2,
       minY: curPlayer.position.y + curPlayer.size.height/2 - Math.max(curPlayer.size.width, curPlayer.size.height)/2,
       maxX: curPlayer.position.x + Math.max(curPlayer.size.width,curPlayer.size.height),
-      maxY: curPlayer.position.y + Math.max(curPlayer.size.width, curPlayer.size.height) })) {
-        var results = bulletTree.search({
-          minX: curPlayer.position.x + curPlayer.size.width/2 - Math.max(curPlayer.size.width, curPlayer.size.height)/2,
-          minY: curPlayer.position.y + curPlayer.size.height/2 - Math.max(curPlayer.size.width, curPlayer.size.height)/2,
-          maxX: curPlayer.position.x + Math.max(curPlayer.size.width,curPlayer.size.height),
-          maxY: curPlayer.position.y + Math.max(curPlayer.size.width,curPlayer.size.height) });
+      maxY: curPlayer.position.y + Math.max(curPlayer.size.width, curPlayer.size.height) };
+    if (bulletTree.collides(searchArea)) {
+        var results = bulletTree.search(searchArea);
         for (let i = 0; i < results.length; i++) {
           //
           // Don't allow a bullet to hit the player it was fired from.
           if (clientId !== results[i].clientId) {
-            hit = true;
             hits.push({
               hitClientId: clientId,
               sourceClientId: results[i].clientId,
               bulletId: results[i].id,
-              position: GameState.gameClients[clientId].state.player.position
+              position: results[i].position
             });
+            GameState.gameClients[results[i].clientId].state.player.bulletShots.hit++;
             GameState.gameClients[clientId].state.player.health.current -= results[i].damage;
             GameState.gameClients[clientId].state.player.reportUpdate = true;
             bulletTree.remove(results[i]);
@@ -279,7 +275,6 @@ function update(elapsedTime, currentTime, totalTime) {
     //   }
     // }
   }    
-  keepBullets = bulletTree.all();
   for (let j = 1; j < islandMap.length-1; j++) {
     for (let k = 1; k < islandMap[j].length-1; k++) {
       if (islandMap[j][k] !== 0) {
@@ -300,7 +295,7 @@ function update(elapsedTime, currentTime, totalTime) {
               hitClientId: badBullets[z].clientId,
               sourceClientId: badBullets[z].clientId,
               bulletId: badBullets[z].id,
-              position:{x:j/100, y: k/100}
+              position:badBullets[z].position
             });
             bulletTree.remove(badBullets[z]);
           }
@@ -341,9 +336,9 @@ function updateClients(elapsedTime) {
 
   //
   // Move all the new bullets over to the active bullets array
-  // for (let i = 0; i < newBullets.length; i++) {
-  //   activeBullets.push(newBullets[i]);
-  // }
+  for (let i = 0; i < newBullets.length; i++) {
+    activeBullets.push(newBullets[i]);
+  }
   newBullets.length = 0;
   // updateBulletTree(activeBullets);
 

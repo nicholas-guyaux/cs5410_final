@@ -25,7 +25,7 @@ function Player(maxHealth, maxEnergy, maxAmmo) {
   let ammo = {current: 0, max: maxAmmo};
   let bulletShots = { hit: 0, total: 0 };
   let killCount = 0;
-  let buffs = { dmg: false, speed: false, fireRate: false};
+  let buffs = { dmg: 0, speed: false, fireRate: false};
   let localItems = [];
 
   Object.defineProperty(that, 'direction', {
