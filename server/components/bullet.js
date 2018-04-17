@@ -18,6 +18,12 @@ function createBullet(spec) {
     let radius = 0.0025 * Coords.viewport.width;
     let speed = spec.speed + 0.00005;    // unit distance per millisecond
     let timeRemaining = 1500;   // milliseconds
+    let currentFireRateWait = 0;
+    that.maxX = 0;
+    that.maxY = 0;
+    that.minX = 0;
+    that.minY = 0;
+
 
     Object.defineProperty(that, 'clientId', {
         get: () => spec.clientId
@@ -58,6 +64,11 @@ function createBullet(spec) {
 
       spec.position.x += (vectorX * elapsedTime * speed);
       spec.position.y += (vectorY * elapsedTime * speed);
+
+      that.minX = spec.position.x - (that.radius * 2);
+      that.minY = spec.position.y - (that.radius * 2);
+      that.maxX = spec.position.x + (that.radius * 2);
+      that.maxY = spec.position.y + (that.radius * 2);
 
       timeRemaining -= elapsedTime;
 
