@@ -7,19 +7,15 @@ const Player = require('./components/player');
 const Bullet = require('./components/bullet');
 const GameNetIds = require('../client_files/shared/game-net-ids');
 const Queue = require('../client_files/shared/queue.js');
-const GameMap = require ('./components/gamemap.js');
 const Token = require('../Token');
 
 const SIMULATION_UPDATE_RATE_MS = 16;
 const STATE_UPDATE_LAG = 100;
 
 let inputQueue = Queue.create();
-let islandMap = GameMap.getGridMap();
 let newBullets = [];
-var itemTree = rbush();
 let activeBullets = [];
 let hits = [];
-var bulletTree = rbush();
 // The following is used to visually see the entity interpolation in action
 const DEMONSTRATION_STATE_UPDATE_LAG = 100;
 
@@ -48,10 +44,10 @@ function createBullet(clientId, playerModel) {
   });
 
   newBullets.push(bullet);
-  bulletTree.insert(bullet);
+  playerModel.ammo.current--;
 }
 
-
+var tree = rbush();
 
 function processInput(elapsedTime, totalTime) {
   //
@@ -79,7 +75,7 @@ function processInput(elapsedTime, totalTime) {
         break;
       case GameNetIds.INPUT_FIRE:
         var playerFireRate = client.state.player.buffs.fireRate ? GameState.upgradedFireRate : GameState.fireRate;
-        if(client.state.player.currentFireRateWait >= playerFireRate){
+        if(client.state.player.currentFireRateWait >= playerFireRate && client.state.player.ammo.current > 0){
           createBullet(input.clientId, client.state.player);
           client.state.player.currentFireRateWait = 0;
         }
@@ -115,8 +111,8 @@ function checkPlayerVsBulletCollisions(player){
   //if hit, take damage to self
 }
 function checkPlayerVsBuffCollision(player){
-  if(itemTree.collides({minX:player.position.x, minY: player.position.y, maxX:Math.max(player.size.height, player.size.width) + player.position.x, maxY:Math.max(player.size.height, player.size.width) + player.position.y})) {
-    var result = itemTree.search({
+  if(tree.collides({minX:player.position.x, minY: player.position.y, maxX:Math.max(player.size.height, player.size.width) + player.position.x, maxY:Math.max(player.size.height, player.size.width) + player.position.y})) {
+    var result = tree.search({
       minX: player.position.x,
       minY: player.position.y,
       maxX: Math.max(player.size.height, player.size.width) + player.position.x,
@@ -128,39 +124,39 @@ function checkPlayerVsBuffCollision(player){
           if (player.ammo.current < player.ammo.max) {
             player.ammo.current += 20;
             player.ammo.current = Math.min(player.ammo.current, player.ammo.max);
-            itemTree.remove(result[i]);
+            tree.remove(result[i]);
           }
           break;
         case 'health':
           if (player.health.current < player.health.max) {
             player.health.current += 20;
             player.health.current = Math.min(player.health.current, player.health.max);
-            itemTree.remove(result[i]);
+            tree.remove(result[i]);
           }
           break;
         case 'speed':
           if (!player.buffs.speed) {
             player.buffs.speed = true;
-            itemTree.remove(result[i]);
+            tree.remove(result[i]);
           }
           break;
         case 'gun':
           if (!player.gun) {
             player.gun = true;
-            player.ammo = player.ammo.max;
-            itemTree.remove(result[i]);
+            player.ammo.current = player.ammo.max;
+            tree.remove(result[i]);
           }
           break;
         case 'gunSpd':
           if (!player.buffs.fireRate) {
             player.buffs.fireRate = true;
-            itemTree.remove(result[i]);
+            tree.remove(result[i]);
           }
           break;
         case 'dmg':
           if (!player.buffs.dmg) {
             player.buffs.dmg = true;
-            itemTree.remove(result[i]);
+            tree.remove(result[i]);
           }
           break;
       }
@@ -206,10 +202,9 @@ function update(elapsedTime, currentTime, totalTime) {
     GameState.inProgress = false;
     GameState.playersAlive--;
   }
-  bulletTree.clear();
+
   for (let i = 0; i < newBullets.length; i++) {
     newBullets[i].update(elapsedTime);
-    bulletTree.insert(newBullets[i]);
   }
 
   let keepBullets = [];
@@ -218,93 +213,42 @@ function update(elapsedTime, currentTime, totalTime) {
     // If update returns false, that means the bullet lifetime ended and
     // we don't keep it around any longer.
     if (activeBullets[i].update(elapsedTime)) {
-      bulletTree.insert(activeBullets[i]);
+      keepBullets.push(activeBullets[i]);
     }
   }
+  activeBullets = keepBullets;
 
   //
   // Check to see if any bullets collide with any players (no friendly fire)
-  //keepBullets = [];
+  keepBullets = [];
   // TODO: CHANGE so that for every player we only check that player's bullets
   // in that player's firing radius
-  
-  for (let clientId in GameState.gameClients) {
-    let curPlayer = GameState.gameClients[clientId].state.player;
-    if (bulletTree.collides({
-      minX: curPlayer.position.x + curPlayer.size.width/2 - Math.max(curPlayer.size.width, curPlayer.size.height)/2,
-      minY: curPlayer.position.y + curPlayer.size.height/2 - Math.max(curPlayer.size.width, curPlayer.size.height)/2,
-      maxX: curPlayer.position.x + Math.max(curPlayer.size.width,curPlayer.size.height),
-      maxY: curPlayer.position.y + Math.max(curPlayer.size.width, curPlayer.size.height) })) {
-        var results = bulletTree.search({
-          minX: curPlayer.position.x + curPlayer.size.width/2 - Math.max(curPlayer.size.width, curPlayer.size.height)/2,
-          minY: curPlayer.position.y + curPlayer.size.height/2 - Math.max(curPlayer.size.width, curPlayer.size.height)/2,
-          maxX: curPlayer.position.x + Math.max(curPlayer.size.width,curPlayer.size.height),
-          maxY: curPlayer.position.y + Math.max(curPlayer.size.width,curPlayer.size.height) });
-        for (let i = 0; i < results.length; i++) {
-          //
-          // Don't allow a bullet to hit the player it was fired from.
-          if (clientId !== results[i].clientId) {
-            hit = true;
-            hits.push({
-              hitClientId: clientId,
-              sourceClientId: results[i].clientId,
-              bulletId: results[i].id,
-              position: GameState.gameClients[clientId].state.player.position
-            });
-            bulletTree.remove(results[i]);
-          }
-        }
-        
-      }
-    //
-    // Don't allow a bullet to hit the player it was fired from.
-    // if (clientId !== activeBullets[i].clientId) {
-    //   var clientCirc = GameState.gameClients[clientId].state.player.getCircle();
-    //   if (collided(activeBullets[i], {
-    //     position: clientCirc,
-    //     radius: clientCirc.radius,
-    //   })) {
-    //     hit = true;
-    //     hits.push({
-    //       hitClientId: clientId,
-    //       sourceClientId: activeBullets[i].clientId,
-    //       bulletId: activeBullets[i].id,
-    //       position: GameState.gameClients[clientId].state.player.position
-    //     });
-    //   }
-    // }
-  }    
-  keepBullets = bulletTree.all();
-  for (let j = 1; j < islandMap.length-1; j++) {
-    for (let k = 1; k < islandMap[j].length-1; k++) {
-      if (islandMap[j][k] !== 0) {
-        if (bulletTree.collides({
-          minX: k /100,
-          minY: j/100,
-          maxX: (k+1)/100,
-          maxY: (j+1)/100
+  for (let i = 0; i < activeBullets.length; i++) {
+    let hit = false;
+    for (let clientId in GameState.gameClients) {
+      //
+      // Don't allow a bullet to hit the player it was fired from.
+      if (clientId !== activeBullets[i].clientId) {
+        var clientCirc = GameState.gameClients[clientId].state.player.getCircle();
+        if (collided(activeBullets[i], {
+          position: clientCirc,
+          radius: clientCirc.radius,
         })) {
-          var badBullets = bulletTree.search({
-            minX: k /100,
-            minY: j/100,
-            maxX: (k+1)/100,
-            maxY: (j+1)/100
+          hit = true;
+          hits.push({
+            hitClientId: clientId,
+            sourceClientId: activeBullets[i].clientId,
+            bulletId: activeBullets[i].id,
+            position: GameState.gameClients[clientId].state.player.position
           });
-          for (z = 0; z < badBullets.length; z++) {
-            hits.push({
-              hitClientId: badBullets[z].clientId,
-              sourceClientId: badBullets[z].clientId,
-              bulletId: badBullets[z].id,
-              position:{x:j/100, y: k/100}
-            });
-            bulletTree.remove(badBullets[z]);
-          }
         }
       }
     }
+    if (!hit) {
+      keepBullets.push(activeBullets[i]);
+    }
   }
-
-  activeBullets = bulletTree.all();
+  activeBullets = keepBullets;
 }
 
 function updateClients(elapsedTime) {
@@ -336,24 +280,23 @@ function updateClients(elapsedTime) {
 
   //
   // Move all the new bullets over to the active bullets array
-  // for (let i = 0; i < newBullets.length; i++) {
-  //   activeBullets.push(newBullets[i]);
-  // }
+  for (let i = 0; i < newBullets.length; i++) {
+    activeBullets.push(newBullets[i]);
+  }
   newBullets.length = 0;
-  // updateBulletTree(activeBullets);
 
   // For each game client create an update message with the client's data and elapsedTime
   // Then, if the player is to report the update, then emit an UPDATE_SELF and an UPDATE_OTHER 
   // to all other clients
   for (let clientId in GameState.gameClients) {
     let client = GameState.gameClients[clientId];
-    let buffs = itemTree.search({
+    let buffs = tree.search({
       minX: client.state.player.position.x - .15,
       minY: client.state.player.position.y - .15,
       maxX: client.state.player.position.x + .15,
       maxY: client.state.player.position.y + .15
     });
-    //let buffs = itemTree.all();
+    //let buffs = tree.all();
     let update = {
         clientId: clientId,
         lastMessageId: client.lastMessageId,
@@ -443,8 +386,8 @@ function gameLoop(currentTime, elapsedTime) {
 function initialize() {
   GameState.newGame();
   gameLoop(present(), 0);
-  itemTree = rbush();
-  itemTree.load(GameState.newGame());
+  tree = rbush();
+  tree.load(GameState.newGame());
 }
 
 function initializeSocketIO(io) {
