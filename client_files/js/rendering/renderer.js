@@ -74,6 +74,24 @@ const Renderer = (function(graphics) {
     //graphics.drawFilledRectangle('red',model.position.x, model.position.y, .1, .10);
   }
 
+  function renderItems(itemList, itemImages) {
+    var size = {
+      width: .01,
+      height: .01,
+    };
+    for (let i = 0; i < itemList.length; i++) {
+      let item = itemList[i];
+      graphics.saveContext();
+      let center = {
+        x:item.minX + size.width / 2,
+        y:item.minY + size.height / 2
+      };
+      console.log(itemImages[item.type]);
+      graphics.drawImage(itemImages[item.type], center, size, false);
+      graphics.restoreContext();
+    }
+  }
+
   function minimap () {
     var minimap = {
       width: Coords.viewport.width*.2,
@@ -110,6 +128,7 @@ const Renderer = (function(graphics) {
     renderPlayer,
     renderBullet,
     minimap,
+    renderItems
     // renderRemotePlayer
   };
 }(Graphics));
