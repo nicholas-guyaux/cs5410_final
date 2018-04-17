@@ -31,7 +31,6 @@ const GameLobbyView = (function GameLobbyView (AudioPool) {
 
   
     socket.on(LobbyNetIds.PLAYER_JOIN_LOBBY_ACK, function (data) {
-      console.log(data.clients);
       var lob = document.getElementById('lobby-count');
       lob.innerHTML = HTML.escape(data.clients.length) + ' of ' + HTML.escape(requiredNumPlayers);
       var lob = document.getElementById('lobby-players-box');
@@ -71,7 +70,6 @@ const GameLobbyView = (function GameLobbyView (AudioPool) {
 
     socket.on(LobbyNetIds.START_COUNTDOWN, function (data){
       //Start countdown
-      console.log('begin countdown');
       showCountdown(data.countdown);
     });
 
