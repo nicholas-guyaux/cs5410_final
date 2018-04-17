@@ -11,7 +11,12 @@ const game = require('./game');
 
 let props = {
   numPlayersRequired: 2,
+<<<<<<< HEAD
   countdownTime: 10
+=======
+  gameInProgress: false,
+  countdownTime: 2
+>>>>>>> origin/master
 };
 
 //------------------------------------------------------------------

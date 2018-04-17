@@ -83,7 +83,6 @@ const GameLobbyView = (function GameLobbyView (AudioPool) {
     var numReq = document.getElementById('game-lobby-status');
     numReq.innerHTML = 'Game will begin in ' + seconds--;
     var interval = setInterval(function () {
-      console.log('game starts in ', seconds);
       numReq.innerHTML = 'Game will begin in ' + seconds--;
       if(seconds === 0) {
         clearInterval(interval);
