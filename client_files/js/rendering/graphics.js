@@ -240,14 +240,15 @@ const Graphics = (function() {
     
     fogContext.globalAlpha = 0.7;
     fogContext.fillStyle = '#000000';
-    fogContext.fillRect(0, 0, 1000, 1000);
+    fogContext.fillRect(0, 0,
+        Coords.viewport.world.width, Coords.viewport.world.height);
 
     // Convert polygon to true coordinates       
     for (let point of polygon) {
       point.x *= Coords.world.width;
       point.y *= Coords.world.height;
     }
-
+    fogContext.globalAlpha = 1;
     fogContext.globalCompositeOperation = 'destination-out';
 
     fogContext.beginPath();
@@ -260,7 +261,7 @@ const Graphics = (function() {
 
 
     fogContext.globalCompositeOperation = 'source-over';
-    context.drawImage(fogCanvas, 0, 0);
+    context.drawImage(fogCanvas, Coords.viewport.world.x, Coords.viewport.world.y);
     fogContext.clear();
   }
 

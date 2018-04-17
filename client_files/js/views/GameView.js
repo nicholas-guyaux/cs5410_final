@@ -404,8 +404,7 @@ const GameView = (function() {
     FOVPoint1 = rotatePointAboutPoint(playerPos, FOVPoint1, playerSelf.model.direction);
     FOVPoint2 = rotatePointAboutPoint(playerPos, FOVPoint2, playerSelf.model.direction);
     FOVPolygon = [playerPos, FOVPoint1, FOVPoint2];
-
-    Graphics.createFogEffect(FOVPolygon);  // fog only outside FOV
+    FOVPolygon2 = FOVPolygon.map(obj => Object.assign({}, obj));
 
     Graphics.enableClipping(FOVPolygon); // clipping for objects forbidden outside FOV
     // Render other players, items, etc. here (things only visible inside FOV)
@@ -414,6 +413,7 @@ const GameView = (function() {
       Renderer.renderPlayer(player.model, player.textureSet, totalTime);
     }
     Graphics.disableClipping();
+    Graphics.createFogEffect(FOVPolygon2);  // fog only outside FOV - THIS IS THE PROBLEM!
     Graphics.finalizeRender();
   }
 
