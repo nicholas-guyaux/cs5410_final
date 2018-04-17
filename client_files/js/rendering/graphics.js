@@ -270,13 +270,14 @@ const Graphics = (function() {
     if (!props.fogClippingEnabled && (polygon.length < 2)) {
       return;
     }
-    const CUSHION = FOVDistance * Coords.world.width * 2; // 10 is just a big number
+    const CUSHION = FOVDistance * Coords.world.width * 5; // 5 is just a big number
     context.save();
     props.fogClippingEnabled = true;
 
+    let swapOuterDirection = false;
     let xMinIndex = null;
     let xMin = Coords.world.width;
-    // Convert polygon to true coordinates
+
     for (let i = 0; i < polygon.length; i++) {
       polygon[i].x *= Coords.world.width;
       polygon[i].y *= Coords.world.height;
@@ -285,10 +286,14 @@ const Graphics = (function() {
         xMinIndex = i;
       }
     }
+
     if (xMinIndex !== 0) {
       let temp = polygon[0];
       polygon[0] = polygon[xMinIndex];
       polygon[xMinIndex] = temp;
+    }
+    else {
+      swapOuterDirection = true; // This is necessary so that it doesn't cut itself off
     }
 
     context.beginPath();
@@ -300,12 +305,23 @@ const Graphics = (function() {
     context.lineTo(polygon[0].x, polygon[0].y);
     context.lineTo(Coords.viewport.world.x - CUSHION,
         Coords.viewport.world.y - CUSHION);
-    context.lineTo(Coords.viewport.world.x + Coords.viewport.world.width + CUSHION,
-      Coords.viewport.world.y - CUSHION);
-    context.lineTo(Coords.viewport.world.x + Coords.viewport.world.width + CUSHION,
-        Coords.viewport.world.y + Coords.viewport.world.height + CUSHION);
-    context.lineTo(Coords.viewport.world.x - CUSHION,
-        Coords.viewport.world.y + Coords.viewport.world.height + CUSHION);
+    if (!swapOuterDirection) {
+      context.lineTo(Coords.viewport.world.x + Coords.viewport.world.width + CUSHION,
+          Coords.viewport.world.y - CUSHION);
+      context.lineTo(Coords.viewport.world.x + Coords.viewport.world.width + CUSHION,
+          Coords.viewport.world.y + Coords.viewport.world.height + CUSHION);
+      context.lineTo(Coords.viewport.world.x - CUSHION,
+          Coords.viewport.world.y + Coords.viewport.world.height + CUSHION);
+    }
+    else {
+      context.lineTo(Coords.viewport.world.x - CUSHION,
+          Coords.viewport.world.y + Coords.viewport.world.height + CUSHION);
+      context.lineTo(Coords.viewport.world.x + Coords.viewport.world.width + CUSHION,
+          Coords.viewport.world.y + Coords.viewport.world.height + CUSHION);
+      context.lineTo(Coords.viewport.world.x + Coords.viewport.world.width + CUSHION,
+          Coords.viewport.world.y - CUSHION);
+    }
+
     context.closePath();
     context.clip();
 
