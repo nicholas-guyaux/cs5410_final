@@ -189,12 +189,12 @@ function update(elapsedTime, currentTime, totalTime) {
   GameState.update(elapsedTime, currentTime, totalTime);  
   //for bullet in bullets
   //update bullet (bullets die on hitting player or land)
-
+  
   for (let clientId in GameState.gameClients) {
     checkCollisions(GameState.gameClients[clientId].state.player);
     if(checkDeath(GameState.gameClients[clientId].state.player))
       processDeath(GameState.gameClients[clientId].state.player);
-  }
+    }
 
   if(GameState.playersAlive === 1){
     // endGame
@@ -323,6 +323,7 @@ function updateClients(elapsedTime) {
         updateWindow: elapsedTime,
       });
     }
+
     if (client.state.player.reportUpdate) {
       client.socket.emit(GameNetIds.UPDATE_SELF, update);
 
