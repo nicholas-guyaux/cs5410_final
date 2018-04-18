@@ -18,6 +18,8 @@ const GameView = (function() {
     'gun': MyGame.assets['gun'],
     'gunSpd': MyGame.assets['gunSpd']
   }
+  let waitingGameMessage = false;
+  let gameMessage = '';
   var boatTextureSet = {
     water: {
       spriteSet: MyGame.assets['water_units'],
@@ -137,6 +139,13 @@ const GameView = (function() {
     socket.on(GameNetIds.BULLET_HIT, data => {
       receivedMessages.enqueue({
         type: GameNetIds.BULLET_HIT,
+        data: data
+      });
+    });
+
+    socket.on(GameNetIds.GAME_UPDATE_MESSAGE, data => {
+      receivedMessages.enqueue({
+        type: GameNetIds.GAME_UPDATE_MESSAGE,
         data: data
       });
     });
@@ -380,6 +389,11 @@ const GameView = (function() {
     delete bullets[data.bulletId];
   }
 
+  function newGameMessage(data) {
+    waitingGameMessage = true;
+    gameMessage = data.message;
+  }
+
   function processInput(elapsedTime) {
     keyboard.handle(elapsedTime); // Pass gameState? Or not necessary?
 
@@ -416,6 +430,9 @@ const GameView = (function() {
         case GameNetIds.BULLET_HIT:
           bulletHit(message.data);
           break;
+        case GameNetIds.GAME_UPDATE_MESSAGE:
+          newGameMessage(message.data);
+          break; 
         case GameNetIds.MESSAGE_GAME_OVER:
           MainView.loadView(GameOverView.name, message.data);
       }
@@ -523,6 +540,10 @@ const GameView = (function() {
     Renderer.minimap();
 
     Renderer.renderPlayer(playerSelf.model, playerSelf.textureSet, totalTime);
+    if(waitingGameMessage) {
+      waitingGameMessage = false;
+      Renderer.renderGameMessage(gameMessage);
+    }
     
     Graphics.finalizeRender();
   }

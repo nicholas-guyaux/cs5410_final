@@ -133,7 +133,12 @@ function checkPlayerVsPlayerCollisions(player, clientId){
           otherPlayers[i].player.health.current--;
           player.damageDealt++;
           otherPlayers[i].player.reportUpdate = true;
-          if (otherPlayers[i].player.health.current <= 0) {
+          if (otherPlayers[i].player.health.current <= 0 && !otherPlayers[i].player.dead)
+            otherPlayers[i].player.dead = true;
+            GameState.gameClients[clientId].socket.emit(GameNetIds.GAME_UPDATE_MESSAGE, {
+              // they are not subtracted yet from the alive players so this is their position.
+              message: otherPlayers[i].player.username + ' was killed by ' + player.username
+            });
             player.killCount++;
             // hits.push({
             //   hitClientId: otherPlayers[i].client,

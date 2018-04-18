@@ -98,11 +98,15 @@
       writable: false,
     },
     'MESSAGE_GAME_OVER': {
-      value: 'update-vehicle-drop',
+      value: 'message-game-over',
       writable: false
     },
     'SET_NAME': {
       value: 'set-name',
+      writable: false
+    },
+    'GAME_UPDATE_MESSAGE': {
+      value: 'game-update-message',
       writable: false
     },
   });
