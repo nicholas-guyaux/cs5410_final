@@ -68,6 +68,7 @@ const GameView = (function() {
   //
   // Render to initially setup and show the GameView
   function render() {
+    props.quit = false;
     vehicle = Vehicle();
     Graphics.resizeCanvas();
     AudioPool.playMusic('game');
@@ -208,6 +209,7 @@ const GameView = (function() {
   }
 
   function unrender() {
+    props.quit = true;
     socket.disconnect();
     socket = null;
     keyboard.deactivate();
