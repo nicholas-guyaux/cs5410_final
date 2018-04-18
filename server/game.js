@@ -629,19 +629,7 @@ function initializeSocketIO(io) {
   });
 }
 
-
-//------------------------------------------------------------------
-//
-// Public function that allows the game simulation and processing to
-// be terminated.
-//
-//------------------------------------------------------------------
-function terminate() {
-  GameState.inProgress = false;
-}
-
 module.exports = {
   initialize,
-  terminate,
   initializeSocketIO
 };
