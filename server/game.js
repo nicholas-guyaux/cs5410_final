@@ -40,6 +40,7 @@ let props = {
 //------------------------------------------------------------------
 function createBullet(clientId, playerModel) {
   let bulletColor = playerModel.buffs.dmg ? 'red' : 'white';
+  let bulletSpeedRatio = playerModel.buffs.gunRate ? 2 : 1;
   let bullet = Bullet.create({
     id: props.nextBulletId++,
     clientId: clientId,
@@ -48,7 +49,7 @@ function createBullet(clientId, playerModel) {
       y: playerModel.position.y + playerModel.size.height / 2,
     },
     direction: playerModel.direction,
-    speed: playerModel.speed,
+    speed: playerModel.speed * bulletSpeedRatio,
     damage: GameState.defaultBulletDamage + playerModel.buffs.dmg,
     color: bulletColor
   });
@@ -175,6 +176,10 @@ function checkPlayerVsBuffCollision(player){
         case 'speed':
           if (!player.buffs.speed) {
             player.buffs.speed = true;
+            player.energy.current = player.energy.max;
+            itemTree.remove(result[i]);
+          } else if(player.energy.current < player.energy.max){
+            player.energy.current = player.energy.max
             itemTree.remove(result[i]);
           }
           break;

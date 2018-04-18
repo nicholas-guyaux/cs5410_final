@@ -208,14 +208,15 @@ function createPlayer(maxHealth, maxEnergy, maxAmmo) {
     //------------------------------------------------------------------
     that.update = function(elapsedTime) {
       if(useTurbo){
-        energy.current -= 2;
+        var rate = buffs.speed ? 1 : 2;
+        energy.current -= rate;
         reportUpdate = true;
         if(energy.current <= 0){
           useTurbo = false
         }
       }
       else if(energy.current < energy.max){
-        energy.current++;
+        energy.current += .25;
         reportUpdate = true;
       }
       currentFireRateWait += elapsedTime;
