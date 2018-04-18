@@ -128,11 +128,19 @@ function checkPlayerVsPlayerCollisions(player, clientId){
     let otherPlayers = playerTree.search(collisionSquare);
     for (let i = 0; i < otherPlayers.length; i++) {
       if (clientId !== otherPlayers[i].client.socket.id) {
-        otherPlayers[i].player.health.current--;
-        otherPlayers[i].player.reportUpdate = true;
-        if (otherPlayers[i].player.health.current <= 0) {
-          player.killCount++;
-        }
+        if (otherPlayers[i].player.health.current > 0) {
+          otherPlayers[i].player.health.current--;
+          otherPlayers[i].player.reportUpdate = true;
+          if (otherPlayers[i].player.health.current <= 0) {
+            player.killCount++;
+            hits.push({
+              hitClientId: otherPlayers[i].client,
+              sourceClientId: clientId,
+              bulletId: clientId,
+              position: player.center
+            });
+          }
+        }              
       }
     }
   }
