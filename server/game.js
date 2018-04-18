@@ -133,12 +133,12 @@ function checkPlayerVsPlayerCollisions(player, clientId){
           otherPlayers[i].player.reportUpdate = true;
           if (otherPlayers[i].player.health.current <= 0) {
             player.killCount++;
-            hits.push({
-              hitClientId: otherPlayers[i].client,
-              sourceClientId: clientId,
-              bulletId: clientId,
-              position: player.center
-            });
+            // hits.push({
+            //   hitClientId: otherPlayers[i].client,
+            //   sourceClientId: clientId,
+            //   bulletId: clientId,
+            //   position: player.center
+            // });
           }
         }              
       }
