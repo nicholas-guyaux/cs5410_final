@@ -155,6 +155,7 @@ function initializeSocketIO(io) {
     notifyConnect(newClient);
 
     if ((Object.keys(GameState.lobbyClients).length >= props.numPlayersRequired) && !GameState.inProgress) {
+      GameState.alivePlayers = [];
       GameState.inProgress = true;
       for (let clientId in GameState.lobbyClients) {
         if (!GameState.lobbyClients.hasOwnProperty(clientId)) {

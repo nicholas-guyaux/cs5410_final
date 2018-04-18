@@ -240,7 +240,7 @@ function checkDeath(player){
 function processDeath(player){
   //PlayerCount--
   //Update to player = death
-  //Update to others = otherDeath
+  //Update to others = otherDeath 
   player.dead = true;
   return;
 }
@@ -251,16 +251,35 @@ function update(elapsedTime, currentTime, totalTime) {
   //update bullet (bullets die on hitting player or land)
   bulletTree.clear();
   bulletTree.load(activeBullets);
-
   for (let clientId in GameState.gameClients) {
     checkCollisions(GameState.gameClients[clientId].state.player, GameState.gameClients[clientId].socket.id);
     if(checkDeath(GameState.gameClients[clientId].state.player))
       processDeath(GameState.gameClients[clientId].state.player);
+      GameState.gameClients[clientId].socket.emit(GameNetIds.MESSAGE_GAME_OVER, {
+        // they are not subtracted yet from the alive players so this is their position.
+        place: GameState.alivePlayers.length,
+        totalPlayers: GameState.playerCount,
+      });
     }
+  }
+
+  GameState.alivePlayers = GameState.alivePlayers.filter(player => !player.dead);
+  console.log(GameState.alivePlayers);
 
   if(GameState.alivePlayers.length <= 1){
     // endGame
     // tell the player they won;
+    // endGame
+    // tell the player they won;
+    for (let clientId in GameState.gameClients) {
+      if(!GameState.gameClients[clientId].state.player.dead) {
+        GameState.gameClients[clientId].socket.emit(GameNetIds.MESSAGE_GAME_OVER, {
+          // they are not subtracted yet from the alive players so this is their position.
+          place: GameState.alivePlayers.length,
+          totalPlayers: GameState.playerCount,
+        });
+      }
+    }
     GameState.inProgress = false;
   }
   activeBullets = bulletTree.all();
@@ -563,6 +582,8 @@ function initializeSocketIO(io) {
           playerId: playerId.name,  
           message: "Has left the game"      
         });
+      } else {
+        client.state.player.dead = true;
       }
     }
   }
@@ -582,6 +603,7 @@ function initializeSocketIO(io) {
     };
     GameState.gameClients[socket.id] = newClient;
     GameState.alivePlayers.push(newPlayer);
+    GameState.playerCount++;
 
     //
     // Ack message emitted to new client with info about its new player
@@ -663,19 +685,7 @@ function initializeSocketIO(io) {
   });
 }
 
-
-//------------------------------------------------------------------
-//
-// Public function that allows the game simulation and processing to
-// be terminated.
-//
-//------------------------------------------------------------------
-function terminate() {
-  GameState.inProgress = false;
-}
-
 module.exports = {
   initialize,
-  terminate,
   initializeSocketIO
 };

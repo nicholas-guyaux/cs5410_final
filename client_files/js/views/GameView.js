@@ -126,6 +126,13 @@ const GameView = (function() {
       });
     });
 
+    socket.on(GameNetIds.MESSAGE_GAME_OVER, data => {
+      receivedMessages.enqueue({
+        type: GameNetIds.MESSAGE_GAME_OVER,
+        data: data
+      });
+    });
+
     socket.on(GameNetIds.BULLET_HIT, data => {
       receivedMessages.enqueue({
         type: GameNetIds.BULLET_HIT,
@@ -150,8 +157,8 @@ const GameView = (function() {
       let message = {
         id: props.messageId++,
         position: {
-          x: x / Coords.viewport.canvas.width,
-          y: y / Coords.viewport.canvas.height,
+          x: x / this.offsetWidth,
+          y: y / this.offsetHeight,
         },
         type: GameNetIds.INPUT_DROP
       };
@@ -404,6 +411,8 @@ const GameView = (function() {
         case GameNetIds.BULLET_HIT:
           bulletHit(message.data);
           break;
+        case GameNetIds.MESSAGE_GAME_OVER:
+          MainView.loadView(GameOverView.name, message.data);
       }
     }
   }
