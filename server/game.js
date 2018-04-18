@@ -253,7 +253,7 @@ function update(elapsedTime, currentTime, totalTime) {
   bulletTree.load(activeBullets);
   for (let clientId in GameState.gameClients) {
     checkCollisions(GameState.gameClients[clientId].state.player, GameState.gameClients[clientId].socket.id);
-    if(checkDeath(GameState.gameClients[clientId].state.player))
+    if(checkDeath(GameState.gameClients[clientId].state.player)) {
       processDeath(GameState.gameClients[clientId].state.player);
       GameState.gameClients[clientId].socket.emit(GameNetIds.MESSAGE_GAME_OVER, {
         // they are not subtracted yet from the alive players so this is their position.
