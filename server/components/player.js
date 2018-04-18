@@ -138,6 +138,22 @@ function createPlayer(maxHealth, maxEnergy, maxAmmo) {
       set: value => currentFireRateWait = value
     });
 
+    var center = {};
+    Object.defineProperty(center,'x', {
+      get: () => position.x + size.width / 2
+    })
+
+    Object.defineProperty(center,'y', {
+      get: () => position.y + size.height / 2
+    })
+    Object.defineProperty(that, 'center', {
+      get: () => center
+    });
+
+    Object.defineProperty(that, 'useTurbo', {
+      get: () => useTurbo
+    });
+
     //------------------------------------------------------------------
     //
     // Moves the player forward based on how long it has been since the
