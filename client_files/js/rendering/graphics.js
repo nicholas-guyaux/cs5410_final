@@ -143,7 +143,6 @@ const Graphics = (function() {
   }
   
   function drawImage(image, center, size, clipping) {
-    // console.log('image: ', image);
     let localCenter = {
       x: center.x * world.width,
       y: center.y * world.height,

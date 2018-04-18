@@ -39,6 +39,8 @@ let props = {
 //
 //------------------------------------------------------------------
 function createBullet(clientId, playerModel) {
+  let bulletColor = playerModel.buffs.dmg ? 'red' : 'white';
+  let bulletSpeedRatio = playerModel.buffs.gunRate ? 2 : 1;
   let bullet = Bullet.create({
     id: props.nextBulletId++,
     clientId: clientId,
@@ -47,8 +49,9 @@ function createBullet(clientId, playerModel) {
       y: playerModel.position.y + playerModel.size.height / 2,
     },
     direction: playerModel.direction,
-    speed: playerModel.speed,
-    damage: GameState.defaultBulletDamage + playerModel.buffs.dmg
+    speed: playerModel.speed * bulletSpeedRatio,
+    damage: GameState.defaultBulletDamage + playerModel.buffs.dmg,
+    color: bulletColor
   });
   newBullets.push(bullet);
 }
@@ -173,6 +176,10 @@ function checkPlayerVsBuffCollision(player){
         case 'speed':
           if (!player.buffs.speed) {
             player.buffs.speed = true;
+            player.energy.current = player.energy.max;
+            itemTree.remove(result[i]);
+          } else if(player.energy.current < player.energy.max){
+            player.energy.current = player.energy.max
             itemTree.remove(result[i]);
           }
           break;
@@ -317,7 +324,8 @@ function updateClients(elapsedTime) {
       },
       radius: bullet.radius,
       speed: bullet.speed,
-      timeRemaining: bullet.timeRemaining
+      timeRemaining: bullet.timeRemaining,
+      color: bullet.color
     });
   }
 
