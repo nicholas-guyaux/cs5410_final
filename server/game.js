@@ -237,6 +237,7 @@ function update(elapsedTime, currentTime, totalTime) {
   }
 
   GameState.alivePlayers = GameState.alivePlayers.filter(player => !player.dead);
+  console.log(GameState.alivePlayers);
 
   if(GameState.alivePlayers.length <= 1){
     // endGame
@@ -519,7 +520,6 @@ function initializeSocketIO(io) {
         continue;
       }
       let client = GameState.gameClients[clientId];
-      client.state.player.dead = true;
       client.socket.emit(GameNetIds.PLAYER_LEAVE, {
         clients: Object.values(GameState.gameClients).map(x => x.state.player).filter(x => !!x.name)
       });
@@ -528,6 +528,8 @@ function initializeSocketIO(io) {
           playerId: playerId.name,  
           message: "Has left the game"      
         });
+      } else {
+        client.state.player.dead = true;
       }
     }
   }

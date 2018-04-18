@@ -1,8 +1,6 @@
 const GameOverView = (function GameOverView (AudioPool) {
   var buttonMenu = null;
 
-  var requiredNumPlayers = 10;
-
   // example data
   // {
   //   // they are not subtracted yet from the alive players so this is their position.
@@ -23,8 +21,6 @@ const GameOverView = (function GameOverView (AudioPool) {
   }
 
   function unrender () {
-    socket.disconnect();
-    socket = null;
     keyboard.deactivate();
   }
 
