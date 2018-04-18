@@ -52,6 +52,7 @@ const GameView = (function() {
   let playerOthers = {};
   let bullets = {};
   let explosions = {};
+  let particleManager = ParticleManager(Graphics);
 
   let props = {
     quit: false,
@@ -60,7 +61,8 @@ const GameView = (function() {
     commandKeys: null,
     nextExplosionId: 1,
     FOVDistance: 0.15,
-    FOVWidth: 0.15
+    FOVWidth: 0.15,
+    shieldInViewPort: true
   };
 
   //
@@ -428,6 +430,25 @@ const GameView = (function() {
         delete explosions[id];
       }
     }
+
+    particleManager.update(elapsedTime);
+
+    if (props.shieldInViewPort) {
+      particleManager.createEffect({
+        image:  MyGame.assets['violetlight'],
+        size: { mean: .001, stdDev: .005 },
+        lifetime: { mean: 80, stdDev: 80 },
+        speed: { mean: .001, stdDev: .005 },
+        circleSegment: {
+          center: {x: .5, y: .5},
+          radius: .3,
+          xMin: Coords.viewport.x,
+          xMax: Coords.viewport.x + Coords.viewport.width,
+          yMin: Coords.viewport.y,
+          yMax: Coords.viewport.y + Coords.viewport.height
+        }
+      });
+    }
   }
 
   // This function was written by Dr. Dean Mathias
@@ -480,9 +501,7 @@ const GameView = (function() {
     // }
     Renderer.renderPlayer(playerSelf.model, playerSelf.textureSet, totalTime);
     
-    
-
-    
+    particleManager.render();
 
     let playerPos = {x: playerSelf.model.position.x + playerSelf.model.size.width / 2, y: playerSelf.model.position.y + playerSelf.model.size.height / 2};
     let FOVPoint1 = {x: (playerPos.x + props.FOVDistance), y: playerPos.y - (props.FOVWidth / 2)};
