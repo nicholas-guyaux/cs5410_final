@@ -54,7 +54,7 @@ function createPlayer(maxHealth, maxEnergy, maxAmmo) {
     let bulletShots = { hit: 0, total: 0 };
     let killCount = 0;
     let gun = false;
-    let buffs = { dmg: false, speed: false, fireRate: false};
+    let buffs = { dmg: 0, speed: false, fireRate: false};
     let currentFireRateWait = 0;
 
     that.getCircle = function () {

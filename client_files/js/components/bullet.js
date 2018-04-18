@@ -20,6 +20,10 @@ function Bullet(spec) {
       get: () => spec.id
   });
 
+  Object.defineProperty(that, 'color', {
+    get: () => spec.color
+  })
+
   //------------------------------------------------------------------
   //
   // Update the position of the bullet.  We don't receive updates from

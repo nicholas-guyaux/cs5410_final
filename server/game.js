@@ -39,6 +39,7 @@ let props = {
 //
 //------------------------------------------------------------------
 function createBullet(clientId, playerModel) {
+  let bulletColor = playerModel.buffs.dmg ? 'red' : 'white';
   let bullet = Bullet.create({
     id: props.nextBulletId++,
     clientId: clientId,
@@ -48,7 +49,8 @@ function createBullet(clientId, playerModel) {
     },
     direction: playerModel.direction,
     speed: playerModel.speed,
-    damage: GameState.defaultBulletDamage + playerModel.buffs.dmg
+    damage: GameState.defaultBulletDamage + playerModel.buffs.dmg,
+    color: bulletColor
   });
   newBullets.push(bullet);
 }
@@ -317,7 +319,8 @@ function updateClients(elapsedTime) {
       },
       radius: bullet.radius,
       speed: bullet.speed,
-      timeRemaining: bullet.timeRemaining
+      timeRemaining: bullet.timeRemaining,
+      color: bullet.color
     });
   }
 
