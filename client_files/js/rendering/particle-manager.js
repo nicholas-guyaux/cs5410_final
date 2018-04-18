@@ -60,8 +60,9 @@ function ParticleManager(graphics) {
     if (typeof spec.circleSegment !== 'undefined') {
       let radius = spec.circleSegment.radius;
       let center = spec.circleSegment.center;
-      for (let i = 0; i < 30; i++) {
-        // TODO: CHANGE THIS LOGIC - this doesn't work
+      let particleCount = 0;
+      while (particleCount < 30) {
+        // TODO: CHANGE THIS LOGIC?
         //
         // Do something with angles:
         // let angle = Math.random() * Math.PI * 2;
@@ -69,25 +70,35 @@ function ParticleManager(graphics) {
         // let y = Math.sin(angle) * radius;
         let positionX = (Math.random() * (spec.circleSegment.xMax - spec.circleSegment.xMin)) + spec.circleSegment.xMin;
         let positionY = null;
-        let selector = Math.floor(Math.random() * 2); // will be a 1 or a 0
-        let partiallyComputedPosY = Math.sqrt((radius * radius) - ((positionX - center.x) * (positionX - center.x)));
-        if (selector === 0) {
-          positionY = center.y + partiallyComputedPosY;
+        let partialComp1 = (radius * radius) - ((positionX - center.x) * (positionX - center.x));
+        let partialComp2 = null;
+
+        if (partialComp1 >= 0) {
+          partialComp2 = Math.sqrt(partialComp1);
         }
         else {
-          positionY = center.y - partiallyComputedPosY;
+          continue;
+        }
+
+        let selector = Math.floor(Math.random() * 2); // will be a 1 or a 0
+        if (selector === 0) {
+          positionY = center.y + partialComp2;
+        }
+        else {
+          positionY = center.y - partialComp2;
         }
         
         if ((positionY < spec.circleSegment.yMin) || (positionY > spec.circleSegment.yMax)) {
           if (selector === 0) {
-            positionY = center.y - partiallyComputedPosY;
+            positionY = center.y - partialComp2;
           }
           else {
-            positionY = center.y + partiallyComputedPosY;
+            positionY = center.y + partialComp2;
           }
         }
 
         if ((positionY < spec.circleSegment.yMin) || (positionY > spec.circleSegment.yMax)) {
+          particleCount++;
           continue;
         }
 
@@ -101,6 +112,7 @@ function ParticleManager(graphics) {
           size: Random.nextGaussian(spec.size.mean, spec.size.stdDev),
         };
         pEffect.particles.push(p);
+        particleCount++;
       }
     }
     

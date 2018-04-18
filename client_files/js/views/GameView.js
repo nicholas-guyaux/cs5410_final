@@ -65,6 +65,21 @@ const GameView = (function() {
     shieldInViewPort: true
   };
 
+  let shieldProps = {
+    radius: .3, // Change
+    center: {x: .5, y: .5}, // Change
+    get viewToRadiusDiffIsSmall() {
+      return; // bool
+    },
+    get viewAngle() {
+      return;
+    },
+    get epsilon() {
+      // Dependent on radius
+      return;
+    }
+  };
+
   //
   // Render to initially setup and show the GameView
   function render() {
@@ -433,19 +448,17 @@ const GameView = (function() {
 
     particleManager.update(elapsedTime);
 
-    if (props.shieldInViewPort) {
+    if (shieldProps.viewToRadiusDiffIsSmall) {
       particleManager.createEffect({
         image:  MyGame.assets['violetlight'],
         size: { mean: .001, stdDev: .005 },
         lifetime: { mean: 80, stdDev: 80 },
         speed: { mean: .001, stdDev: .005 },
         circleSegment: {
-          center: {x: .5, y: .5},
-          radius: .3,
-          xMin: Coords.viewport.x,
-          xMax: Coords.viewport.x + Coords.viewport.width,
-          yMin: Coords.viewport.y,
-          yMax: Coords.viewport.y + Coords.viewport.height
+          center: shieldProps.center,
+          radius: shieldProps.radius,
+          viewAngle: shieldProps.viewAngle,
+          epsilon: epsilon
         }
       });
     }
