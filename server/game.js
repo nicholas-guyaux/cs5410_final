@@ -224,7 +224,6 @@ function update(elapsedTime, currentTime, totalTime) {
   //update bullet (bullets die on hitting player or land)
   bulletTree.clear();
   bulletTree.load(activeBullets);
-
   for (let clientId in GameState.gameClients) {
     checkCollisions(GameState.gameClients[clientId].state.player, clientId);
     if(checkDeath(GameState.gameClients[clientId].state.player)) {
@@ -236,6 +235,8 @@ function update(elapsedTime, currentTime, totalTime) {
       });
     }
   }
+
+  GameState.alivePlayers = GameState.alivePlayers.filter(player => !player.dead);
 
   if(GameState.alivePlayers.length <= 1){
     // endGame

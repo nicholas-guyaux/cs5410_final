@@ -10,7 +10,7 @@ const GameOverView = (function GameOverView (AudioPool) {
   //   totalPlayers: 4,
   // }
   function render (data) {
-    $('#gameoverover-message')[0].innerHTML = HTML.escape(data.place === 1 ? "Battle Boat Boss!" : "Your ship has been sunk!");
+    $('#gameover-message')[0].innerHTML = HTML.escape(data.place === 1 ? "Battle Boat Boss!" : "Your ship has been sunk!");
     $('#gameover-placement')[0].innerHTML = HTML.escape(data.place);
     $('#gameover-totalplayers')[0].innerHTML = HTML.escape(data.totalPlayers);
 

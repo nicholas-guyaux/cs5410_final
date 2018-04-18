@@ -280,7 +280,6 @@ function update (elapsed, currentTime, totalTime) {
   for (let clientId in GameState.gameClients) {
     GameState.gameClients[clientId].state.player.update(elapsed);
   }
-  GameState.alivePlayers = GameState.alivePlayers.filter(player => !player.dead);
 }
 
 module.exports = GameState;
