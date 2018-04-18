@@ -4,8 +4,17 @@ const Graphics = (function() {
   let onScreenCanvas = document.getElementById('game-canvas');
   let onScreenContext = onScreenCanvas.getContext('2d');
 
+  let maskingCanvas = document.createElement('canvas');
+  let maskingContext = maskingCanvas.getContext('2d');
+
   let canvas = document.createElement('canvas');
   let context = canvas.getContext('2d');
+
+  let minimapCanvas = document.createElement('canvas');
+  let minimapContext = minimapCanvas.getContext('2d');
+
+  minimapCanvas.width = Coords.world.width;
+  minimapCanvas.height = Coords.world.height;
 
   var viewport = Coords.viewport;
   var world = Coords.world;
@@ -43,6 +52,7 @@ const Graphics = (function() {
 
     canvas.width = wRatio;
     canvas.height = hRatio;
+    
     onScreenCanvas.width = wRatio;
     onScreenCanvas.height = hRatio;
 
@@ -131,9 +141,9 @@ const Graphics = (function() {
 
   function restoreContext() { context.restore(); }
 
-  function translateToViewport () {
+  function translateToViewport (myContext=context) {
     resetTransform();
-    context.translate(-viewport.world.x, -viewport.world.y);
+    myContext.translate(-viewport.world.x, -viewport.world.y);
   }
 
   function rotateCanvas(center, rotation) {
@@ -248,6 +258,35 @@ const Graphics = (function() {
       context.closePath();
       context.clip();
     }
+  }
+
+  function shieldMask (circle, color='rgba(255,0,255,0.7)', destCanvas=canvas) {
+    maskingCanvas.width = Coords.world.width;
+    maskingCanvas.height = Coords.world.height;
+    // let context = maskingContext;
+    context.save();
+    context.fillStyle = color;
+    context.fillRect(0, 0, Coords.world.width, Coords.world.height);
+    context.globalCompositeOperation = 'destination-out';
+    drawCircle('black', {
+      x: circle.x * Coords.world.width,
+      y: circle.y * Coords.world.height,
+    }, circle.radius * Coords.world.width);
+    context.restore();
+    // destCanvas.getContext('2d').drawImage(maskingCanvas, Coords.viewport.world.x, Coords.viewport.world.y, Coords.viewport.world.width, Coords.viewport.world.height, Coords.viewport.world.x, Coords.viewport.world.y, Coords.viewport.world.width, Coords.viewport.world.height);
+  }
+
+  function minimapShieldMask (circle, color='rgba(255,0,255,0.7)', destCanvas=minimapCanvas) {
+    maskingCanvas.width = destCanvas.width;
+    maskingCanvas.height = destCanvas.height;
+    let context = maskingCanvas.getContext('2d');
+    context.save();
+    context.fillStyle = color;
+    context.fillRect(0, 0, maskingCanvas.width, maskingCanvas.height);
+    context.globalCompositeOperation = 'destination-out';
+    drawCircle('rgba(0,0,0,0)', circle, circle.radius);
+    context.restore();
+    destCanvas.getContext('2d').drawImage(maskingCanvas, Coords.viewport.x, Coords.viewport.y, Coords.viewport.width, Coords.viewport.height);
   }
 
   function disableClipping() {
@@ -384,6 +423,7 @@ const Graphics = (function() {
     drawFromTiledCanvas: drawFromTiledCanvas,
     setOpacity: setOpacity,
     setFullMapCanvas: setFullMapCanvas,
+    shieldMask: shieldMask,
     get viewport () {
       return viewport;
     },

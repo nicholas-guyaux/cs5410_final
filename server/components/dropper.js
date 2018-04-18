@@ -6,7 +6,7 @@ module.exports = function dropper (vehicle) {
   function canPlace (player) {
     var pCenterX = player.position.x + player.size.width / 2;
     var pCenterY = player.position.y + player.size.height / 2;
-    if(vehicle.circle.containsPoint(player.position) && gameMap.collision(pCenterX, pCenterY, Math.max(player.size.width, player.size.height))) {
+    if(vehicle.circle && vehicle.circle.containsPoint(player.position) && gameMap.collision(pCenterX, pCenterY, Math.max(player.size.width, player.size.height))) {
       return true;
     } else {
       return false;

@@ -8,6 +8,7 @@ let maxEnergy = 100;
 // Contains client-side game loop and client-side game state data
 const GameView = (function() {
   var vehicle = null;
+  var shield = null;
   let keyboard = KeyboardHandler(false, 'keyCode');
   let receivedMessages = Queue.create();
   var itemImages = {
@@ -278,6 +279,8 @@ const GameView = (function() {
     playerSelf.model.energy = data.player.energy;
     playerSelf.model.useTurbo = data.player.useTurbo;
     playerSelf.model.isDropped = data.player.isDropped;
+
+    shield = Shield(data.shield.x, data.shield.y, data.shield.radius);
     
     playerSelf.model.localItems = data.player.items;
     //console.log(playerSelf.model.localItems);
@@ -486,7 +489,6 @@ const GameView = (function() {
 
     GameMap.draw();
     
-    Renderer.renderPlayer(playerSelf.model, playerSelf.textureSet, totalTime);
     let playerPos = {x: playerSelf.model.position.x + playerSelf.model.size.width / 2, y: playerSelf.model.position.y + playerSelf.model.size.height / 2};
     let FOVPoint1 = {x: (playerPos.x + props.FOVDistance), y: playerPos.y - (props.FOVWidth / 2)};
     let FOVPoint2 = {x: (playerPos.x + props.FOVDistance), y: playerPos.y + (props.FOVWidth / 2)};
@@ -495,6 +497,7 @@ const GameView = (function() {
     FOVPoint2 = rotatePointAboutPoint(playerPos, FOVPoint2, playerSelf.model.direction);
     FOVPolygon = [playerPos, FOVPoint1, FOVPoint2];
     FOVPolygon2 = FOVPolygon.map(obj => Object.assign({}, obj));
+    Renderer.renderShield(shield);
 
     Graphics.enableClipping(FOVPolygon); // clipping for objects forbidden outside FOV
     // Render other players, items, etc. here (things only visible inside FOV)
@@ -517,7 +520,7 @@ const GameView = (function() {
     for (let id in explosions) {
       Renderer.renderExplosion(explosions[id]);
     }
-    Renderer.minimap();
+    Renderer.minimap(shield);
 
     Renderer.renderPlayer(playerSelf.model, playerSelf.textureSet, totalTime);
     

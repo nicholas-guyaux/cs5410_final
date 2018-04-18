@@ -123,6 +123,7 @@ MyGame.loader = (function() {
         'js/views/SplashView',
         'js/components/gameMap',
         'js/components/vehicle',
+        'js/components/shield',
       ],
       message: 'Views loaded', 
       onComplete: null,

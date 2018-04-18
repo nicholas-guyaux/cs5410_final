@@ -272,7 +272,6 @@ function update(elapsedTime, currentTime, totalTime) {
   }
 
   GameState.alivePlayers = GameState.alivePlayers.filter(player => !player.dead);
-  console.log(GameState.alivePlayers);
 
   if(GameState.alivePlayers.length <= 1){
     // endGame
@@ -428,6 +427,11 @@ function updateClients(elapsedTime) {
           updateWindow: props.lastUpdate,
           isDropped: client.state.player.isDropped,
           items: buffs
+        },
+        shield: {
+          x: GameState.shield.x,
+          y: GameState.shield.y,
+          radius: GameState.shield.radius,
         }        
     };
 
