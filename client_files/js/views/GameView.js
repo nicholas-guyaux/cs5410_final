@@ -354,7 +354,8 @@ const GameView = (function() {
         x: data.position.x,
         y: data.position.y
       },
-      timeRemaining: data.timeRemaining
+      timeRemaining: data.timeRemaining,
+      color: data.color
     });
   }
 

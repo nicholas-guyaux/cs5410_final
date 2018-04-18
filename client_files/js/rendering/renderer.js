@@ -153,7 +153,7 @@ const Renderer = (function(graphics) {
   }
 
   function renderBullet(model) {
-    Graphics.drawCircle('#FFFFFF', model.position, model.radius);
+    Graphics.drawCircle(model.color, model.position, model.radius);
   }
 
   // function renderRemotePlayer(model, textureSet, elapsed) {

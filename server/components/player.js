@@ -54,7 +54,7 @@ function createPlayer(maxHealth, maxEnergy, maxAmmo) {
     let bulletShots = { hit: 0, total: 0 };
     let killCount = 0;
     let gun = false;
-    let buffs = { dmg: false, speed: false, fireRate: false};
+    let buffs = { dmg: 0, speed: false, fireRate: false};
     let currentFireRateWait = 0;
 
     that.getCircle = function () {
@@ -138,6 +138,22 @@ function createPlayer(maxHealth, maxEnergy, maxAmmo) {
       set: value => currentFireRateWait = value
     });
 
+    var center = {};
+    Object.defineProperty(center,'x', {
+      get: () => position.x + size.width / 2
+    })
+
+    Object.defineProperty(center,'y', {
+      get: () => position.y + size.height / 2
+    })
+    Object.defineProperty(that, 'center', {
+      get: () => center
+    });
+
+    Object.defineProperty(that, 'useTurbo', {
+      get: () => useTurbo
+    });
+
     //------------------------------------------------------------------
     //
     // Moves the player forward based on how long it has been since the
@@ -208,14 +224,15 @@ function createPlayer(maxHealth, maxEnergy, maxAmmo) {
     //------------------------------------------------------------------
     that.update = function(elapsedTime) {
       if(useTurbo){
-        energy.current -= 2;
+        var rate = buffs.speed ? 1 : 2;
+        energy.current -= rate;
         reportUpdate = true;
         if(energy.current <= 0){
           useTurbo = false
         }
       }
       else if(energy.current < energy.max){
-        energy.current++;
+        energy.current += .25;
         reportUpdate = true;
       }
       currentFireRateWait += elapsedTime;

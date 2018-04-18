@@ -124,7 +124,7 @@ MyGame.loader = (function() {
         'js/components/gameMap',
         'js/components/vehicle',
       ],
-      message: 'Views loaded',
+      message: 'Views loaded', 
       onComplete: null,
     }, {
       scripts: ['app.js'],
