@@ -60,47 +60,12 @@ function ParticleManager(graphics) {
     if (typeof spec.circleSegment !== 'undefined') {
       let radius = spec.circleSegment.radius;
       let center = spec.circleSegment.center;
-      let particleCount = 0;
-      while (particleCount < 30) {
-        // TODO: CHANGE THIS LOGIC?
-        //
-        // Do something with angles:
-        // let angle = Math.random() * Math.PI * 2;
-        // let x = Math.cos(angle) * radius;
-        // let y = Math.sin(angle) * radius;
-        let positionX = (Math.random() * (spec.circleSegment.xMax - spec.circleSegment.xMin)) + spec.circleSegment.xMin;
-        let positionY = null;
-        let partialComp1 = (radius * radius) - ((positionX - center.x) * (positionX - center.x));
-        let partialComp2 = null;
 
-        if (partialComp1 >= 0) {
-          partialComp2 = Math.sqrt(partialComp1);
-        }
-        else {
-          continue;
-        }
+      for (let particleCount = 0; particleCount < 30; particleCount++) {
 
-        let selector = Math.floor(Math.random() * 2); // will be a 1 or a 0
-        if (selector === 0) {
-          positionY = center.y + partialComp2;
-        }
-        else {
-          positionY = center.y - partialComp2;
-        }
-        
-        if ((positionY < spec.circleSegment.yMin) || (positionY > spec.circleSegment.yMax)) {
-          if (selector === 0) {
-            positionY = center.y - partialComp2;
-          }
-          else {
-            positionY = center.y + partialComp2;
-          }
-        }
-
-        if ((positionY < spec.circleSegment.yMin) || (positionY > spec.circleSegment.yMax)) {
-          particleCount++;
-          continue;
-        }
+        let angle = Math.random() * (2 * spec.epsilon) + (spec.viewAngle - spec.epsilon);
+        let positionX = center.x + Math.cos(angle) * radius;
+        let positionY = center.y + Math.sin(angle) * radius;
 
         let p = {
           position: { x: positionX, y: positionY },
@@ -112,7 +77,6 @@ function ParticleManager(graphics) {
           size: Random.nextGaussian(spec.size.mean, spec.size.stdDev),
         };
         pEffect.particles.push(p);
-        particleCount++;
       }
     }
     

@@ -61,10 +61,10 @@ const GameView = (function() {
     commandKeys: null,
     nextExplosionId: 1,
     FOVDistance: 0.15,
-    FOVWidth: 0.15,
-    shieldInViewPort: true
+    FOVWidth: 0.15
   };
 
+  // TODO: finish this
   let shieldProps = {
     radius: .3, // Change
     center: {x: .5, y: .5}, // Change
