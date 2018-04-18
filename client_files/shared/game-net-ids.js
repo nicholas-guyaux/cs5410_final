@@ -101,6 +101,10 @@
       value: 'update-vehicle-drop',
       writable: false
     },
+    'SET_NAME': {
+      value: 'set-name',
+      writable: false
+    },
   });
 
 })(typeof exports === 'undefined' ? this['GameNetIds'] = {} : exports);

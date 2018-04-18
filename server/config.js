@@ -1,3 +1,3 @@
 module.exports = {
-  numPlayersRequired: 4,
+  numPlayersRequired: 2,
 }

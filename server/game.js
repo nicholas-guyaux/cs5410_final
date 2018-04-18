@@ -10,6 +10,7 @@ const Queue = require('../client_files/shared/queue.js');
 const GameMap = require ('./components/gamemap.js');
 const Token = require('../Token');
 const config = require('./config');
+const Users = require('../models/Users');
 
 var waitingForPlayers = false;
 
@@ -130,6 +131,7 @@ function checkPlayerVsPlayerCollisions(player, clientId){
       if (clientId !== otherPlayers[i].client.socket.id) {
         if (otherPlayers[i].player.health.current > 0) {
           otherPlayers[i].player.health.current--;
+          player.damageDealt++;
           otherPlayers[i].player.reportUpdate = true;
           if (otherPlayers[i].player.health.current <= 0) {
             player.killCount++;
@@ -167,6 +169,7 @@ function checkPlayerVsBulletCollisions(player, clientId){
           position: player.position
         });
         GameState.gameClients[results[i].clientId].state.player.bulletShots.hit++;
+        GameState.gameClients[results[i].clientId].state.player.damageDealt += results[i].damage;
         player.health.current -= results[i].damage;
         if (player.health.current <= 0) {
           GameState.gameClients[results[i].clientId].state.player.killCount++;
@@ -248,7 +251,7 @@ function checkDeath(player){
 function processDeath(player){
   //PlayerCount--
   //Update to player = death
-  //Update to others = otherDeath 
+  //Update to others = otherDeath
   player.dead = true;
   return;
 }
@@ -267,12 +270,16 @@ function update(elapsedTime, currentTime, totalTime) {
         // they are not subtracted yet from the alive players so this is their position.
         place: GameState.alivePlayers.length,
         totalPlayers: GameState.playerCount,
+        killCount: GameState.gameClients[clientId].state.player.killCount,
+        bulletStats: {
+          accuracy: (GameState.gameClients[clientId].state.player.bulletShots.hit / GameState.gameClients[clientId].state.player.bulletShots.total).toFixed(2),
+          damage: GameState.gameClients[clientId].state.player.damageDealt
+        }
       });
     }
   }
 
   GameState.alivePlayers = GameState.alivePlayers.filter(player => !player.dead);
-  console.log(GameState.alivePlayers);
 
   if(GameState.alivePlayers.length <= 1){
     // endGame
@@ -285,6 +292,11 @@ function update(elapsedTime, currentTime, totalTime) {
           // they are not subtracted yet from the alive players so this is their position.
           place: GameState.alivePlayers.length,
           totalPlayers: GameState.playerCount,
+          killCount: GameState.gameClients[clientId].state.player.killCount,
+          bulletStats: {
+            accuracy: (GameState.gameClients[clientId].state.player.bulletShots.hit / GameState.gameClients[clientId].state.player.bulletShots.total).toFixed(2),
+            damage: GameState.gameClients[clientId].state.player.damageDealt
+          }
         });
       }
     }
@@ -497,7 +509,26 @@ function gameLoop(currentTime, elapsedTime) {
       let now = present();
       gameLoop(now, now - currentTime);
     }, SIMULATION_UPDATE_RATE_MS);
+  } else {
+    updateStats();
   }
+}
+
+function updateStats(){
+  for(let clientId in GameState.gameClients){
+    for(let user in Users.users){
+      if(Users.users[user].server.name === GameState.gameClients[clientId].state.username){
+        Users.users[user].stats.totalGames++;
+        Users.users[user].stats.totalKills += GameState.gameClients[clientId].state.player.killCount;
+        Users.users[user].stats.totalWins += GameState.gameClients[clientId].state.player.dead ? 0 : 1;
+        Users.users[user].stats.totalDamageDealt += GameState.gameClients[clientId].state.player.damageDealt;
+        Users.users[user].stats.bullets.hit += GameState.gameClients[clientId].state.player.bulletShots.hit;
+        Users.users[user].stats.bullets.total += GameState.gameClients[clientId].state.player.bulletShots.total;
+        break;
+      }
+    }
+  }
+  Users.write();
 }
 
 
@@ -634,6 +665,10 @@ function initializeSocketIO(io) {
         clientId: socket.id,
         message: data
       });
+    });
+
+    socket.on(GameNetIds.SET_NAME, data => {
+      GameState.gameClients[socket.id].state.username = data.username;
     });
 
     socket.on(GameNetIds.PLAYER_JOIN_GAME, async data => {
