@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
-  <title>Killer Kanoes</title>
+  <title>Battle Boats Brawl</title>
   <link rel="stylesheet" href="assets/fonts/fontawesome-free-5.0.8/web-fonts-with-css/css/fontawesome-all.min.css">
   <link href="https://fonts.googleapis.com/css?family=Press+Start+2P" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css?family=VT323" rel="stylesheet">
@@ -40,7 +40,7 @@
     </h6>
   </div>
   <div data-view="SplashView" id="splash-screen">
-    <h1>Killer Kanoes</h1>
+    <h1>Battle Boats<br>Brawl</h1>
     <h3>Attempting to log you in...</h3>
   </div>
   <div class="hidden" data-view="LoginView" id="login-menu">
@@ -59,8 +59,14 @@
       Don't have an account? <a data-view-transition="SignupView">sign up.</a>
     </h6>
   </div>
+  <div class="hidden" data-view="GameOverView" id="game-over-menu">
+    <h2 id="gameover-message"></h2>
+    <!--See ButtonMenu.js implementation for controls-->
+    <h3>You placed <span id="gameover-placement"></span> of <span id="gameover-totalplayers"></span>!</h3>
+    <button class="selected" data-view-transition="MenuView">Main Menu</button>
+  </div>
   <div class="hidden" data-view="MenuView" id="game-menu">
-    <h1>Killer Kanoes</h1>
+    <h1>Battle Boats<br>Brawl</h1>
     <!--See ButtonMenu.js implementation for controls-->
     <h3>Welcome back <span class="insert-username-here"></span>!</h3>
     <button data-view-transition="GameLobbyView">Join Game Lobby</button>

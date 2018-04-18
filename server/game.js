@@ -210,7 +210,7 @@ function checkDeath(player){
 function processDeath(player){
   //PlayerCount--
   //Update to player = death
-  //Update to others = otherDeath
+  //Update to others = otherDeath 
   player.dead = true;
   return;
 }
@@ -224,13 +224,30 @@ function update(elapsedTime, currentTime, totalTime) {
 
   for (let clientId in GameState.gameClients) {
     checkCollisions(GameState.gameClients[clientId].state.player, clientId);
-    if(checkDeath(GameState.gameClients[clientId].state.player))
+    if(checkDeath(GameState.gameClients[clientId].state.player)) {
       processDeath(GameState.gameClients[clientId].state.player);
+      GameState.gameClients[clientId].socket.emit(GameNetIds.MESSAGE_GAME_OVER, {
+        // they are not subtracted yet from the alive players so this is their position.
+        place: GameState.alivePlayers.length,
+        totalPlayers: GameState.playerCount,
+      });
     }
+  }
 
   if(GameState.alivePlayers.length <= 1){
     // endGame
     // tell the player they won;
+    // endGame
+    // tell the player they won;
+    for (let clientId in GameState.gameClients) {
+      if(!GameState.gameClients[clientId].state.player.dead) {
+        GameState.gameClients[clientId].socket.emit(GameNetIds.MESSAGE_GAME_OVER, {
+          // they are not subtracted yet from the alive players so this is their position.
+          place: GameState.alivePlayers.length,
+          totalPlayers: GameState.playerCount,
+        });
+      }
+    }
     GameState.inProgress = false;
   }
   activeBullets = bulletTree.all();
@@ -494,6 +511,7 @@ function initializeSocketIO(io) {
         continue;
       }
       let client = GameState.gameClients[clientId];
+      client.state.player.dead = true;
       client.socket.emit(GameNetIds.PLAYER_LEAVE, {
         clients: Object.values(GameState.gameClients).map(x => x.state.player).filter(x => !!x.name)
       });
@@ -521,6 +539,7 @@ function initializeSocketIO(io) {
     };
     GameState.gameClients[socket.id] = newClient;
     GameState.alivePlayers.push(newPlayer);
+    GameState.playerCount++;
 
     //
     // Ack message emitted to new client with info about its new player
