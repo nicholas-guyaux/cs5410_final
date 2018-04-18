@@ -20,6 +20,7 @@ let inputQueue = Queue.create();
 let islandMap = GameMap.getGridMap();
 let newBullets = [];
 var itemTree = rbush();
+var playerTree = rbush();
 let activeBullets = [];
 let hits = [];
 var bulletTree = rbush();
@@ -109,14 +110,33 @@ function collided(obj1, obj2) {
 
 function checkCollisions(player, clientId){
   //Note: Player Vs Wall Collision done in player.move();
-  checkPlayerVsPlayerCollisions(player);
+  checkPlayerVsPlayerCollisions(player, clientId);
   checkPlayerVsBulletCollisions(player,clientId);
   checkPlayerVsBuffCollision(player);
   checkPlayerVsDeathCircleCollision(player);
 }
 
-function checkPlayerVsPlayerCollisions(player){
+function checkPlayerVsPlayerCollisions(player, clientId){
   //if hit, take damage to other
+  if (player.useTurbo) {
+    let collisionSquare = {
+      minX: player.center.x - player.size.width/2,
+      minY: player.center.y - player.size.height/2,
+      maxX: player.center.x + player.size.width/2,
+      maxY: player.center.y + player.size.height/2
+    }
+    let otherPlayers = playerTree.search(collisionSquare);
+    for (let i = 0; i < otherPlayers.length; i++) {
+      if (clientId !== otherPlayers[i].client.socket.id) {
+        otherPlayers[i].player.health.current--;
+        otherPlayers[i].player.reportUpdate = true;
+        if (otherPlayers[i].player.health.current <= 0) {
+          player.killCount++;
+        }
+      }
+    }
+  }
+  
 }
 function checkPlayerVsBulletCollisions(player, clientId){
   //if hit, take damage to self
@@ -233,7 +253,7 @@ function update(elapsedTime, currentTime, totalTime) {
   bulletTree.load(activeBullets);
 
   for (let clientId in GameState.gameClients) {
-    checkCollisions(GameState.gameClients[clientId].state.player, clientId);
+    checkCollisions(GameState.gameClients[clientId].state.player, GameState.gameClients[clientId].socket.id);
     if(checkDeath(GameState.gameClients[clientId].state.player))
       processDeath(GameState.gameClients[clientId].state.player);
     }
@@ -301,6 +321,24 @@ function update(elapsedTime, currentTime, totalTime) {
   activeBullets = bulletTree.all();
 }
 
+function updatePlayerTree() {
+  playerTree.clear();
+  for (let clientId in GameState.gameClients) {
+    let client = GameState.gameClients[clientId].state.player;
+    if (!client.dead) {
+      let playerLocale = {
+        minX:client.center.x - client.size.width/2,
+        minY:client.center.y - client.size.height/2,
+        maxX:client.center.x - client.size.width/2,
+        maxY:client.center.y + client.size.height/2,
+        player: client,
+        client: GameState.gameClients[clientId]
+      }
+      playerTree.insert(playerLocale);
+    }
+  }
+}
+
 function updateClients(elapsedTime) {
 
   props.lastUpdate += elapsedTime;
@@ -340,6 +378,7 @@ function updateClients(elapsedTime) {
   // For each game client create an update message with the client's data and elapsedTime
   // Then, if the player is to report the update, then emit an UPDATE_SELF and an UPDATE_OTHER 
   // to all other clients
+  
   for (let clientId in GameState.gameClients) {
     let client = GameState.gameClients[clientId];
     let buffs = itemTree.search({
@@ -349,6 +388,7 @@ function updateClients(elapsedTime) {
       maxY: client.state.player.position.y + .15
     });
     //let buffs = itemTree.all();
+    
     let update = {
         clientId: clientId,
         lastMessageId: client.lastMessageId,
@@ -378,10 +418,15 @@ function updateClients(elapsedTime) {
 
     if (client.state.player.reportUpdate) {
       client.socket.emit(GameNetIds.UPDATE_SELF, update);
-
-      for (let otherId in GameState.gameClients) {
-        if (otherId !== clientId) {
-          GameState.gameClients[otherId].socket.emit(GameNetIds.UPDATE_OTHER, update);
+      let otherPlayers = playerTree.search({
+        minX: client.state.player.center.x - .15,
+        minY: client.state.player.center.y - .15,
+        maxX: client.state.player.center.x + .15,
+        maxY: client.state.player.center.y + .15
+      });
+      for (let i = 0; i < otherPlayers.length; i++) {
+        if (otherPlayers[i].cliend !== client) {
+          otherPlayers[i].client.socket.emit(GameNetIds.UPDATE_OTHER, update);
         }
       }
     }
@@ -416,6 +461,7 @@ function updateClients(elapsedTime) {
 //------------------------------------------------------------------
 function gameLoop(currentTime, elapsedTime) {
   processInput(elapsedTime, currentTime - GameState.startTime);
+  updatePlayerTree();
   update(elapsedTime, currentTime, currentTime - GameState.startTime);
   updateClients(elapsedTime);
 
