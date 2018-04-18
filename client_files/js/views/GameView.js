@@ -54,6 +54,8 @@ const GameView = (function() {
   let explosions = {};
   let particleManager = ParticleManager(Graphics);
 
+  const PARTICLE_PERIOD = 400;
+
   let props = {
     quit: false,
     lastTimeStamp: performance.now(),
@@ -61,22 +63,35 @@ const GameView = (function() {
     commandKeys: null,
     nextExplosionId: 1,
     FOVDistance: 0.15,
-    FOVWidth: 0.15
+    FOVWidth: 0.15,
+    accumulatingParticlePeriod: 0
   };
 
-  // TODO: finish this
   let shieldProps = {
     radius: .3, // Change
     center: {x: .5, y: .5}, // Change
+    viewCenter: {
+      x: Coords.viewport.x + (Coords.viewport.width / 2),
+      y: Coords.viewport.y + (Coords.viewport.height / 2)
+    },
+    get distanceToShieldCenter() {
+      let dist = Math.sqrt(((this.viewCenter.x - this.center.x) * (this.viewCenter.x - this.center.x)) + ((this.viewCenter.y  - this.center.y) * (this.viewCenter.y  - this.center.y)));
+      return dist;
+    }, 
     get viewToRadiusDiffIsSmall() {
-      return; // bool
+      if ((this.radius - this.distanceToShieldCenter) < Coords.viewport.width) {
+        return true;
+      }
+      else {
+        return false;
+      } 
     },
     get viewAngle() {
-      return;
+      return Math.asin((this.viewCenter.y - this.center.y) / (this.viewCenter.x - this.center.x));
     },
     get epsilon() {
       // Dependent on radius
-      return;
+      return 2;
     }
   };
 
@@ -448,19 +463,22 @@ const GameView = (function() {
 
     particleManager.update(elapsedTime);
 
-    if (shieldProps.viewToRadiusDiffIsSmall) {
+    props.accumulatingParticlePeriod += elapsedTime;
+    if ((props.accumulatingParticlePeriod >= PARTICLE_PERIOD) && shieldProps.viewToRadiusDiffIsSmall) {
       particleManager.createEffect({
         image:  MyGame.assets['violetlight'],
-        size: { mean: .001, stdDev: .005 },
-        lifetime: { mean: 80, stdDev: 80 },
-        speed: { mean: .001, stdDev: .005 },
+        size: { mean: .005, stdDev: .0005 },
+        lifetime: { mean: 400, stdDev: 300 },
+        speed: { mean: .00001, stdDev: .000005 },
         circleSegment: {
           center: shieldProps.center,
           radius: shieldProps.radius,
           viewAngle: shieldProps.viewAngle,
-          epsilon: epsilon
+          epsilon: shieldProps.epsilon
         }
       });
+
+      props.accumulatingParticlePeriod = 0;
     }
   }
 
@@ -571,6 +589,7 @@ const GameView = (function() {
     unrender,
     init,
     name: "GameView",
-    playerOthers
+    playerOthers,
+    shieldProps
   };
 }());

@@ -1,6 +1,8 @@
 function ParticleManager(graphics) {
   'use strict';
 
+  const PARTICLES_PER_EFFECT = 40;
+
   let pManager = {};
   pManager.effects = [];
 
@@ -31,7 +33,7 @@ function ParticleManager(graphics) {
             graphics.drawImage(
               image,
               pEffect.particles[i].position,
-              pEffect.particles[i].size
+              { width: pEffect.particles[i].size, height: pEffect.particles[i].size }
               // pEffect.particles[i].rotation,
             );
           }
@@ -46,13 +48,15 @@ function ParticleManager(graphics) {
         pEffect.particles[i].alive += elapsedTime;
         pEffect.particles[i].position.x += (elapsedTime * pEffect.particles[i].speed * pEffect.particles[i].direction.x);
         pEffect.particles[i].position.y += (elapsedTime * pEffect.particles[i].speed * pEffect.particles[i].direction.y);
-        pEffect.particles[i].rotation += pEffect.particles[i].speed / 0.5;
+        // pEffect.particles[i].rotation += pEffect.particles[i].speed / 0.5;
   
         if (pEffect.particles[i].alive <= pEffect.particles[i].lifetime) {
           keepMe.push(pEffect.particles[i]);
         }
       }
-      pEffect.particles = keepMe;
+
+      pEffect.particles.splice(0 , pEffect.particles.length);
+      pEffect.particles.push(...keepMe);
     };
 
     //
@@ -61,9 +65,9 @@ function ParticleManager(graphics) {
       let radius = spec.circleSegment.radius;
       let center = spec.circleSegment.center;
 
-      for (let particleCount = 0; particleCount < 30; particleCount++) {
+      for (let particleCount = 0; particleCount < PARTICLES_PER_EFFECT; particleCount++) {
 
-        let angle = Math.random() * (2 * spec.epsilon) + (spec.viewAngle - spec.epsilon);
+        let angle = Math.random() * (2 * spec.circleSegment.epsilon) + (spec.circleSegment.viewAngle - spec.circleSegment.epsilon);
         let positionX = center.x + Math.cos(angle) * radius;
         let positionY = center.y + Math.sin(angle) * radius;
 
@@ -71,7 +75,7 @@ function ParticleManager(graphics) {
           position: { x: positionX, y: positionY },
           direction: Random.nextCircleVector(),
           speed: Random.nextGaussian( spec.speed.mean, spec.speed.stdDev ),	// pixels per millisecond
-          rotation: 0,
+          // rotation: 0,
           lifetime: Math.abs(Random.nextGaussian(spec.lifetime.mean, spec.lifetime.stdDev)),	// milliseconds
           alive: 0,
           size: Random.nextGaussian(spec.size.mean, spec.size.stdDev),
@@ -93,15 +97,6 @@ function ParticleManager(graphics) {
   //   image: MyGame.assets['violetlight'],
   //   size: { mean: 5, stdDev: 2 },  // = diameter/sidelength
   //   lifetime: { mean: 200, stdDev: 200 },
-  //   position: { x: 22, y: 33 },
-  //   // If position, don't include rectangularArea
-  //   rectangularArea: {
-  //     xMin: 4,
-  //     xMax: 4,
-  //     yMin: 4,
-  //     yMax: 4
-  //   },
-  //   // If position or rectangularArea, don't include circleSegment
   //   circleSegment: {
   //     center: {x: 5, y: 5},
   //     radius: 5,
@@ -122,14 +117,15 @@ function ParticleManager(graphics) {
   };
 
   pManager.update = function(elapsedTime) {
-    let effectsToKeep = [];
+    let keepMe = [];
     for (let i = 0; i < pManager.effects.length; i++) {
       if (pManager.effects[i].particles.length !== 0) {
         pManager.effects[i].update(elapsedTime);
-        effectsToKeep.push(pManager.effects[i]);
+        keepMe.push(pManager.effects[i]);
       }
     }
-    pManager.effects = effectsToKeep;
+    pManager.effects.splice(0 , pManager.effects.length);
+    pManager.effects.push(...keepMe);
   };
 
   return pManager;
