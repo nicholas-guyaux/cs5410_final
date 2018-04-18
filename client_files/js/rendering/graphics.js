@@ -263,17 +263,15 @@ const Graphics = (function() {
   function shieldMask (circle, color='rgba(255,0,255,0.7)', destCanvas=canvas) {
     maskingCanvas.width = Coords.world.width;
     maskingCanvas.height = Coords.world.height;
-    // let context = maskingContext;
+    let context = maskingContext;
     context.save();
     context.fillStyle = color;
     context.fillRect(0, 0, Coords.world.width, Coords.world.height);
     context.globalCompositeOperation = 'destination-out';
-    drawCircle('black', {
-      x: circle.x * Coords.world.width,
-      y: circle.y * Coords.world.height,
-    }, circle.radius * Coords.world.width);
+    drawCircle('black', circle, circle.radius, 1, context);
+    context.globalCompositeOperation = 'source-over';
     context.restore();
-    // destCanvas.getContext('2d').drawImage(maskingCanvas, Coords.viewport.world.x, Coords.viewport.world.y, Coords.viewport.world.width, Coords.viewport.world.height, Coords.viewport.world.x, Coords.viewport.world.y, Coords.viewport.world.width, Coords.viewport.world.height);
+    destCanvas.getContext('2d').drawImage(maskingCanvas, Coords.viewport.world.x, Coords.viewport.world.y, Coords.viewport.world.width, Coords.viewport.world.height, Coords.viewport.world.x, Coords.viewport.world.y, Coords.viewport.world.width, Coords.viewport.world.height);
   }
 
   function minimapShieldMask (circle, color='rgba(255,0,255,0.7)', destCanvas=minimapCanvas) {
@@ -284,7 +282,7 @@ const Graphics = (function() {
     context.fillStyle = color;
     context.fillRect(0, 0, maskingCanvas.width, maskingCanvas.height);
     context.globalCompositeOperation = 'destination-out';
-    drawCircle('rgba(0,0,0,0)', circle, circle.radius);
+    drawCircle('rgba(0,0,0,0)', circle, circle.radius, 1, context);
     context.restore();
     destCanvas.getContext('2d').drawImage(maskingCanvas, Coords.viewport.x, Coords.viewport.y, Coords.viewport.width, Coords.viewport.height);
   }

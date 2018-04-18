@@ -18,13 +18,13 @@ module.exports = function Shield (totalTime=1000*60*5) {
   const startingRadius = Math.max(...worldVertices.map(v => Geometry.LineSegment(center, v).distance));
 
   var that = Geometry.Circle({
-    x: center.x,
-    y: center.y,
-    radius: startingRadius,
+    x: 0.5, // center.x,
+    y: 0.5, // center.y,
+    radius: 0.15// startingRadius,
   });
 
   that.update = t => {
-    that.radius = lerp(startingRadius, 0, t/totalTime);
+    // that.radius = lerp(startingRadius, 0, t/totalTime);
   };
 
   return that;
