@@ -99,7 +99,8 @@ MyGame.loader = (function() {
       scripts: [ //Components / Player Models
         'js/components/player',
         'js/components/player-other',
-        'js/components/bullet'
+        'js/components/bullet',
+        'js/components/animated-sprite'
       ],
       message: 'Player models loaded',
       onComplete: null,
@@ -160,6 +161,9 @@ MyGame.loader = (function() {
     }, {
       key: 'speed',
       source: 'assets/images/speed.png'
+    },{
+      key: 'explosion',
+      source: 'assets/images/explosion.png'
     }];
 
     function loadScripts(scripts, onComplete){

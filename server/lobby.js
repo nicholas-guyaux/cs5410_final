@@ -165,7 +165,6 @@ function initializeSocketIO(io) {
           clientId: existingClient.socket.id,
           countdown: props.countdownTime
         });
-        console.log('the final countdown'); 
       }
       setTimeout(function(){
         game.initialize(Object.keys(GameState.lobbyClients).length);//sends # of players  
