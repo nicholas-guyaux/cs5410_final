@@ -229,6 +229,9 @@ const GameView = (function() {
     playerSelf.model.speed = player.speed;
     playerSelf.model.rotateRate = player.rotateRate;
     updateSelfPosition();
+    socket.emit(GameNetIds.SET_NAME, {
+      username: client.user.name
+    })
   }
 
   function updateSelfPosition () {

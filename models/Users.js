@@ -80,7 +80,10 @@ async function createUser (user) {
       totalKills: 0,
       totalWins: 0,
       totalDamageDealt: 0,
-      shotAccuracy: 0
+      bullets: {
+        hit: 0,
+        total: 0
+      }
     }
   };
   users.push(user);

@@ -11,6 +11,11 @@ const GameOverView = (function GameOverView (AudioPool) {
     $('#gameover-message')[0].innerHTML = HTML.escape(data.place === 1 ? "Battle Boat Boss!" : "Your ship has been sunk!");
     $('#gameover-placement')[0].innerHTML = HTML.escape(data.place);
     $('#gameover-totalplayers')[0].innerHTML = HTML.escape(data.totalPlayers);
+    $('#gameover-kills')[0].innerHTML = HTML.escape(data.killCount);
+    $('#gameover-damage')[0].innerHTML = HTML.escape(data.bulletStats.damage);
+    var accuracy = isNaN(data.bulletStats.accuracy) ? 0 : data.bulletStats.accuracy*100;
+    $('#gameover-accuracy')[0].innerHTML = HTML.escape(accuracy);
+
 
     AudioPool.playMusic('menu');
     keyboard.activate();

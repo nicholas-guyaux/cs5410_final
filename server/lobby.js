@@ -137,8 +137,8 @@ function initializeSocketIO(io) {
         let client = GameState.lobbyClients[clientId];
         
         client.socket.emit(LobbyNetIds.LOBBY_MSG, {
-          playerId: newClient.state.player.name,  
-          message: data.message      
+          playerId: newClient.state.player.name,
+          message: data.message
         });
       }
     });

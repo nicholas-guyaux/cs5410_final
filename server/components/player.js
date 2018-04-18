@@ -52,6 +52,7 @@ function createPlayer(maxHealth, maxEnergy, maxAmmo) {
     let useTurbo = false;
     let ammo = {current: 0, max: maxAmmo};
     let bulletShots = { hit: 0, total: 0 };
+    let damageDealt = 0;
     let killCount = 0;
     let gun = false;
     let buffs = { dmg: 0, speed: false, fireRate: false};
@@ -127,6 +128,11 @@ function createPlayer(maxHealth, maxEnergy, maxAmmo) {
       get: () => killCount,
       set: value => killCount = value
     });
+
+    Object.defineProperty(that, 'damageDealt', {
+      get: () => damageDealt,
+      set: value => damageDealt = value
+    })
 
     Object.defineProperty(that, 'buffs', {
       get: () => buffs,
