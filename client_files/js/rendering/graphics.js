@@ -202,7 +202,7 @@ const Graphics = (function() {
   function drawCircle(fillStyle, center, radius, alpha=1, ctx=context) {
     ctx.beginPath();
     ctx.arc(center.x * Coords.world.width,
-        center.y * Coords.world.width, 2 * radius * Coords.world.width,
+        center.y * Coords.world.width, radius * Coords.world.width,
         2 * Math.PI, false);
     ctx.closePath();
     ctx.fillStyle = fillStyle;
@@ -213,7 +213,7 @@ const Graphics = (function() {
   function drawStrokedCircle(strokeStyle, center, radius) {
     context.beginPath();
     context.arc(center.x * Coords.world.width,
-        center.y * Coords.world.width, 2 * radius * Coords.world.width,
+        center.y * Coords.world.width, radius * Coords.world.width,
         2 * Math.PI, false);
     context.closePath();
     context.strokeStyle = strokeStyle;
@@ -237,6 +237,14 @@ const Graphics = (function() {
     var pattern = context.createPattern(image, 'repeat');
     context.fillStyle = pattern;
     context.fillRect(coords.x, coords.y, size.width * canvas.width, size.height * canvas.height);
+  }
+
+  function drawLine (color, a, b) {
+    context.beginPath();
+    context.strokeColor = color;
+    context.moveTo(a.x*Coords.world.width, a.y*Coords.world.height);
+    context.moveTo(b.x*Coords.world.width, b.y*Coords.world.height);
+    context.stroke();
   }
 
   function enableClipping(polygon) {
@@ -266,7 +274,7 @@ const Graphics = (function() {
     let context = maskingContext;
     context.save();
     context.fillStyle = color;
-    context.fillRect(0, 0, Coords.world.width, Coords.world.height);
+    context.fillRect(Coords.viewport.world.x, Coords.viewport.world.y, Coords.viewport.world.width, Coords.viewport.world.height);
     context.globalCompositeOperation = 'destination-out';
     drawCircle('black', circle, circle.radius, 1, context);
     context.globalCompositeOperation = 'source-over';
@@ -422,6 +430,7 @@ const Graphics = (function() {
     setOpacity: setOpacity,
     setFullMapCanvas: setFullMapCanvas,
     shieldMask: shieldMask,
+    drawLine: drawLine,
     get viewport () {
       return viewport;
     },

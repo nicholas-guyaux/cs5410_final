@@ -7,68 +7,79 @@ let maxEnergy = 100;
 //
 // Contains client-side game loop and client-side game state data
 const GameView = (function() {
-  var vehicle = null;
-  var shield = null;
-  let keyboard = KeyboardHandler(false, 'keyCode');
-  let receivedMessages = Queue.create();
-  var itemImages = {
-    'ammo': MyGame.assets['ammo'],
-    'health': MyGame.assets['health'],
-    'dmg': MyGame.assets['dmg'],
-    'speed': MyGame.assets['speed'],
-    'gun': MyGame.assets['gun'],
-    'gunSpd': MyGame.assets['gunSpd']
-  }
-  var boatTextureSet = {
-    water: {
-      spriteSet: MyGame.assets['water_units'],
-      animation: [
-        MyGame.assets['water_units_mapping'].frames["water_ripple_small_000.png"],
-        MyGame.assets['water_units_mapping'].frames["water_ripple_small_001.png"],
-        MyGame.assets['water_units_mapping'].frames["water_ripple_small_002.png"],
-        MyGame.assets['water_units_mapping'].frames["water_ripple_small_003.png"],
-        MyGame.assets['water_units_mapping'].frames["water_ripple_small_004.png"],
-      ],
-    },
-    ship: {
-      spriteSet: MyGame.assets['water_units'],
-      normal: MyGame.assets['water_units_mapping'].frames["ship_small_body.png"],
-      damaged: MyGame.assets['water_units_mapping'].frames["ship_small_body_destroyed.png"]
-    },
-    gun: {
-      spriteSet: MyGame.assets['water_units'],
-      normal: undefined
-    }
-  };
-  var opposingBoatTextureSet = Object.assign({},boatTextureSet, {
-    ship: {
-      spriteSet: MyGame.assets['water_units'],
-      normal: MyGame.assets['water_units_mapping'].frames["ship_small_b_body.png"],
-      damaged: MyGame.assets['water_units_mapping'].frames["ship_small_body_b_destroyed.png"]
-    }
-  });
-  let messageHistory = Queue.create();
-  let playerSelf = {
-    model: Player(maxHealth, maxAmmo, maxEnergy),
-    textureSet: boatTextureSet,
-  };
-  let playerOthers = {};
-  let bullets = {};
-  let explosions = {};
+  // declare variables here and initialize in reset() which is called at the
+  // beggining of render.
+  let vehicle, shield, keyboard, receivedMessages, itemImages, boatTextureSet, opposingBoatTextureSet, messageHistory, playerSelf, playerOthers, bullets, explosions, props;
 
-  let props = {
-    quit: false,
-    lastTimeStamp: performance.now(),
-    messageId: 1,
-    commandKeys: null,
-    nextExplosionId: 1,
-    FOVDistance: 0.15,
-    FOVWidth: 0.15
-  };
+  function reset () {
+    playerCount = 0;
+    maxHealth = 100;
+    maxAmmo = 50;
+    maxEnergy = 100;
+    vehicle = null;
+    shield = null;
+    keyboard = KeyboardHandler(false, 'keyCode');
+    receivedMessages = Queue.create();
+    itemImages = {
+      'ammo': MyGame.assets['ammo'],
+      'health': MyGame.assets['health'],
+      'dmg': MyGame.assets['dmg'],
+      'speed': MyGame.assets['speed'],
+      'gun': MyGame.assets['gun'],
+      'gunSpd': MyGame.assets['gunSpd']
+    }
+    boatTextureSet = {
+      water: {
+        spriteSet: MyGame.assets['water_units'],
+        animation: [
+          MyGame.assets['water_units_mapping'].frames["water_ripple_small_000.png"],
+          MyGame.assets['water_units_mapping'].frames["water_ripple_small_001.png"],
+          MyGame.assets['water_units_mapping'].frames["water_ripple_small_002.png"],
+          MyGame.assets['water_units_mapping'].frames["water_ripple_small_003.png"],
+          MyGame.assets['water_units_mapping'].frames["water_ripple_small_004.png"],
+        ],
+      },
+      ship: {
+        spriteSet: MyGame.assets['water_units'],
+        normal: MyGame.assets['water_units_mapping'].frames["ship_small_body.png"],
+        damaged: MyGame.assets['water_units_mapping'].frames["ship_small_body_destroyed.png"]
+      },
+      gun: {
+        spriteSet: MyGame.assets['water_units'],
+        normal: undefined
+      }
+    };
+    opposingBoatTextureSet = Object.assign({},boatTextureSet, {
+      ship: {
+        spriteSet: MyGame.assets['water_units'],
+        normal: MyGame.assets['water_units_mapping'].frames["ship_small_b_body.png"],
+        damaged: MyGame.assets['water_units_mapping'].frames["ship_small_body_b_destroyed.png"]
+      }
+    });
+    messageHistory = Queue.create();
+    playerSelf = {
+      model: Player(maxHealth, maxAmmo, maxEnergy),
+      textureSet: boatTextureSet,
+    };
+    playerOthers = {};
+    bullets = {};
+    explosions = {};
+
+    props = {
+      quit: false,
+      lastTimeStamp: performance.now(),
+      messageId: 1,
+      commandKeys: null,
+      nextExplosionId: 1,
+      FOVDistance: 0.15,
+      FOVWidth: 0.15
+    };
+  }
 
   //
   // Render to initially setup and show the GameView
   function render() {
+    reset();
     props.quit = false;
     vehicle = Vehicle();
     Graphics.resizeCanvas();
@@ -520,7 +531,7 @@ const GameView = (function() {
     for (let id in explosions) {
       Renderer.renderExplosion(explosions[id]);
     }
-    Renderer.minimap(shield);
+    Renderer.minimap(shield, playerSelf.model.center);
 
     Renderer.renderPlayer(playerSelf.model, playerSelf.textureSet, totalTime);
     

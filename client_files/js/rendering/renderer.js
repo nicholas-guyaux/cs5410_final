@@ -102,11 +102,11 @@ const Renderer = (function(graphics) {
     }
   }
 
-  function minimap (shield) {
+  function minimap (shield, playerPosition) {
     var minimap = {
       width: Coords.viewport.width*.2,
       height: Coords.viewport.height*.2,
-    }
+    };
     minimap.x = Coords.viewport.x;
     minimap.y = Coords.viewport.y + Coords.viewport.height - minimap.height;
     minimap.center = {
@@ -131,6 +131,7 @@ const Renderer = (function(graphics) {
     // renderShield(shield);
     Graphics.drawStrokedCircle('purple', shield, shield.radius);
     graphics.drawRectangle('yellow', viewport.x, viewport.y, viewport.width, viewport.height);
+    Graphics.drawLine('white', shield, playerPosition);
   }
 
   var clipping = TiledImageClipping({
