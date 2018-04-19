@@ -237,6 +237,7 @@ const GameView = (function() {
     playerSelf.model.direction = player.direction;
     playerSelf.model.speed = player.speed;
     playerSelf.model.rotateRate = player.rotateRate;
+    
     updateSelfPosition();
     socket.emit(GameNetIds.SET_NAME, {
       username: client.user.name
@@ -292,6 +293,9 @@ const GameView = (function() {
     playerSelf.model.isDropped = data.player.isDropped;
     
     playerSelf.model.localItems = data.player.items;
+    playerSelf.model.ammo = data.player.ammo;
+    playerSelf.model.gun = data.player.gun;
+
     //console.log(playerSelf.model.localItems);
     // Remove messages from the queue up through the last one identified
     // by the server as having been processed.
@@ -391,7 +395,7 @@ const GameView = (function() {
 
   function newGameMessage(data) {
     waitingGameMessage = true;
-    gameMessage = data.message;
+    gameMessage += data.message + '\n';
   }
 
   function processInput(elapsedTime) {
@@ -539,10 +543,18 @@ const GameView = (function() {
     }
     Renderer.minimap();
 
+    Renderer.renderAmmo(playerSelf.model.gun, playerSelf.model.ammo);
+
+    if (waitingGameMessage) {
+      waitingGameMessage = false;
+      Renderer.renderMessages(gameMessage);
+      gameMessage = '';
+    }
+
     Renderer.renderPlayer(playerSelf.model, playerSelf.textureSet, totalTime);
     if(waitingGameMessage) {
       waitingGameMessage = false;
-      Renderer.renderGameMessage(gameMessage);
+      Renderer.renderMessages(gameMessage);
     }
     
     Graphics.finalizeRender();

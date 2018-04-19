@@ -126,6 +126,16 @@ const Renderer = (function(graphics) {
     graphics.drawRectangle('yellow', viewport.x, viewport.y, viewport.width, viewport.height);
   }
 
+  function renderAmmo(gun,ammo) {
+    // + (Coords.viewport.width*.9) 
+    //  + (Coords.viewport.height*.95)
+    if (gun) {
+      Graphics.drawText('Ammo: ' + ammo.toString(), Math.floor(Coords.viewport.x * Coords.world.width), Math.floor(Coords.viewport.y * Coords.world.height) + 1, Math.floor((Coords.viewport.height * Coords.world.height * .03)).toString() + 'px serif');
+    } else {
+      Graphics.drawText('Ammo: ' + 'No Gun', Math.floor(Coords.viewport.x * Coords.world.width), Math.floor(Coords.viewport.y * Coords.world.height) + 1, Math.floor((Coords.viewport.height * Coords.world.height * .03)).toString() + 'px serif');
+    }
+  }
+
   var clipping = TiledImageClipping({
     width: MyGame.assets['plane'].width / 4,
     height: MyGame.assets['plane'].height
@@ -156,6 +166,12 @@ const Renderer = (function(graphics) {
     Graphics.drawCircle(model.color, model.position, model.radius);
   }
 
+  function renderMessages(message) {
+    Graphics.addGameMessage(message);
+  }
+
+  
+
   // function renderRemotePlayer(model, textureSet, elapsed) {
   //   return renderPlayer(model, textureSet, elapsed);
   // }
@@ -167,7 +183,9 @@ const Renderer = (function(graphics) {
     renderVehicle,
     renderGameStart,
     renderExplosion,
-    renderItems
+    renderItems,
+    renderAmmo,
+    renderMessages,
     // renderRemotePlayer
   };
 }(Graphics));

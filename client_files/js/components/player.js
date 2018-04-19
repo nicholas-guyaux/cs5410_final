@@ -22,6 +22,7 @@ function Player(maxHealth, maxEnergy, maxAmmo) {
   let health = { current: maxHealth, max: maxHealth }
   let energy = {current: maxEnergy, max: maxEnergy};
   let useTurbo = false;
+  let gun = false;
   let ammo = {current: 0, max: maxAmmo};
   let bulletShots = { hit: 0, total: 0 };
   let killCount = 0;
@@ -93,7 +94,12 @@ function Player(maxHealth, maxEnergy, maxAmmo) {
   Object.defineProperty(that, 'localItems', {
     get: () => localItems,
     set: (value) => { localItems = value }
-});
+  });
+
+  Object.defineProperty(that, 'gun', {
+    get: () => gun,
+    set: (value) => { gun = value }
+  });
 
   //------------------------------------------------------------------
   //
