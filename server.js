@@ -57,8 +57,8 @@ function handleRequest(req, res) {
 }
 
 let server = http.createServer(handleRequest);
-
-server.listen(3000, function() {
+var port = process.env.PORT || 3000;
+server.listen(port, function() {
   Users.load();
 
   // Initialize root socket.io
@@ -72,5 +72,5 @@ server.listen(3000, function() {
   lobby.initializeSocketIO(lobbyIO);
   game.initializeSocketIO(gameIO);
 
-  console.log('Server is listening on port 3000');
+  console.log(`Server is listening on port ${port}`);
 });

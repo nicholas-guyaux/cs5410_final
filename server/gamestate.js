@@ -5,7 +5,7 @@ const present = require('present');
 const Shield = require('./components/shield');
 
 const random = require ('./utils/random');
-const GameMap = require ('./components/gamemap.js')
+const GameMap = require ('./components/gameMap.js')
 
 let lobbyClients = {};
 let gameClients = {};
