@@ -34,9 +34,6 @@
     const OptionsView = ViewStarters.ButtonView('OptionsView', $('#options-menu')[0], () => {
       MainView.loadView(MenuView.name);
     });
-    const HighScoresView = ViewStarters.ButtonView('HighScoresView', $('#highscore-menu')[0], () => {
-      MainView.loadView(MenuView.name);
-    });
     // setup the main view switcher
     window.MainView = ViewSwitcher();
     MainView.addViews(MenuView, CreditsView, HighScoresView, OptionsView, GameLobbyView, LoginView, SignupView, GameView, SplashView, GameOverView);
