@@ -15,7 +15,7 @@ const config = require('./config');
 
 var waitingForPlayers = false;
 
-const SIMULATION_UPDATE_RATE_MS = 16;
+const SIMULATION_UPDATE_RATE_MS = 0;
 const STATE_UPDATE_LAG = 0;
 
 let inputQueue = Queue.create();
@@ -380,9 +380,9 @@ function updateClients(elapsedTime) {
   props.lastUpdate += elapsedTime;
 
 
-  if (props.lastUpdate < STATE_UPDATE_LAG) {
-      return;
-  }
+  // if (props.lastUpdate < STATE_UPDATE_LAG) {
+  //     return;
+  // }
 
   //
   // Build the bullet messages one time, then reuse inside the loop
@@ -466,7 +466,7 @@ function updateClients(elapsedTime) {
         maxY: client.state.player.center.y + Coords.viewport.height
       });
       for (let i = 0; i < otherPlayers.length; i++) {
-        if (otherPlayers[i].cliend !== client) {
+        if (otherPlayers[i].client !== client) {
           otherPlayers[i].client.socket.emit(GameNetIds.UPDATE_OTHER, update);
         }
       }
