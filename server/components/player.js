@@ -195,6 +195,28 @@ function createPlayer(maxHealth, maxEnergy, maxAmmo) {
       }
     };
 
+    that.reverse = function(elapsedTime) {
+      reportUpdate = true;
+      let vectorX = Math.cos(direction);
+      let vectorY = Math.sin(direction);
+
+      let moveX = false;
+      let moveY = false;
+
+      let centerX = position.x + size.width/2;
+      let centerY = position.y + size.height/2;
+
+      moveY = GameMap.collision(centerX, centerY + (vectorY * elapsedTime * speed), Math.max(size.width, size.height));
+      moveX = GameMap.collision(centerX + (vectorX * elapsedTime * speed), centerY, Math.max(size.width, size.height));
+
+      if (moveX) {
+        position.x -= (vectorX * elapsedTime * speed * .5);
+      }
+      if (moveY) {
+        position.y -= (vectorY * elapsedTime * speed * .5);
+      }
+    }
+
     //------------------------------------------------------------------
     //
     // Rotates the player right based on how long it has been since the

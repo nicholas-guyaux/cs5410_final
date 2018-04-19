@@ -78,6 +78,9 @@ function processInput(elapsedTime, totalTime) {
       case GameNetIds.INPUT_MOVE_FORWARD:
         client.state.player.move(input.message.elapsedTime);
         break;
+      case GameNetIds.INPUT_MOVE_BACKWARD:
+        client.state.player.reverse(input.message.elapsedTime);
+        break;
       case GameNetIds.INPUT_ROTATE_LEFT:
         client.state.player.rotateLeft(input.message.elapsedTime);
         break;
