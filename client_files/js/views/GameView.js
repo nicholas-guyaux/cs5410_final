@@ -152,6 +152,17 @@ const GameView = (function() {
       playerSelf.model.move(elapsedTime);
     });
 
+    keyboard.addAction(props.commandKeys.MOVE_BACKWARD, elapsedTime => {
+      let message = {
+        id: props.messageId++,
+        elapsedTime: elapsedTime,
+        type: GameNetIds.INPUT_MOVE_BACKWARD
+      };
+      socket.emit(GameNetIds.INPUT, message);
+      messageHistory.enqueue(message);
+      playerSelf.model.reverse(elapsedTime);
+    })
+
     Events.on($('#game-canvas'), 'click', function (e) {
       var x = e.pageX - this.offsetLeft;
       var y = e.pageY - this.offsetTop; 
