@@ -1,4 +1,6 @@
 branch-defaults:
+  master:
+    environment: BattleBoatsBrawl-env
   shield:
     environment: BattleBoatsBrawl-env
 environment-defaults:
