@@ -1,7 +1,7 @@
 function ParticleManager(graphics) {
   'use strict';
 
-  const PARTICLES_PER_EFFECT = 40;
+  const PARTICLES_PER_EFFECT = 70;
 
   let pManager = {};
   pManager.effects = [];
@@ -66,10 +66,17 @@ function ParticleManager(graphics) {
       let center = spec.circleSegment.center;
 
       for (let particleCount = 0; particleCount < PARTICLES_PER_EFFECT; particleCount++) {
-
-        let angle = Math.random() * (2 * spec.circleSegment.epsilon) + (spec.circleSegment.viewAngle - spec.circleSegment.epsilon);
+        let maxMinusMinAngle = 2 * spec.circleSegment.epsilon;
+        let minAngle = spec.circleSegment.viewAngle - spec.circleSegment.epsilon;
+        let angle = (Math.random() * maxMinusMinAngle) + minAngle;
         let positionX = center.x + Math.cos(angle) * radius;
-        let positionY = center.y + Math.sin(angle) * radius;
+        let positionY = center.y - Math.sin(angle) * radius;
+
+        // // This is hacky - fix this later
+        // if (spec.circleSegment.underCenter) {
+        //   positionY = positionY + center.y;
+        // }
+
 
         let p = {
           position: { x: positionX, y: positionY },

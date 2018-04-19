@@ -67,31 +67,49 @@ const GameView = (function() {
     accumulatingParticlePeriod: 0
   };
 
+
   let shieldProps = {
-    radius: .3, // Change
-    center: {x: .5, y: .5}, // Change
-    viewCenter: {
-      x: Coords.viewport.x + (Coords.viewport.width / 2),
-      y: Coords.viewport.y + (Coords.viewport.height / 2)
-    },
     get distanceToShieldCenter() {
-      let dist = Math.sqrt(((this.viewCenter.x - this.center.x) * (this.viewCenter.x - this.center.x)) + ((this.viewCenter.y  - this.center.y) * (this.viewCenter.y  - this.center.y)));
-      return dist;
+      let shield = {
+        radius: .3, // Change this
+        center: {x: .5, y: .5}, // Change this
+      };
+      let viewCenter = {
+        x: Coords.viewport.x + (Coords.viewport.width / 2),
+        y: Coords.viewport.y + (Coords.viewport.height / 2)
+      };
+
+      // yDiff will be squared, so adding a negative wouldn't matter
+      let yDiff = viewCenter.y - shield.center.y;
+      let xDiff = viewCenter.x - shield.center.x;
+      return Math.sqrt((xDiff * xDiff) + (yDiff * yDiff));
     }, 
     get viewToRadiusDiffIsSmall() {
-      if ((this.radius - this.distanceToShieldCenter) < Coords.viewport.width) {
-        return true;
+      let shield = {
+        radius: .3, // Change this
+        center: {x: .5, y: .5}, // Change this
       }
-      else {
-        return false;
-      } 
+      return ((shield.radius - this.distanceToShieldCenter) < Coords.viewport.width);
     },
     get viewAngle() {
-      return Math.asin((this.viewCenter.y - this.center.y) / (this.viewCenter.x - this.center.x));
+      let shield = {
+        radius: .3, // Change this
+        center: {x: .5, y: .5}, // Change this
+      }
+      let viewCenter = {
+        x: Coords.viewport.x + (Coords.viewport.width / 2),
+        y: Coords.viewport.y + (Coords.viewport.height / 2)
+      };
+
+      // Negate yDiff to account for canvas's coordinate system
+      let yDiff = (-(viewCenter.y - shield.center.y));
+      let xDiff = viewCenter.x - shield.center.x;
+
+      return (-(Math.atan2(xDiff, yDiff) - (Math.PI / 2)));
     },
     get epsilon() {
       // Dependent on radius
-      return 2;
+      return 1;
     }
   };
 
@@ -463,16 +481,22 @@ const GameView = (function() {
 
     particleManager.update(elapsedTime);
 
+    // Change this
+    let shield = {
+      radius: .3,
+      center: {x: .5, y: .5},
+    };
+
     props.accumulatingParticlePeriod += elapsedTime;
     if ((props.accumulatingParticlePeriod >= PARTICLE_PERIOD) && shieldProps.viewToRadiusDiffIsSmall) {
       particleManager.createEffect({
         image:  MyGame.assets['violetlight'],
-        size: { mean: .005, stdDev: .0005 },
-        lifetime: { mean: 400, stdDev: 300 },
+        size: { mean: .003, stdDev: .0005 },
+        lifetime: { mean: 600, stdDev: 300 },
         speed: { mean: .00001, stdDev: .000005 },
         circleSegment: {
-          center: shieldProps.center,
-          radius: shieldProps.radius,
+          center: shield.center, // Change this
+          radius: shield.radius, // Change this
           viewAngle: shieldProps.viewAngle,
           epsilon: shieldProps.epsilon
         }
