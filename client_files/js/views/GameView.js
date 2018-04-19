@@ -104,11 +104,11 @@ const GameView = (function() {
       };
 
       // yDiff will be squared, so adding a negative wouldn't matter
-      let yDiff = viewCenter.y - shield.center.y;
-      let xDiff = viewCenter.x - shield.center.x;
+      let yDiff = viewCenter.y - shield.y;
+      let xDiff = viewCenter.x - shield.x;
       return Math.sqrt((xDiff * xDiff) + (yDiff * yDiff));
     }, 
-    get viewToRadiusDiffIsSmall() {
+    get isClose() {
       return ((shield.radius - this.distanceToShieldCenter) < Coords.viewport.width);
     },
     get viewAngle() {
@@ -118,8 +118,8 @@ const GameView = (function() {
       };
 
       // Negate yDiff to account for canvas's coordinate system
-      let yDiff = (-(viewCenter.y - shield.center.y));
-      let xDiff = viewCenter.x - shield.center.x;
+      let yDiff = (-(viewCenter.y - shield.y));
+      let xDiff = viewCenter.x - shield.x;
 
       return (-(Math.atan2(xDiff, yDiff) - (Math.PI / 2)));
     },
@@ -521,14 +521,15 @@ const GameView = (function() {
     particleManager.update(elapsedTime);
 
     props.accumulatingParticlePeriod += elapsedTime;
-    if ((props.accumulatingParticlePeriod >= PARTICLE_PERIOD) && shieldProps.viewToRadiusDiffIsSmall) {
+    if ((shield !== null) && shieldProps.isClose
+        && (props.accumulatingParticlePeriod >= PARTICLE_PERIOD)) {
       particleManager.createEffect({
         image:  MyGame.assets['violetlight'],
         size: { mean: .003, stdDev: .0005 },
         lifetime: { mean: 600, stdDev: 300 },
         speed: { mean: .00001, stdDev: .000005 },
         circleSegment: {
-          center: shield.center,
+          center: {x: shield.x, y: shield.y },
           radius: shield.radius,
           viewAngle: shieldProps.viewAngle,
           epsilon: shieldProps.epsilon
@@ -650,6 +651,5 @@ const GameView = (function() {
     init,
     name: "GameView",
     playerOthers,
-    shieldProps
   };
 }());
