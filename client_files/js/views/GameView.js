@@ -7,9 +7,25 @@ let maxEnergy = 100;
 //
 // Contains client-side game loop and client-side game state data
 const GameView = (function() {
+
+  const PARTICLE_PERIOD = 400;
+
   // declare variables here and initialize in reset() which is called at the
   // beggining of render.
-  let vehicle, shield, keyboard, receivedMessages, itemImages, boatTextureSet, opposingBoatTextureSet, messageHistory, playerSelf, playerOthers, bullets, explosions, props;
+  let vehicle,
+      shield,
+      keyboard,
+      receivedMessages,
+      itemImages,
+      boatTextureSet,
+      opposingBoatTextureSet,
+      messageHistory,
+      playerSelf,
+      playerOthers,
+      particleManager,
+      bullets,
+      explosions,
+      props;
 
   function reset () {
     playerCount = 0;
@@ -72,9 +88,54 @@ const GameView = (function() {
       commandKeys: null,
       nextExplosionId: 1,
       FOVDistance: 0.15,
-      FOVWidth: 0.15
+      FOVWidth: 0.15,
+      accumulatingParticlePeriod: 0
     };
+
+    particleManager = ParticleManager(Graphics);
   }
+
+
+  let shieldProps = {
+    get distanceToShieldCenter() {
+      let viewCenter = {
+        x: Coords.viewport.x + (Coords.viewport.width / 2),
+        y: Coords.viewport.y + (Coords.viewport.height / 2)
+      };
+
+      // yDiff will be squared, so adding a negative wouldn't matter
+      let yDiff = viewCenter.y - shield.center.y;
+      let xDiff = viewCenter.x - shield.center.x;
+      return Math.sqrt((xDiff * xDiff) + (yDiff * yDiff));
+    }, 
+    get viewToRadiusDiffIsSmall() {
+      return ((shield.radius - this.distanceToShieldCenter) < Coords.viewport.width);
+    },
+    get viewAngle() {
+      let viewCenter = {
+        x: Coords.viewport.x + (Coords.viewport.width / 2),
+        y: Coords.viewport.y + (Coords.viewport.height / 2)
+      };
+
+      // Negate yDiff to account for canvas's coordinate system
+      let yDiff = (-(viewCenter.y - shield.center.y));
+      let xDiff = viewCenter.x - shield.center.x;
+
+      return (-(Math.atan2(xDiff, yDiff) - (Math.PI / 2)));
+    },
+    get epsilon() {
+      // epsilon depends on the current radius and some fixed constants
+
+      let currentRadius = shield.radius;
+      let R_1 = 0.5; // Half the world - change this magic number somehow?
+      let R_2 = Coords.viewport.width / 2;
+      let E_1 = 0.3;
+      let E_2 = Math.PI / 2;
+      let slope = (R_2 - R_1) / (E_2 - E_1);
+
+      return ((currentRadius - R_1) / slope) + E_1;
+    }
+  };
 
   //
   // Render to initially setup and show the GameView
@@ -456,6 +517,26 @@ const GameView = (function() {
         delete explosions[id];
       }
     }
+
+    particleManager.update(elapsedTime);
+
+    props.accumulatingParticlePeriod += elapsedTime;
+    if ((props.accumulatingParticlePeriod >= PARTICLE_PERIOD) && shieldProps.viewToRadiusDiffIsSmall) {
+      particleManager.createEffect({
+        image:  MyGame.assets['violetlight'],
+        size: { mean: .003, stdDev: .0005 },
+        lifetime: { mean: 600, stdDev: 300 },
+        speed: { mean: .00001, stdDev: .000005 },
+        circleSegment: {
+          center: shield.center,
+          radius: shield.radius,
+          viewAngle: shieldProps.viewAngle,
+          epsilon: shieldProps.epsilon
+        }
+      });
+
+      props.accumulatingParticlePeriod = 0;
+    }
   }
 
   // This function was written by Dr. Dean Mathias
@@ -499,7 +580,15 @@ const GameView = (function() {
     // Graphics.enableClipping(FOVPolygon); // clipping for objects forbidden outside FOV
 
     GameMap.draw();
+   
+
+    // for (let id in explosions) {
+    //   renderer.AnimatedSprite.render(explosions[id]);
+    // }
+    Renderer.renderPlayer(playerSelf.model, playerSelf.textureSet, totalTime);
     
+    particleManager.render();
+
     let playerPos = {x: playerSelf.model.position.x + playerSelf.model.size.width / 2, y: playerSelf.model.position.y + playerSelf.model.size.height / 2};
     let FOVPoint1 = {x: (playerPos.x + props.FOVDistance), y: playerPos.y - (props.FOVWidth / 2)};
     let FOVPoint2 = {x: (playerPos.x + props.FOVDistance), y: playerPos.y + (props.FOVWidth / 2)};
@@ -560,6 +649,7 @@ const GameView = (function() {
     unrender,
     init,
     name: "GameView",
-    playerOthers
+    playerOthers,
+    shieldProps
   };
 }());
