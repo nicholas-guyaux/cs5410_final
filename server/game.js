@@ -16,7 +16,7 @@ const config = require('./config');
 var waitingForPlayers = false;
 
 const SIMULATION_UPDATE_RATE_MS = 16;
-const STATE_UPDATE_LAG = 100;
+// const STATE_UPDATE_LAG = 100;
 
 let inputQueue = Queue.create();
 let islandMap = GameMap.getGridMap();
