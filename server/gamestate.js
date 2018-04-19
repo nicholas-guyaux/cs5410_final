@@ -4,7 +4,7 @@ const Dropper = require('./components/dropper');
 const present = require('present');
 
 const random = require ('./utils/random');
-const GameMap = require ('./components/gamemap.js')
+const GameMap = require ('./components/gameMap.js')
 
 let lobbyClients = {};
 let gameClients = {};
