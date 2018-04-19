@@ -165,7 +165,7 @@ const Renderer = (function(graphics) {
   }
 
   function renderShield (shield) {
-    Graphics.shieldMask(shield);
+    Graphics.enableShieldClipping(shield);
   }
 
   // function renderRemotePlayer(model, textureSet, elapsed) {

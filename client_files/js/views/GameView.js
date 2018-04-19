@@ -124,12 +124,15 @@ const GameView = (function() {
       return (-(Math.atan2(xDiff, yDiff) - (Math.PI / 2)));
     },
     get epsilon() {
-      // epsilon depends on the current radius and some fixed constants
-
       let currentRadius = shield.radius;
-      let R_1 = 0.5; // Half the world - change this magic number somehow?
+      let R_1 = 0.5; // Half the world
+      let E_1 = 0.3; // Minimum epsilon
+
+      if (currentRadius >= R_1) {
+        return E_1;
+      }
+
       let R_2 = Coords.viewport.width / 2;
-      let E_1 = 0.3;
       let E_2 = Math.PI / 2;
       let slope = (R_2 - R_1) / (E_2 - E_1);
 
