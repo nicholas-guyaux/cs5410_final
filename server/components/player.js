@@ -24,7 +24,7 @@ const boatImg = water_units.frames["ship_small_body.png"];
 // at some random location.
 //
 //------------------------------------------------------------------
-function createPlayer(maxHealth, maxEnergy, maxAmmo) {
+function createPlayer(maxHealth, maxEnergy, maxAmmo, depletionRate) {
     let that = {};
     let isDropped = false;
     that.dead = false;
@@ -47,8 +47,8 @@ function createPlayer(maxHealth, maxEnergy, maxAmmo) {
     let speed = 0.0002*Coords.viewport.width;                 // unit distance per millisecond
     let reportUpdate = false;    // Indicates if this model was updated during the last update
     
-    let health = {current: maxHealth, max: maxHealth};
-    let energy = {current: maxEnergy, max: maxEnergy};
+    let health = {current: maxHealth, max: maxHealth, rate: 0};
+    let energy = {current: maxEnergy, max: maxEnergy, rate: 0};
     let useTurbo = false;
     let ammo = {current: 0, max: maxAmmo};
     let bulletShots = { hit: 0, total: 0 };
@@ -190,8 +190,11 @@ function createPlayer(maxHealth, maxEnergy, maxAmmo) {
       if (moveY) {
         position.y += (vectorY * elapsedTime * speed * turboAdjust);
       }
-      if((!moveY || !moveX) && useTurbo){
+
+      health.rate += elapsedTime;
+      if((!moveY || !moveX) && useTurbo && health.rate >= depletionRate){
         health.current -= 1;
+        health.rate -= depletionRate;
       }
     };
 
@@ -251,19 +254,25 @@ function createPlayer(maxHealth, maxEnergy, maxAmmo) {
     //
     //------------------------------------------------------------------
     that.update = function(elapsedTime) {
-      if(useTurbo){
-        var rate = buffs.speed ? 1 : 2;
-        energy.current -= rate;
-        reportUpdate = true;
-        if(energy.current <= 0){
-          useTurbo = false
+      energy.rate += elapsedTime;
+      if(energy.rate > depletionRate){
+        if(useTurbo){
+          var rate = buffs.speed ? 1 : 2;
+          energy.current -= rate;
+          reportUpdate = true;
+          if(energy.current <= 0){
+            useTurbo = false
+          }
+        }
+        else if(energy.current < energy.max){
+          energy.current += .25;
+          reportUpdate = true;
         }
       }
-      else if(energy.current < energy.max){
-        energy.current += .25;
-        reportUpdate = true;
-      }
       currentFireRateWait += elapsedTime;
+      if(energy.rate >= depletionRate){
+        energy.rate -= depletionRate;
+      }
     };
 
     return that;

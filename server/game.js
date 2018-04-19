@@ -635,7 +635,7 @@ function initializeSocketIO(io) {
   io.on('connection', function(socket) {
     console.log('Connection established: ', socket.id);
 
-    let newPlayer = Player.create(GameState.maxHealth, GameState.maxEnergy, GameState.maxAmmo);
+    let newPlayer = Player.create(GameState.maxHealth, GameState.maxEnergy, GameState.maxAmmo, GameState.depletionRate);
     let newClient = {
       lastMessageId: null,
       socket: socket,
