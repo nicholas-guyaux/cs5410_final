@@ -99,7 +99,8 @@ MyGame.loader = (function() {
       scripts: [ //Components / Player Models
         'js/components/player',
         'js/components/player-other',
-        'js/components/bullet'
+        'js/components/bullet',
+        'js/components/animated-sprite'
       ],
       message: 'Player models loaded',
       onComplete: null,
@@ -116,13 +117,14 @@ MyGame.loader = (function() {
         'js/views/MenuView',
         'js/views/GameLobbyView',
         'js/views/GameView',
+        'js/views/GameOverView',
         'js/views/LoginView',
         'js/views/SignupView',
         'js/views/SplashView',
         'js/components/gameMap',
         'js/components/vehicle',
       ],
-      message: 'Views loaded',
+      message: 'Views loaded', 
       onComplete: null,
     }, {
       scripts: ['app.js'],
@@ -159,6 +161,9 @@ MyGame.loader = (function() {
     }, {
       key: 'speed',
       source: 'assets/images/speed.png'
+    },{
+      key: 'explosion',
+      source: 'assets/images/explosion.png'
     }];
 
     function loadScripts(scripts, onComplete){

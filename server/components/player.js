@@ -52,9 +52,10 @@ function createPlayer(maxHealth, maxEnergy, maxAmmo) {
     let useTurbo = false;
     let ammo = {current: 0, max: maxAmmo};
     let bulletShots = { hit: 0, total: 0 };
+    let damageDealt = 0;
     let killCount = 0;
     let gun = false;
-    let buffs = { dmg: false, speed: false, fireRate: false};
+    let buffs = { dmg: 0, speed: false, fireRate: false};
     let currentFireRateWait = 0;
 
     that.getCircle = function () {
@@ -124,8 +125,14 @@ function createPlayer(maxHealth, maxEnergy, maxAmmo) {
     });
 
     Object.defineProperty(that, 'killCount', {
-      get: () => killCount
+      get: () => killCount,
+      set: value => killCount = value
     });
+
+    Object.defineProperty(that, 'damageDealt', {
+      get: () => damageDealt,
+      set: value => damageDealt = value
+    })
 
     Object.defineProperty(that, 'buffs', {
       get: () => buffs,
@@ -135,7 +142,23 @@ function createPlayer(maxHealth, maxEnergy, maxAmmo) {
     Object.defineProperty(that, 'currentFireRateWait', {
       get: () => currentFireRateWait,
       set: value => currentFireRateWait = value
+    });
+
+    var center = {};
+    Object.defineProperty(center,'x', {
+      get: () => position.x + size.width / 2
     })
+
+    Object.defineProperty(center,'y', {
+      get: () => position.y + size.height / 2
+    })
+    Object.defineProperty(that, 'center', {
+      get: () => center
+    });
+
+    Object.defineProperty(that, 'useTurbo', {
+      get: () => useTurbo
+    });
 
     //------------------------------------------------------------------
     //
@@ -207,14 +230,15 @@ function createPlayer(maxHealth, maxEnergy, maxAmmo) {
     //------------------------------------------------------------------
     that.update = function(elapsedTime) {
       if(useTurbo){
-        energy.current -= 2;
+        var rate = buffs.speed ? 1 : 2;
+        energy.current -= rate;
         reportUpdate = true;
         if(energy.current <= 0){
           useTurbo = false
         }
       }
       else if(energy.current < energy.max){
-        energy.current++;
+        energy.current += .25;
         reportUpdate = true;
       }
       currentFireRateWait += elapsedTime;

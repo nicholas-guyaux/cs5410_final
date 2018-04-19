@@ -53,7 +53,7 @@ function newGame() {
   islandMap = GameMap.getGridMap();
   GameState.playerCount = Object.keys(gameClients).length;
   GameState.itemArray = [];
-  GameState.alivePlayers = Object.values(gameClients).map(client => client.state.player);
+  // GameState.alivePlayers = Object.values(gameClients).map(client => client.state.player);
   GameState.inProgress = true;
   GameState.startTime = present();
   GameState.vehicle = Vehicle(vehicleStartTime);
@@ -280,7 +280,6 @@ function update (elapsed, currentTime, totalTime) {
   for (let clientId in GameState.gameClients) {
     GameState.gameClients[clientId].state.player.update(elapsed);
   }
-  GameState.alivePlayers = GameState.alivePlayers.filter(player => !player.dead);
 }
 
 module.exports = GameState;

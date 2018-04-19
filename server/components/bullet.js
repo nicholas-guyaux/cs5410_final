@@ -14,12 +14,12 @@ let Coords = require ('../../client_files/shared/Coords');
 //------------------------------------------------------------------
 function createBullet(spec) {
     let that = {};
-
     let radius = 0.0025 * Coords.viewport.width;
     let speed = spec.speed + 0.00005;    // unit distance per millisecond
     let timeRemaining = 1500;   // milliseconds
     let currentFireRateWait = 0;
     let damage = spec.damage;
+    let color = spec.color;
     that.maxX = 0;
     that.maxY = 0;
     that.minX = 0;
@@ -58,6 +58,9 @@ function createBullet(spec) {
       get: () => damage
     });
 
+    Object.defineProperty(that, 'color', {
+      get: () => color
+    });
     //------------------------------------------------------------------
     //
     // Function used to update the bullet during the game loop.

@@ -1,3 +1,5 @@
+// const AnimatedSprite = require('./components/animated-sprite');
+
 let playerCount = 0;
 let maxHealth = 100;
 let maxAmmo = 50;
@@ -66,6 +68,7 @@ const GameView = (function() {
   //
   // Render to initially setup and show the GameView
   function render() {
+    props.quit = false;
     vehicle = Vehicle();
     Graphics.resizeCanvas();
     AudioPool.playMusic('game');
@@ -124,6 +127,13 @@ const GameView = (function() {
       });
     });
 
+    socket.on(GameNetIds.MESSAGE_GAME_OVER, data => {
+      receivedMessages.enqueue({
+        type: GameNetIds.MESSAGE_GAME_OVER,
+        data: data
+      });
+    });
+
     socket.on(GameNetIds.BULLET_HIT, data => {
       receivedMessages.enqueue({
         type: GameNetIds.BULLET_HIT,
@@ -148,8 +158,8 @@ const GameView = (function() {
       let message = {
         id: props.messageId++,
         position: {
-          x: x / Coords.viewport.canvas.width,
-          y: y / Coords.viewport.canvas.height,
+          x: x / this.offsetWidth,
+          y: y / this.offsetHeight,
         },
         type: GameNetIds.INPUT_DROP
       };
@@ -199,6 +209,7 @@ const GameView = (function() {
   }
 
   function unrender() {
+    props.quit = true;
     socket.disconnect();
     socket = null;
     keyboard.deactivate();
@@ -218,6 +229,9 @@ const GameView = (function() {
     playerSelf.model.speed = player.speed;
     playerSelf.model.rotateRate = player.rotateRate;
     updateSelfPosition();
+    socket.emit(GameNetIds.SET_NAME, {
+      username: client.user.name
+    })
   }
 
   function updateSelfPosition () {
@@ -345,19 +359,20 @@ const GameView = (function() {
         x: data.position.x,
         y: data.position.y
       },
-      timeRemaining: data.timeRemaining
+      timeRemaining: data.timeRemaining,
+      color: data.color
     });
   }
 
   function bulletHit(data) {
-    // explosions[nextExplosionId] = components.AnimatedSprite({
-    //   id: nextExplosionId++,
-    //   spriteSheet: MyGame.assets['explosion'],
-    //   spriteSize: { width: 0.07, height: 0.07 },
-    //   spriteCenter: data.position,
-    //   spriteCount: 16,
-    //   spriteTime: [ 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50]
-    // });
+    explosions[props.nextExplosionId] = AnimatedSprite({
+      id: props.nextExplosionId++,
+      spriteSheet: MyGame.assets['explosion'],
+      spriteSize: { width: 0.01, height: 0.01 },
+      spriteCenter: data.position,
+      spriteCount: 16,
+      spriteTime: [ 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50]
+    });
 
     //
     // When we receive a hit notification, go ahead and remove the
@@ -401,6 +416,8 @@ const GameView = (function() {
         case GameNetIds.BULLET_HIT:
           bulletHit(message.data);
           break;
+        case GameNetIds.MESSAGE_GAME_OVER:
+          MainView.loadView(GameOverView.name, message.data);
       }
     }
   }
@@ -471,19 +488,8 @@ const GameView = (function() {
     // Graphics.enableClipping(FOVPolygon); // clipping for objects forbidden outside FOV
 
     GameMap.draw();
-   
-
     
-
-    // for (let id in explosions) {
-    //   renderer.AnimatedSprite.render(explosions[id]);
-    // }
     Renderer.renderPlayer(playerSelf.model, playerSelf.textureSet, totalTime);
-    
-    
-
-    
-
     let playerPos = {x: playerSelf.model.position.x + playerSelf.model.size.width / 2, y: playerSelf.model.position.y + playerSelf.model.size.height / 2};
     let FOVPoint1 = {x: (playerPos.x + props.FOVDistance), y: playerPos.y - (props.FOVWidth / 2)};
     let FOVPoint2 = {x: (playerPos.x + props.FOVDistance), y: playerPos.y + (props.FOVWidth / 2)};
@@ -511,7 +517,11 @@ const GameView = (function() {
     Graphics.disableClipping();
     Graphics.createFogEffect(FOVPolygon2, props.FOVDistance);
     Graphics.disableFogClipping();
+    for (let id in explosions) {
+      Renderer.renderExplosion(explosions[id]);
+    }
     Renderer.minimap();
+
     Renderer.renderPlayer(playerSelf.model, playerSelf.textureSet, totalTime);
     
     Graphics.finalizeRender();

@@ -143,7 +143,6 @@ const Graphics = (function() {
   }
   
   function drawImage(image, center, size, clipping) {
-    // console.log('image: ', image);
     let localCenter = {
       x: center.x * world.width,
       y: center.y * world.height,
@@ -270,13 +269,14 @@ const Graphics = (function() {
     if (!props.fogClippingEnabled && (polygon.length < 2)) {
       return;
     }
-    const CUSHION = FOVDistance * Coords.world.width * 2; // 10 is just a big number
+    const CUSHION = FOVDistance * Coords.world.width * 5; // 5 is just a big number
     context.save();
     props.fogClippingEnabled = true;
 
+    let swapOuterDirection = false;
     let xMinIndex = null;
     let xMin = Coords.world.width;
-    // Convert polygon to true coordinates
+
     for (let i = 0; i < polygon.length; i++) {
       polygon[i].x *= Coords.world.width;
       polygon[i].y *= Coords.world.height;
@@ -285,10 +285,14 @@ const Graphics = (function() {
         xMinIndex = i;
       }
     }
+
     if (xMinIndex !== 0) {
       let temp = polygon[0];
       polygon[0] = polygon[xMinIndex];
       polygon[xMinIndex] = temp;
+    }
+    else {
+      swapOuterDirection = true; // This is necessary so that it doesn't cut itself off
     }
 
     context.beginPath();
@@ -300,12 +304,23 @@ const Graphics = (function() {
     context.lineTo(polygon[0].x, polygon[0].y);
     context.lineTo(Coords.viewport.world.x - CUSHION,
         Coords.viewport.world.y - CUSHION);
-    context.lineTo(Coords.viewport.world.x + Coords.viewport.world.width + CUSHION,
-      Coords.viewport.world.y - CUSHION);
-    context.lineTo(Coords.viewport.world.x + Coords.viewport.world.width + CUSHION,
-        Coords.viewport.world.y + Coords.viewport.world.height + CUSHION);
-    context.lineTo(Coords.viewport.world.x - CUSHION,
-        Coords.viewport.world.y + Coords.viewport.world.height + CUSHION);
+    if (!swapOuterDirection) {
+      context.lineTo(Coords.viewport.world.x + Coords.viewport.world.width + CUSHION,
+          Coords.viewport.world.y - CUSHION);
+      context.lineTo(Coords.viewport.world.x + Coords.viewport.world.width + CUSHION,
+          Coords.viewport.world.y + Coords.viewport.world.height + CUSHION);
+      context.lineTo(Coords.viewport.world.x - CUSHION,
+          Coords.viewport.world.y + Coords.viewport.world.height + CUSHION);
+    }
+    else {
+      context.lineTo(Coords.viewport.world.x - CUSHION,
+          Coords.viewport.world.y + Coords.viewport.world.height + CUSHION);
+      context.lineTo(Coords.viewport.world.x + Coords.viewport.world.width + CUSHION,
+          Coords.viewport.world.y + Coords.viewport.world.height + CUSHION);
+      context.lineTo(Coords.viewport.world.x + Coords.viewport.world.width + CUSHION,
+          Coords.viewport.world.y - CUSHION);
+    }
+
     context.closePath();
     context.clip();
 
@@ -324,6 +339,28 @@ const Graphics = (function() {
     context.globalAlpha = alphaOpacity;
   }
 
+  //------------------------------------------------------------------
+  //
+  // Draw an image out of a spritesheet into the local canvas coordinate system.
+  //
+  //------------------------------------------------------------------
+  function drawImageSpriteSheet(spriteSheet, spriteSize, sprite, center, size) {
+    let localCenter = {
+        x: center.x * Coords.world.width,
+        y: center.y * Coords.world.height
+    };
+    let localSize = {
+        width: size.width * Coords.world.width,
+        height: size.height * Coords.world.height
+    };
+    context.drawImage(spriteSheet,
+        sprite * spriteSize.width, 0,                 // which sprite to render
+        spriteSize.width, spriteSize.height,    // size in the spritesheet
+        localCenter.x - localSize.width / 2,
+        localCenter.y - localSize.height / 2,
+        localSize.width, localSize.height);
+  }
+
   return {
     initialize : initialize,
     clear : clear,
@@ -331,6 +368,7 @@ const Graphics = (function() {
     restoreContext : restoreContext,
     rotateCanvas : rotateCanvas,
     drawImage : drawImage,
+    drawImageSpriteSheet: drawImageSpriteSheet,
     drawRectangle : drawRectangle,
     drawStrokedCircle: drawStrokedCircle,
     drawCircle: drawCircle,

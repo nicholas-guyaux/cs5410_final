@@ -137,8 +137,8 @@ function initializeSocketIO(io) {
         let client = GameState.lobbyClients[clientId];
         
         client.socket.emit(LobbyNetIds.LOBBY_MSG, {
-          playerId: newClient.state.player.name,  
-          message: data.message      
+          playerId: newClient.state.player.name,
+          message: data.message
         });
       }
     });
@@ -155,6 +155,7 @@ function initializeSocketIO(io) {
     notifyConnect(newClient);
 
     if ((Object.keys(GameState.lobbyClients).length >= props.numPlayersRequired) && !GameState.inProgress) {
+      GameState.alivePlayers = [];
       GameState.inProgress = true;
       for (let clientId in GameState.lobbyClients) {
         if (!GameState.lobbyClients.hasOwnProperty(clientId)) {
@@ -165,7 +166,6 @@ function initializeSocketIO(io) {
           clientId: existingClient.socket.id,
           countdown: props.countdownTime
         });
-        console.log('the final countdown'); 
       }
       setTimeout(function(){
         game.initialize(Object.keys(GameState.lobbyClients).length);//sends # of players  
