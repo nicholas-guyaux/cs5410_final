@@ -15,7 +15,7 @@ const Users = require('../models/Users');
 var waitingForPlayers = false;
 
 const SIMULATION_UPDATE_RATE_MS = 16;
-const STATE_UPDATE_LAG = 100;
+const STATE_UPDATE_LAG = 0;
 
 let inputQueue = Queue.create();
 let islandMap = GameMap.getGridMap();
@@ -26,7 +26,7 @@ let activeBullets = [];
 let hits = [];
 var bulletTree = rbush();
 // The following is used to visually see the entity interpolation in action
-const DEMONSTRATION_STATE_UPDATE_LAG = 100;
+const DEMONSTRATION_STATE_UPDATE_LAG = 0;
 
 let props = {
   quit: false,
