@@ -108,8 +108,16 @@ const GameView = (function() {
       return (-(Math.atan2(xDiff, yDiff) - (Math.PI / 2)));
     },
     get epsilon() {
-      // Dependent on radius
-      return 1;
+      // epsilon depends on the current radius and some fixed constants
+
+      let currentRadius = .3; // Change this
+      let R_1 = 0.5; // Half the world - change this magic number somehow?
+      let R_2 = Coords.viewport.width / 2;
+      let E_1 = 0.3;
+      let E_2 = Math.PI / 2;
+      let slope = (R_2 - R_1) / (E_2 - E_1);
+
+      return ((currentRadius - R_1) / slope) + E_1;
     }
   };
 
