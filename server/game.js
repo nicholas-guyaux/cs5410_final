@@ -3,6 +3,8 @@
 const present = require('present');
 const GameState = require('./gamestate');
 const rbush = require('rbush');
+const Coords = require('../client_files/shared/Coords');
+const Geometry = require('../client_files/shared/Geometry');
 const Player = require('./components/player');
 const Bullet = require('./components/bullet');
 const GameNetIds = require('../client_files/shared/game-net-ids');
@@ -15,7 +17,7 @@ const Users = require('../models/Users');
 var waitingForPlayers = false;
 
 const SIMULATION_UPDATE_RATE_MS = 16;
-const STATE_UPDATE_LAG = 0;
+// const STATE_UPDATE_LAG = 0;
 
 let inputQueue = Queue.create();
 let islandMap = GameMap.getGridMap();
@@ -25,8 +27,6 @@ var playerTree = rbush();
 let activeBullets = [];
 let hits = [];
 var bulletTree = rbush();
-// The following is used to visually see the entity interpolation in action
-const DEMONSTRATION_STATE_UPDATE_LAG = 0;
 
 let props = {
   quit: false,
@@ -243,6 +243,14 @@ function checkPlayerVsBuffCollision(player){
 }
 function checkPlayerVsDeathCircleCollision(player){
   //If outside circle, take damage
+  if(player.isDropped && !GameState.shield.containsPoint(Geometry.Point(player.center.x, player.center.y))) {
+    if(player.health.current > 0) {
+      player.health.current--;
+      if(player.health.current <= 0) {
+        processDeath(player);
+      }
+    }
+  }
 }
 
 function checkDeath(player){
@@ -386,9 +394,9 @@ function updateClients(elapsedTime) {
   props.lastUpdate += elapsedTime;
 
 
-  if (props.lastUpdate < STATE_UPDATE_LAG) {
-      return;
-  }
+  // if (props.lastUpdate < STATE_UPDATE_LAG) {
+  //     return;
+  // }
 
   //
   // Build the bullet messages one time, then reuse inside the loop
@@ -424,10 +432,10 @@ function updateClients(elapsedTime) {
   for (let clientId in GameState.gameClients) {
     let client = GameState.gameClients[clientId];
     let buffs = itemTree.search({
-      minX: client.state.player.position.x - .15,
-      minY: client.state.player.position.y - .15,
-      maxX: client.state.player.position.x + .15,
-      maxY: client.state.player.position.y + .15
+      minX: client.state.player.position.x - Coords.viewport.width,
+      minY: client.state.player.position.y - Coords.viewport.height,
+      maxX: client.state.player.position.x + Coords.viewport.width,
+      maxY: client.state.player.position.y + Coords.viewport.height
     });
     //let buffs = itemTree.all();
     
@@ -443,6 +451,11 @@ function updateClients(elapsedTime) {
           updateWindow: props.lastUpdate,
           isDropped: client.state.player.isDropped,
           items: buffs
+        },
+        shield: {
+          x: GameState.shield.x,
+          y: GameState.shield.y,
+          radius: GameState.shield.radius,
         }        
     };
 
@@ -461,13 +474,13 @@ function updateClients(elapsedTime) {
     if (client.state.player.reportUpdate) {
       client.socket.emit(GameNetIds.UPDATE_SELF, update);
       let otherPlayers = playerTree.search({
-        minX: client.state.player.center.x - .15,
-        minY: client.state.player.center.y - .15,
-        maxX: client.state.player.center.x + .15,
-        maxY: client.state.player.center.y + .15
+        minX: client.state.player.center.x - Coords.viewport.width,
+        minY: client.state.player.center.y - Coords.viewport.height,
+        maxX: client.state.player.center.x + Coords.viewport.width,
+        maxY: client.state.player.center.y + Coords.viewport.height
       });
       for (let i = 0; i < otherPlayers.length; i++) {
-        if (otherPlayers[i].cliend !== client) {
+        if (otherPlayers[i].client !== client) {
           otherPlayers[i].client.socket.emit(GameNetIds.UPDATE_OTHER, update);
         }
       }
@@ -624,8 +637,6 @@ function initializeSocketIO(io) {
           playerId: playerId.name,  
           message: "Has left the game"      
         });
-      } else {
-        client.state.player.dead = true;
       }
     }
   }
@@ -723,6 +734,7 @@ function initializeSocketIO(io) {
         id: socket.id,
         name: GameState.gameClients[socket.id].state.player.name
       }
+      GameState.gameClients[socket.id].state.player.dead = true;;
       delete GameState.gameClients[socket.id];
       notifyDisconnect(obj);
     });

@@ -42,7 +42,7 @@
         return Math.atan2(deltaY, deltaX);
       },
       get distance () {
-        return Math.sqrt(Math.pow(lineSeg.a.x-lineSeg.b.x, 2), Math.pow(lineSeg.a.y-lineSeg.b.y, 2));
+        return Math.sqrt(Math.pow(lineSeg.a.x-lineSeg.b.x, 2) + Math.pow(lineSeg.a.y-lineSeg.b.y, 2));
       },
       // https://stackoverflow.com/a/1968345/2066736
       lineSegmentIntersection (lineSeg2) {
