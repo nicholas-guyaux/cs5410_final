@@ -215,8 +215,10 @@ button.selected, button:hover, button:active {
 
 #game-messages {
   width: calc(100vmin * .2);
-  max-height: 100vmin;
+  max-height: 20vmin;
   height: 100vmin;
   display: flex;
   flex-direction: column;
+  color:pink;
+  font-size: 10px;
 }
