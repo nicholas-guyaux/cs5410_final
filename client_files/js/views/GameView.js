@@ -95,6 +95,9 @@ const GameView = (function() {
     particleManager = ParticleManager(Graphics);
   }
 
+  let waitingGameMessage = false;
+  let gameMessage = '';
+  
 
   let shieldProps = {
     get distanceToShieldCenter() {
@@ -217,6 +220,13 @@ const GameView = (function() {
       });
     });
 
+    socket.on(GameNetIds.GAME_UPDATE_MESSAGE, data => {
+      receivedMessages.enqueue({
+        type: GameNetIds.GAME_UPDATE_MESSAGE,
+        data: data
+      });
+    });
+
     keyboard.addAction(props.commandKeys.MOVE_FORWARD, elapsedTime => {
       let message = {
         id: props.messageId++,
@@ -315,6 +325,7 @@ const GameView = (function() {
     playerSelf.model.direction = player.direction;
     playerSelf.model.speed = player.speed;
     playerSelf.model.rotateRate = player.rotateRate;
+    
     updateSelfPosition();
     socket.emit(GameNetIds.SET_NAME, {
       username: client.user.name
@@ -372,6 +383,9 @@ const GameView = (function() {
     shield = Shield(data.shield.x, data.shield.y, data.shield.radius);
     
     playerSelf.model.localItems = data.player.items;
+    playerSelf.model.ammo = data.player.ammo;
+    playerSelf.model.gun = data.player.gun;
+
     //console.log(playerSelf.model.localItems);
     // Remove messages from the queue up through the last one identified
     // by the server as having been processed.
@@ -457,7 +471,7 @@ const GameView = (function() {
     explosions[props.nextExplosionId] = AnimatedSprite({
       id: props.nextExplosionId++,
       spriteSheet: MyGame.assets['explosion'],
-      spriteSize: { width: 0.01, height: 0.01 },
+      spriteSize: { width: data.width, height: data.width },
       spriteCenter: data.position,
       spriteCount: 16,
       spriteTime: [ 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50]
@@ -467,6 +481,11 @@ const GameView = (function() {
     // When we receive a hit notification, go ahead and remove the
     // associated missle from the client model.
     delete bullets[data.bulletId];
+  }
+
+  function newGameMessage(data) {
+    waitingGameMessage = true;
+    gameMessage += data.message + '\n';
   }
 
   function processInput(elapsedTime) {
@@ -505,6 +524,9 @@ const GameView = (function() {
         case GameNetIds.BULLET_HIT:
           bulletHit(message.data);
           break;
+        case GameNetIds.GAME_UPDATE_MESSAGE:
+          newGameMessage(message.data);
+          break; 
         case GameNetIds.MESSAGE_GAME_OVER:
           MainView.loadView(GameOverView.name, message.data);
       }
@@ -640,7 +662,19 @@ const GameView = (function() {
     }
     Renderer.minimap(shield, playerSelf.model.center);
 
+    Renderer.renderAmmo(playerSelf.model.gun, playerSelf.model.ammo);
+
+    if (waitingGameMessage) {
+      waitingGameMessage = false;
+      Renderer.renderMessages(gameMessage);
+      gameMessage = '';
+    }
+
     Renderer.renderPlayer(playerSelf.model, playerSelf.textureSet, totalTime);
+    if(waitingGameMessage) {
+      waitingGameMessage = false;
+      Renderer.renderMessages(gameMessage);
+    }
     
     Graphics.finalizeRender();
   }
