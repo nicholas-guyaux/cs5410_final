@@ -6,6 +6,7 @@ const Graphics = (function() {
 
   let maskingCanvas = document.createElement('canvas');
   let maskingContext = maskingCanvas.getContext('2d');
+  let messageBox = document.getElementById('game-messages');
   maskingCanvas.width = Coords.world.width;
   maskingCanvas.height = Coords.world.height;
 
@@ -192,8 +193,8 @@ const Graphics = (function() {
   }
 
   function addGameMessage(message) {
-    var messageBox = document.getElementById('game-messages');
     messageBox.innerHTML += '<p>' + message + '</p>';
+    messageBox.scrollTop = messageBox.scrollHeight;
   }
   
   function drawRectangle(style, left, top, width, height){
