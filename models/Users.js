@@ -11,6 +11,12 @@ const Errors = {
 }
 
 var users = [];
+var sortedUsers = {
+  byWins: {},
+  byKills: {},
+  byDamage: {},
+  byAccuracy: {}
+}
 
 function pbkdf2 (password, salt, iterations) {
   return new Promise((res, rej)=> {
@@ -72,11 +78,12 @@ async function createUser (user) {
         ROTATE_RIGHT: 39,
         ROTATE_LEFT: 37,
         MOVE_FORWARD: 38,
-        MOVE_BACKWARD: 34,
+        MOVE_BACKWARD: 40,
         FIRE: 32
       }
     },
     stats: {
+      name: user.name,
       totalGames: 0,
       totalKills: 0,
       totalWins: 0,
@@ -91,13 +98,9 @@ async function createUser (user) {
   return user;
 }
 
-function getUser () {
-
-}
-
 function write () {
   if(Array.isArray(users)) {
-    fs.writeFile(path.join(__dirname, 'data', 'users.json'), JSON.stringify(users), function (err) {
+    fs.writeFile(path.join(__dirname, 'users.json'), JSON.stringify(users), function (err) {
       if(err) {
         console.error(err);
         return;
@@ -111,12 +114,13 @@ function load () {
   if(users.length > 0) {
     throw new Error(Errors.UsersLoaded);
   }
-  fs.readFile(path.join(__dirname, 'data', 'users.json'), 'utf8', function (err, data) {
+  fs.readFile(path.join(__dirname, 'users.json'), 'utf8', function (err, data) {
     if (err) {
       users = [];
       return;
     };
     users = JSON.parse(data);
+    setHighScores();
   });
 }
 
@@ -133,6 +137,31 @@ async function loginUser (username, password) {
   }
 }
 
+function setHighScores() {
+  sortedUsers.byWins = users.sort(function(a,b){
+    return b.stats.totalWins - a.stats.totalWins;
+  }).map(function(user){
+    return user.stats;
+  });
+  sortedUsers.byKills = users.sort(function(a,b){
+    return b.stats.totalKills - a.stats.totalKills;
+  }).map(function(user){
+    return user.stats;
+  });
+
+  sortedUsers.byDamage = users.sort(function(a,b){
+    return b.stats.totalDamageDealt - a.stats.totalDamageDealt;
+  }).map(function(user){
+    return user.stats;
+  });
+
+  sortedUsers.byAccuracy = users.sort(function(a,b){
+    return (b.stats.bullets.hit / b.stats.bullets.total) - (a.stats.bullets.hit / a.stats.bullets.total);
+  }).map(function(user){
+    return user.stats;
+  });
+}
+
 module.exports = {
   load: load,
   get users () {
@@ -142,4 +171,8 @@ module.exports = {
   createUser: createUser,
   Errors: Errors,
   write: write,
+  get sorted(){
+    return sortedUsers;
+  },
+  setHighScores: setHighScores
 };

@@ -531,6 +531,7 @@ function updateStats(){
       }
     }
   }
+  Users.setHighScores();
   Users.write();
 }
 
