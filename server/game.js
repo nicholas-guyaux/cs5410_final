@@ -71,7 +71,7 @@ function processInput(elapsedTime, totalTime) {
     let client = GameState.gameClients[input.clientId];
     if(!client) continue;
     client.lastMessageId = input.message.id;
-
+    client.state.player.reportUpdate = true;
     // TODO: Handle all message types from client
     switch (input.message.type) {
       case GameNetIds.INPUT_MOVE_FORWARD:
@@ -240,6 +240,7 @@ function checkPlayerVsBuffCollision(state, client){
   };
   if(itemTree.collides(searchArea)) {
     var result = itemTree.search(searchArea);
+    
     for (let i = 0; i < result.length; i++) {
       switch(result[i].type){
         case 'ammo':
