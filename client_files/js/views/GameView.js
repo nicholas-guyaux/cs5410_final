@@ -471,7 +471,7 @@ const GameView = (function() {
     explosions[props.nextExplosionId] = AnimatedSprite({
       id: props.nextExplosionId++,
       spriteSheet: MyGame.assets['explosion'],
-      spriteSize: { width: 0.01, height: 0.01 },
+      spriteSize: { width: data.width, height: data.width },
       spriteCenter: data.position,
       spriteCount: 16,
       spriteTime: [ 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50]

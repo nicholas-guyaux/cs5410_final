@@ -146,12 +146,26 @@ function checkPlayerVsPlayerCollisions(state, clientId){
                 });
               }
             }
-            // hits.push({
-            //   hitClientId: otherPlayers[i].client,
-            //   sourceClientId: clientId,
-            //   bulletId: clientId,
-            //   position: player.center
-            // });
+            hits.push({
+              hitClientId: otherPlayers[i].client,
+              sourceClientId: clientId,
+              bulletId: clientId,
+              position: {
+                x: state.player.center.x,
+                y: state.player.center.y
+              },
+              width: state.player.size.width,
+              height: state.player.size.height
+            });
+
+            for (gamer in GameState.gameClients) {
+              if (GameState.gameClients[gamer].socket.id !== otherPlayers[i].clientId) {
+                GameState.gameClients[gamer].socket.emit(GameNetIds.GAME_UPDATE_MESSAGE, {
+                  // they are not subtracted yet from the alive players so this is their position.
+                  message: otherPlayers[i].client.username + ' was eliminated by ' + state.username
+                });
+              }
+            }
           }
         }              
       }
@@ -177,11 +191,12 @@ function checkPlayerVsBulletCollisions(state, clientId){
           hitClientId: clientId,
           sourceClientId: results[i].clientId,
           bulletId: results[i].id,
-
           position: {
             x: state.player.center.x,
             y: state.player.center.y,
-          }
+          },
+          width: 0.01,
+          height: 0.01
         });
         GameState.gameClients[results[i].clientId].state.player.bulletShots.hit++;
         GameState.gameClients[results[i].clientId].state.player.damageDealt += results[i].damage;
@@ -189,6 +204,17 @@ function checkPlayerVsBulletCollisions(state, clientId){
         if (state.player.health.current <= 0 && !state.player.dead) {
           state.player.dead = true;
           GameState.gameClients[results[i].clientId].state.player.killCount++;
+          hits.push({
+            hitClientId: results[i].client,
+            sourceClientId: clientId,
+            bulletId: clientId,
+            position: {
+              x: state.player.center.x,
+              y: state.player.center.y
+            },
+            width: state.player.size.width,
+            height: state.player.size.height
+          });
           for (gamer in GameState.gameClients) {
             if (GameState.gameClients[gamer].socket.id !== clientId) {
               GameState.gameClients[gamer].socket.emit(GameNetIds.GAME_UPDATE_MESSAGE, {
@@ -264,13 +290,32 @@ function checkPlayerVsBuffCollision(state){
   }
   //if hit, pick up buff if not already obtained
 }
-function checkPlayerVsDeathCircleCollision(player){
+function checkPlayerVsDeathCircleCollision(player, clientId){
   //If outside circle, take damage
   if(player.isDropped && !GameState.shield.containsPoint(Geometry.Point(player.center.x, player.center.y))) {
     if(player.health.current > 0) {
       player.health.current--;
       if(player.health.current <= 0) {
         processDeath(player);
+        hits.push({
+          hitClientId: otherPlayers[i].client,
+          sourceClientId: clientId,
+          bulletId: clientId,
+          position: {
+            x: player.center.x,
+            y: player.center.y
+          },
+          width: player.size.width,
+          height: player.size.height
+        });
+        for (gamer in GameState.gameClients) {
+          if (GameState.gameClients[gamer].socket.id !== clientId) {
+            GameState.gameClients[gamer].socket.emit(GameNetIds.GAME_UPDATE_MESSAGE, {
+              // they are not subtracted yet from the alive players so this is their position.
+              message: state.username + ' was eliminated by ' + results[i].username
+            });
+          }
+        }
       }
     }
   }
