@@ -14,7 +14,7 @@ const Users = require('../models/Users');
 
 var waitingForPlayers = false;
 
-const SIMULATION_UPDATE_RATE_MS = 1;
+const SIMULATION_UPDATE_RATE_MS = 50;
 // const STATE_UPDATE_LAG = 0;
 
 let inputQueue = Queue.create();

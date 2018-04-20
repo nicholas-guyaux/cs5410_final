@@ -88,7 +88,7 @@ const GameView = (function() {
       commandKeys: null,
       nextExplosionId: 1,
       FOVDistance: 0.15,
-      FOVWidth: 0.15,
+      FOVWidth: 0.25,
       accumulatingParticlePeriod: 0
     };
 
