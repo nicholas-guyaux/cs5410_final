@@ -93,7 +93,19 @@ function Player(maxHealth, maxEnergy, maxAmmo) {
   Object.defineProperty(that, 'localItems', {
     get: () => localItems,
     set: (value) => { localItems = value }
-});
+  });
+
+  var center = {};
+  Object.defineProperty(center,'x', {
+    get: () => position.x + size.width / 2
+  })
+
+  Object.defineProperty(center,'y', {
+    get: () => position.y + size.height / 2
+  })
+  Object.defineProperty(that, 'center', {
+    get: () => center
+  })
 
   //------------------------------------------------------------------
   //

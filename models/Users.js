@@ -79,7 +79,8 @@ async function createUser (user) {
         ROTATE_LEFT: 37,
         MOVE_FORWARD: 38,
         MOVE_BACKWARD: 40,
-        FIRE: 32
+        FIRE: 32,
+        TURBO: 84
       }
     },
     stats: {

@@ -51,10 +51,13 @@ MyGame.loader = (function() {
       onComplete: null,
     },{
       scripts: ['shared/Coords'],
-      message: 'Graphics loaded',
+      message: 'Coords loaded',
       onComplete: null,
     },{
-      scripts: ['js/rendering/graphics'],
+      scripts: [
+        'js/rendering/graphics',
+        'js/rendering/particle-manager'
+      ],
       message: 'Graphics loaded',
       onComplete: null,
     }, {
@@ -87,6 +90,7 @@ MyGame.loader = (function() {
     }, {
       scripts: [
         'js/lib/AudioPool',
+        'js/lib/random'
         // 'js/lib/ImageAsset'                //We haven't included this yet
       ],
       message: 'Librarys loaded',
@@ -124,6 +128,7 @@ MyGame.loader = (function() {
         'js/views/HighScoresView',
         'js/components/gameMap',
         'js/components/vehicle',
+        'js/components/shield',
       ],
       message: 'Views loaded', 
       onComplete: null,
@@ -144,6 +149,9 @@ MyGame.loader = (function() {
     }, {
       key: 'plane',
       source: 'assets/images/plane.png'
+    }, {
+      key: 'violetlight',
+      source: 'assets/images/violetlight.png'
     }, {
       key: 'ammo',
       source: 'assets/images/ammo.png'

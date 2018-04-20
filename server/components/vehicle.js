@@ -1,5 +1,6 @@
 const Coords = require('../../client_files/shared/Coords');
 const Geometry = require('../../client_files/shared/Geometry');
+const lerp = require('../utils/lerp');
 const Random = require('./random');
 const dropzoneRect = getCenteredBox({
   rect: Coords.world.ratio,
@@ -30,7 +31,7 @@ function Vehicle (totalTime) {
       circle = Geometry.Circle({
         x: center.x,
         y: center.y,
-        radius: 0.15 * Math.min(Coords.world.ratio.width, Coords.world.ratio.height),
+        radius: Coords.viewport.width * 2 * Math.min(Coords.world.ratio.width, Coords.world.ratio.height),
       });
     } else {
       isFlying = false;
@@ -53,20 +54,6 @@ function Vehicle (totalTime) {
       return direction;
     }
   };
-}
-
-/**
- * https://en.wikipedia.org/wiki/Linear_interpolation
- * Precise method, which guarantees y = rangeEnd when x = 1.
- * @param {Number} rangeStart 
- * output range start
- * @param {Number} rangeEnd 
- * output range end
- * @param {Float} x 
- * a number between 0 and 1 on the input range.
- */
-function lerp(rangeStart, rangeEnd, x) {
-  return (1 - x) * rangeStart + x * rangeEnd;
 }
 
 function lerpBetweenPoints (a, b, tRatio) {

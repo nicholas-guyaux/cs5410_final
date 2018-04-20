@@ -128,10 +128,6 @@ function GameState (spec) {
     return that;
   }
 
-  that.dropShip = function () {
-    
-  };
-
   function getVehiclePath (gameState) {
     var p1 = getRandomPointInRect(gameState.dropzoneRect);
     var p2 = null;
