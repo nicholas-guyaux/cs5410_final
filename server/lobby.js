@@ -12,7 +12,7 @@ const config = require('./config');
 
 let props = {
   numPlayersRequired: config.numPlayersRequired,
-  countdownTime: 2
+  countdownTime: 10,
 };
 
 //------------------------------------------------------------------

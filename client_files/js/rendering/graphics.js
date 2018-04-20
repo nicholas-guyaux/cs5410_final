@@ -234,7 +234,7 @@ const Graphics = (function() {
   function drawStrokedCircle(strokeStyle, center, radius) {
     context.beginPath();
     context.arc(center.x * Coords.world.width,
-        center.y * Coords.world.width, radius * Coords.world.width,
+        center.y * Coords.world.width, Math.max(0, radius * Coords.world.width),
         2 * Math.PI, false);
     context.closePath();
     context.strokeStyle = strokeStyle;
@@ -311,7 +311,7 @@ const Graphics = (function() {
     maskingContext.beginPath();
     maskingContext.moveTo(-CUSHION, -CUSHION);
     maskingContext.lineTo(circle.x, circle.y - circle.radius);
-    maskingContext.arc(circle.x, circle.y, circle.radius, 1.5 * Math.PI, 3.5 * Math.PI);
+    maskingContext.arc(circle.x, circle.y, Math.max(0,circle.radius), 1.5 * Math.PI, 3.5 * Math.PI);
     maskingContext.lineTo(-CUSHION, -CUSHION);
     maskingContext.lineTo(-CUSHION, Coords.world.height + CUSHION);
     maskingContext.lineTo(Coords.world.width + CUSHION, Coords.world.height + CUSHION);

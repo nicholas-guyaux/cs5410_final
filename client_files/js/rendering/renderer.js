@@ -130,7 +130,7 @@ const Renderer = (function(graphics) {
     });
     // renderShield(shield);
     Graphics.drawStrokedCircle('purple', shield, shield.radius);
-    graphics.drawRectangle('yellow', viewport.x, viewport.y, viewport.width, viewport.height);
+    graphics.drawRectangle('yellow', viewport.sx, viewport.y, viewport.width, viewport.height);
     Graphics.drawLine('white', shield, playerPosition);
   }
 

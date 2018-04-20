@@ -24,7 +24,7 @@ module.exports = function Shield (totalTime=1000*60*5) {
   });
 
   that.update = t => {
-    that.radius = lerp(startingRadius, 0, t/totalTime);
+    that.radius = Math.max(0, lerp(startingRadius, 0, t/totalTime));
   };
 
   return that;
