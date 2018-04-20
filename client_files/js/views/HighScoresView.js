@@ -1,14 +1,14 @@
 const HighScoresView = (function HighScoresView (AudioPool) {
   var buttonMenu = null;
   var totalTableHead = '<tr><th>Username</th>'
-    + '<th onclick="HighScoresView.orderByWins()">Wins</th>'
-    + '<th onclick="HighScoresView.orderByKills()">Kills</th>'
-    + '<th onclick="HighScoresView.orderByDamage()">Damage</th>'
-    + '<th onclick="HighScoresView.orderByAccuracy()">Accuracy</th></tr>';
+    + '<th class="highscore-hoverable" onclick="HighScoresView.orderByWins()">Wins</th>'
+    + '<th class="highscore-hoverable" onclick="HighScoresView.orderByKills()">Kills</th>'
+    + '<th class="highscore-hoverable" onclick="HighScoresView.orderByDamage()">Damage</th>'
+    + '<th class="highscore-hoverable" onclick="HighScoresView.orderByAccuracy()">Accuracy</th></tr>';
   var averageTableHead = '<tr><th>Username</th>'
-    + '<th onclick="HighScoresView.orderByWinRate()">Win Rate</th>'
-    + '<th onclick="HighScoresView.orderByKillsPerGame()">Kills</th>'
-    + '<th onclick="HighScoresView.orderByDamagePerGame()">Damage</th>';
+    + '<th class="highscore-hoverable" onclick="HighScoresView.orderByWinRate()">Win Rate</th>'
+    + '<th class="highscore-hoverable" onclick="HighScoresView.orderByKillsPerGame()">Kills</th>'
+    + '<th class="highscore-hoverable" onclick="HighScoresView.orderByDamagePerGame()">Damage</th>';
 
   var highScores = {}
 
@@ -45,7 +45,8 @@ const HighScoresView = (function HighScoresView (AudioPool) {
   function orderByWins(){
     var scores = totalTableHead;
     for(let i = 0; i < Object.keys(highScores.users.byWins).length; i++){
-      scores += '<tr></tr><td>' + highScores.users.byWins[i].name
+      scores += client.user.name === highScores.users.byWins[i].name ? '<tr id="highscore-current-user">' : '<tr>';
+      scores += '<td>' + highScores.users.byWins[i].name
         + '</td><td>' + highScores.users.byWins[i].totalWins
         + '</td><td>' + highScores.users.byWins[i].totalKills
         + '</td><td>' + highScores.users.byWins[i].totalDamageDealt
@@ -58,7 +59,8 @@ const HighScoresView = (function HighScoresView (AudioPool) {
   function orderByKills(){
     var scores = totalTableHead;
     for(let i = 0; i < Object.keys(highScores.users.byKills).length; i++){
-      scores += '<tr></tr><td>' + highScores.users.byKills[i].name
+      scores += client.user.name === highScores.users.byKills[i].name ? '<tr id="highscore-current-user">' : '<tr>';
+      scores += '<td>' + highScores.users.byKills[i].name
         + '</td><td>' + highScores.users.byKills[i].totalWins
         + '</td><td>' + highScores.users.byKills[i].totalKills
         + '</td><td>' + highScores.users.byKills[i].totalDamageDealt
@@ -71,7 +73,8 @@ const HighScoresView = (function HighScoresView (AudioPool) {
   function orderByDamage(){
     var scores = totalTableHead;
     for(let i = 0; i < Object.keys(highScores.users.byDamage).length; i++){
-      scores += '<tr></tr><td>' + highScores.users.byDamage[i].name
+      scores += client.user.name === highScores.users.byDamage[i].name ? '<tr id="highscore-current-user">' : '<tr>';
+      scores += '<td>' + highScores.users.byDamage[i].name
         + '</td><td>' + highScores.users.byDamage[i].totalWins
         + '</td><td>' + highScores.users.byDamage[i].totalKills
         + '</td><td>' + highScores.users.byDamage[i].totalDamageDealt
@@ -84,7 +87,8 @@ const HighScoresView = (function HighScoresView (AudioPool) {
   function orderByAccuracy(){
     var scores = totalTableHead;
     for(let i = 0; i < Object.keys(highScores.users.byAccuracy).length; i++){
-      scores += '<tr></tr><td>' + highScores.users.byAccuracy[i].name
+      scores += client.user.name === highScores.users.byAccuracy[i].name ? '<tr id="highscore-current-user">' : '<tr>';
+      scores += '<td>' + highScores.users.byAccuracy[i].name
         + '</td><td>' + highScores.users.byAccuracy[i].totalWins
         + '</td><td>' + highScores.users.byAccuracy[i].totalKills
         + '</td><td>' + highScores.users.byAccuracy[i].totalDamageDealt
@@ -97,7 +101,8 @@ const HighScoresView = (function HighScoresView (AudioPool) {
   function orderByWinRate(){
     var scores = averageTableHead;
     for(let i = 0; i < Object.keys(highScores.users.byWinRate).length; i++){
-      scores += '<tr></tr><td>' + highScores.users.byWinRate[i].name
+      scores += client.user.name === highScores.users.byWinRate[i].name ? '<tr id="highscore-current-user">' : '<tr>';
+      scores += '<td>' + highScores.users.byWinRate[i].name
         + '</td><td>' + getNumberForPercent(highScores.users.byWinRate[i].totalWins, highScores.users.byWinRate[i].totalGames)
         + '</td><td>' + getNumberWithCorrectDecimal(highScores.users.byWinRate[i].totalKills, highScores.users.byWinRate[i].totalGames)
         + '</td><td>' + getNumberWithCorrectDecimal(highScores.users.byWinRate[i].totalDamageDealt, highScores.users.byWinRate[i].totalGames)
@@ -109,7 +114,8 @@ const HighScoresView = (function HighScoresView (AudioPool) {
   function orderByKillsPerGame(){
     var scores = averageTableHead;
     for(let i = 0; i < Object.keys(highScores.users.byKillsPerGame).length; i++){
-      scores += '<tr></tr><td>' + highScores.users.byKillsPerGame[i].name
+      scores += client.user.name === highScores.users.byKillsPerGame[i].name ? '<tr id="highscore-current-user">' : '<tr>';
+      scores += '<td>' + highScores.users.byKillsPerGame[i].name
         + '</td><td>' + getNumberForPercent(highScores.users.byKillsPerGame[i].totalWins, highScores.users.byKillsPerGame[i].totalGames)
         + '</td><td>' + getNumberWithCorrectDecimal(highScores.users.byKillsPerGame[i].totalKills, highScores.users.byKillsPerGame[i].totalGames)
         + '</td><td>' + getNumberWithCorrectDecimal(highScores.users.byKillsPerGame[i].totalDamageDealt, highScores.users.byKillsPerGame[i].totalGames)
@@ -121,7 +127,8 @@ const HighScoresView = (function HighScoresView (AudioPool) {
   function orderByDamagePerGame(){
     var scores = averageTableHead;
     for(let i = 0; i < Object.keys(highScores.users.byDamagePerGame).length; i++){
-      scores += '<tr></tr><td>' + highScores.users.byDamagePerGame[i].name
+      scores += client.user.name === highScores.users.byDamagePerGame[i].name ? '<tr id="highscore-current-user">' : '<tr>';
+      scores += '<td>' + highScores.users.byDamagePerGame[i].name
         + '</td><td>' + getNumberForPercent(highScores.users.byDamagePerGame[i].totalWins, highScores.users.byDamagePerGame[i].totalGames)
         + '</td><td>' + getNumberWithCorrectDecimal(highScores.users.byDamagePerGame[i].totalKills, highScores.users.byDamagePerGame[i].totalGames)
         + '</td><td>' + getNumberWithCorrectDecimal(highScores.users.byDamagePerGame[i].totalDamageDealt, highScores.users.byDamagePerGame[i].totalGames)
