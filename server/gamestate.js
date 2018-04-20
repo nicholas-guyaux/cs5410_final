@@ -3,9 +3,10 @@ const Vehicle = require('./components/vehicle');
 const Dropper = require('./components/dropper');
 const present = require('present');
 const Shield = require('./components/shield');
+const config = require('./config');
 
 const random = require ('./utils/random');
-const GameMap = require ('./components/gameMap.js')
+const GameMap = require ('./components/gameMap.js');
 
 let lobbyClients = {};
 let gameClients = {};
@@ -22,11 +23,7 @@ const fireRate = 300;
 const upgradedFireRate = 150;
 const depletionRate = 15;
 const healthPP = 5;
-const ammoPP = 5;
-const gunsPP = 5;
-const speedPP = 5;
-const dmgPP = 5;
-const gunSpdPP = 5;
+let ammoPP, gunsPP, speedPP, dmgPP, gunSpdPP;
 const vehicleStartTime = 12 * 1000;
 
 // TODO: Wipes and preps the gamestate for a new game
@@ -55,6 +52,11 @@ var GameState = {
 function newGame() {
   //set number of players and reset item array and alivePlayer array
   itemArray = [];
+  ammoPP = 3*config.numPlayersRequired;
+  gunsPP = 3*config.numPlayersRequired;
+  speedPP = 3*config.numPlayersRequired;
+  dmgPP = 3*config.numPlayersRequired;
+  gunSpdPP = 3*config.numPlayersRequired;
   islandMap = GameMap.getGridMap();
   GameState.shield = Shield(5*60*1000);
   GameState.playerCount = Object.keys(gameClients).length;

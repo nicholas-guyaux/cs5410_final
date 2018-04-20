@@ -11,7 +11,6 @@ const config = require('./config');
 
 
 let props = {
-  numPlayersRequired: config.numPlayersRequired,
   countdownTime: 10,
 };
 
@@ -94,7 +93,7 @@ function initializeSocketIO(io) {
     // Ack message emitted to new client with info about its new player
     socket.emit(LobbyNetIds.CONNECT_ACK, {
       clientId: socket.id,
-      numPlayers: props.numPlayersRequired
+      numPlayers: config.numPlayersRequired
       // player: newPlayer
     });
 
@@ -154,36 +153,57 @@ function initializeSocketIO(io) {
 
     notifyConnect(newClient);
 
-    if ((Object.keys(GameState.lobbyClients).length >= props.numPlayersRequired) && !GameState.inProgress) {
-      GameState.alivePlayers = [];
-      GameState.inProgress = true;
+    checkGameStart();
+  });
+}
+
+function checkGameStart () {
+  if ((Object.keys(GameState.lobbyClients).length >= config.numPlayersRequired) && !GameState.inProgress) {
+    GameState.alivePlayers = [];
+    GameState.inProgress = true;
+    for (let clientId in GameState.lobbyClients) {
+      if (!GameState.lobbyClients.hasOwnProperty(clientId)) {
+        continue;
+      }
+      let existingClient = GameState.lobbyClients[clientId];
+      existingClient.socket.emit(LobbyNetIds.START_COUNTDOWN, {
+        clientId: existingClient.socket.id,
+        countdown: props.countdownTime
+      });
+    }
+    setTimeout(function(){
+      game.initialize(Object.keys(GameState.lobbyClients).length);//sends # of players  
       for (let clientId in GameState.lobbyClients) {
         if (!GameState.lobbyClients.hasOwnProperty(clientId)) {
           continue;
         }
         let existingClient = GameState.lobbyClients[clientId];
-        existingClient.socket.emit(LobbyNetIds.START_COUNTDOWN, {
+        existingClient.socket.emit(LobbyNetIds.START_GAME, {
           clientId: existingClient.socket.id,
-          countdown: props.countdownTime
         });
       }
-      setTimeout(function(){
-        game.initialize(Object.keys(GameState.lobbyClients).length);//sends # of players  
-        for (let clientId in GameState.lobbyClients) {
-          if (!GameState.lobbyClients.hasOwnProperty(clientId)) {
-            continue;
-          }
-          let existingClient = GameState.lobbyClients[clientId];
-          existingClient.socket.emit(LobbyNetIds.START_GAME, {
-            clientId: existingClient.socket.id,
-          });
-        }
-      }, props.countdownTime * 1000);
-      
-    }
-  });
+    }, props.countdownTime * 1000);
+    
+  }
+}
+
+var prev = config.numPlayersRequired
+function updateNumClients () {
+  if(config.numPlayersRequired === prev) {
+    return;
+  }
+  prev = config.numPlayersRequired;
+  for(var client of Object.values(GameState.lobbyClients)) {
+    client.socket.emit(LobbyNetIds.CONNECT_ACK, {
+      clientId: client.socket.id,
+      numPlayers: config.numPlayersRequired
+      // player: newPlayer
+    });
+  }
+  checkGameStart();
 }
 
 module.exports = {
-  initializeSocketIO
+  initializeSocketIO,
+  updateNumClients,
 };
