@@ -12,11 +12,12 @@ const Queue = require('../client_files/shared/queue.js');
 const GameMap = require ('./components/gameMap.js');
 const Token = require('../Token');
 const config = require('./config');
+const Users = require('../models/Users');
 
 var waitingForPlayers = false;
 
-const SIMULATION_UPDATE_RATE_MS = 0;
-const STATE_UPDATE_LAG = 0;
+const SIMULATION_UPDATE_RATE_MS = 16;
+// const STATE_UPDATE_LAG = 0;
 
 let inputQueue = Queue.create();
 let islandMap = GameMap.getGridMap();
@@ -26,8 +27,6 @@ var playerTree = rbush();
 let activeBullets = [];
 let hits = [];
 var bulletTree = rbush();
-// The following is used to visually see the entity interpolation in action
-const DEMONSTRATION_STATE_UPDATE_LAG = 0;
 
 let props = {
   quit: false,
@@ -78,6 +77,9 @@ function processInput(elapsedTime, totalTime) {
     switch (input.message.type) {
       case GameNetIds.INPUT_MOVE_FORWARD:
         client.state.player.move(input.message.elapsedTime);
+        break;
+      case GameNetIds.INPUT_MOVE_BACKWARD:
+        client.state.player.reverse(input.message.elapsedTime);
         break;
       case GameNetIds.INPUT_ROTATE_LEFT:
         client.state.player.rotateLeft(input.message.elapsedTime);
@@ -132,6 +134,7 @@ function checkPlayerVsPlayerCollisions(player, clientId){
       if (clientId !== otherPlayers[i].client.socket.id) {
         if (otherPlayers[i].player.health.current > 0) {
           otherPlayers[i].player.health.current--;
+          player.damageDealt++;
           otherPlayers[i].player.reportUpdate = true;
           if (otherPlayers[i].player.health.current <= 0) {
             player.killCount++;
@@ -169,6 +172,7 @@ function checkPlayerVsBulletCollisions(player, clientId){
           position: player.position
         });
         GameState.gameClients[results[i].clientId].state.player.bulletShots.hit++;
+        GameState.gameClients[results[i].clientId].state.player.damageDealt += results[i].damage;
         player.health.current -= results[i].damage;
         if (player.health.current <= 0) {
           GameState.gameClients[results[i].clientId].state.player.killCount++;
@@ -258,7 +262,7 @@ function checkDeath(player){
 function processDeath(player){
   //PlayerCount--
   //Update to player = death
-  //Update to others = otherDeath 
+  //Update to others = otherDeath
   player.dead = true;
   return;
 }
@@ -277,6 +281,11 @@ function update(elapsedTime, currentTime, totalTime) {
         // they are not subtracted yet from the alive players so this is their position.
         place: GameState.alivePlayers.length,
         totalPlayers: GameState.playerCount,
+        killCount: GameState.gameClients[clientId].state.player.killCount,
+        bulletStats: {
+          accuracy: (GameState.gameClients[clientId].state.player.bulletShots.hit / GameState.gameClients[clientId].state.player.bulletShots.total).toFixed(2),
+          damage: GameState.gameClients[clientId].state.player.damageDealt
+        }
       });
     }
   }
@@ -294,6 +303,11 @@ function update(elapsedTime, currentTime, totalTime) {
           // they are not subtracted yet from the alive players so this is their position.
           place: GameState.alivePlayers.length,
           totalPlayers: GameState.playerCount,
+          killCount: GameState.gameClients[clientId].state.player.killCount,
+          bulletStats: {
+            accuracy: (GameState.gameClients[clientId].state.player.bulletShots.hit / GameState.gameClients[clientId].state.player.bulletShots.total).toFixed(2),
+            damage: GameState.gameClients[clientId].state.player.damageDealt
+          }
         });
       }
     }
@@ -511,7 +525,26 @@ function gameLoop(currentTime, elapsedTime) {
       let now = present();
       gameLoop(now, now - currentTime);
     }, SIMULATION_UPDATE_RATE_MS);
+  } else {
+    updateStats();
   }
+}
+
+function updateStats(){
+  for(let clientId in GameState.gameClients){
+    for(let user in Users.users){
+      if(Users.users[user].server.name === GameState.gameClients[clientId].state.username){
+        Users.users[user].stats.totalGames++;
+        Users.users[user].stats.totalKills += GameState.gameClients[clientId].state.player.killCount;
+        Users.users[user].stats.totalWins += GameState.gameClients[clientId].state.player.dead ? 0 : 1;
+        Users.users[user].stats.totalDamageDealt += GameState.gameClients[clientId].state.player.damageDealt;
+        Users.users[user].stats.bullets.hit += GameState.gameClients[clientId].state.player.bulletShots.hit;
+        Users.users[user].stats.bullets.total += GameState.gameClients[clientId].state.player.bulletShots.total;
+        break;
+      }
+    }
+  }
+  Users.write();
 }
 
 
@@ -613,7 +646,7 @@ function initializeSocketIO(io) {
   io.on('connection', function(socket) {
     console.log('Connection established: ', socket.id);
 
-    let newPlayer = Player.create(GameState.maxHealth, GameState.maxEnergy, GameState.maxAmmo);
+    let newPlayer = Player.create(GameState.maxHealth, GameState.maxEnergy, GameState.maxAmmo, GameState.depletionRate);
     let newClient = {
       lastMessageId: null,
       socket: socket,
@@ -646,6 +679,10 @@ function initializeSocketIO(io) {
         clientId: socket.id,
         message: data
       });
+    });
+
+    socket.on(GameNetIds.SET_NAME, data => {
+      GameState.gameClients[socket.id].state.username = data.username;
     });
 
     socket.on(GameNetIds.PLAYER_JOIN_GAME, async data => {

@@ -24,7 +24,7 @@ const boatImg = water_units.frames["ship_small_body.png"];
 // at some random location.
 //
 //------------------------------------------------------------------
-function createPlayer(maxHealth, maxEnergy, maxAmmo) {
+function createPlayer(maxHealth, maxEnergy, maxAmmo, depletionRate) {
     let that = {};
     let isDropped = false;
     that.dead = false;
@@ -47,11 +47,12 @@ function createPlayer(maxHealth, maxEnergy, maxAmmo) {
     let speed = 0.0002*Coords.viewport.width;                 // unit distance per millisecond
     let reportUpdate = false;    // Indicates if this model was updated during the last update
     
-    let health = {current: maxHealth, max: maxHealth};
-    let energy = {current: maxEnergy, max: maxEnergy};
+    let health = {current: maxHealth, max: maxHealth, rate: 0};
+    let energy = {current: maxEnergy, max: maxEnergy, rate: 0};
     let useTurbo = false;
     let ammo = {current: 0, max: maxAmmo};
     let bulletShots = { hit: 0, total: 0 };
+    let damageDealt = 0;
     let killCount = 0;
     let gun = false;
     let buffs = { dmg: 0, speed: false, fireRate: false};
@@ -128,6 +129,11 @@ function createPlayer(maxHealth, maxEnergy, maxAmmo) {
       set: value => killCount = value
     });
 
+    Object.defineProperty(that, 'damageDealt', {
+      get: () => damageDealt,
+      set: value => damageDealt = value
+    })
+
     Object.defineProperty(that, 'buffs', {
       get: () => buffs,
       set: value => buffs = value
@@ -184,10 +190,35 @@ function createPlayer(maxHealth, maxEnergy, maxAmmo) {
       if (moveY) {
         position.y += (vectorY * elapsedTime * speed * turboAdjust);
       }
-      if((!moveY || !moveX) && useTurbo){
+
+      health.rate += elapsedTime;
+      if((!moveY || !moveX) && useTurbo && health.rate >= depletionRate){
         health.current -= 1;
+        health.rate -= depletionRate;
       }
     };
+
+    that.reverse = function(elapsedTime) {
+      reportUpdate = true;
+      let vectorX = Math.cos(direction);
+      let vectorY = Math.sin(direction);
+
+      let moveX = false;
+      let moveY = false;
+
+      let centerX = position.x + size.width/2;
+      let centerY = position.y + size.height/2;
+
+      moveY = GameMap.collision(centerX, centerY + (vectorY * elapsedTime * speed), Math.max(size.width, size.height));
+      moveX = GameMap.collision(centerX + (vectorX * elapsedTime * speed), centerY, Math.max(size.width, size.height));
+
+      if (moveX) {
+        position.x -= (vectorX * elapsedTime * speed * .5);
+      }
+      if (moveY) {
+        position.y -= (vectorY * elapsedTime * speed * .5);
+      }
+    }
 
     //------------------------------------------------------------------
     //
@@ -223,19 +254,25 @@ function createPlayer(maxHealth, maxEnergy, maxAmmo) {
     //
     //------------------------------------------------------------------
     that.update = function(elapsedTime) {
-      if(useTurbo){
-        var rate = buffs.speed ? 1 : 2;
-        energy.current -= rate;
-        reportUpdate = true;
-        if(energy.current <= 0){
-          useTurbo = false
+      energy.rate += elapsedTime;
+      if(energy.rate > depletionRate){
+        if(useTurbo){
+          var rate = buffs.speed ? 1 : 2;
+          energy.current -= rate;
+          reportUpdate = true;
+          if(energy.current <= 0){
+            useTurbo = false
+          }
+        }
+        else if(energy.current < energy.max){
+          energy.current += .25;
+          reportUpdate = true;
         }
       }
-      else if(energy.current < energy.max){
-        energy.current += .25;
-        reportUpdate = true;
-      }
       currentFireRateWait += elapsedTime;
+      if(energy.rate >= depletionRate){
+        energy.rate -= depletionRate;
+      }
     };
 
     return that;

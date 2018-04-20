@@ -72,6 +72,7 @@ async function createUser (user) {
         ROTATE_RIGHT: 39,
         ROTATE_LEFT: 37,
         MOVE_FORWARD: 38,
+        MOVE_BACKWARD: 34,
         FIRE: 32
       }
     },
@@ -80,7 +81,10 @@ async function createUser (user) {
       totalKills: 0,
       totalWins: 0,
       totalDamageDealt: 0,
-      shotAccuracy: 0
+      bullets: {
+        hit: 0,
+        total: 0
+      }
     }
   };
   users.push(user);

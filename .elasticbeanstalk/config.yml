@@ -1,0 +1,22 @@
+branch-defaults:
+  master:
+    environment: BattleBoatsBrawl-env
+  shield:
+    environment: BattleBoatsBrawl-env
+environment-defaults:
+  BattleBoatsBrawl-env:
+    branch: null
+    repository: null
+global:
+  application_name: Battle Boats Brawl
+  default_ec2_keyname: null
+  default_platform: arn:aws:elasticbeanstalk:us-west-2::platform/Node.js running on
+    64bit Amazon Linux/4.4.6
+  default_region: us-west-2
+  include_git_submodules: true
+  instance_profile: null
+  platform_name: null
+  platform_version: null
+  profile: eb-cli
+  sc: git
+  workspace_type: Application

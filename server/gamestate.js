@@ -20,6 +20,7 @@ const maxEnergy = 200;
 const defaultBulletDamage = 5;
 const fireRate = 300;
 const upgradedFireRate = 150;
+const depletionRate = 15;
 const healthPP = 5;
 const ammoPP = 5;
 const gunsPP = 5;
@@ -46,7 +47,8 @@ var GameState = {
   inProgress: false,
   defaultBulletDamage: defaultBulletDamage,
   fireRate: fireRate,
-  upgradedFireRate: upgradedFireRate
+  upgradedFireRate: upgradedFireRate,
+  depletionRate: depletionRate
 };
 
 // TODO: Wipes and preps the gamestate for a new game

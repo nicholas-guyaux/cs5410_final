@@ -125,6 +125,7 @@ MyGame.loader = (function() {
         'js/views/LoginView',
         'js/views/SignupView',
         'js/views/SplashView',
+        'js/views/HighScoresView',
         'js/components/gameMap',
         'js/components/vehicle',
         'js/components/shield',

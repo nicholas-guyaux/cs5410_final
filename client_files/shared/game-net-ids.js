@@ -21,6 +21,10 @@
       value: 'move-forward',
       writable: false
     },
+    'INPUT_MOVE_BACKWARD': {
+      value: 'move-backward',
+      writable: false
+    },
     'INPUT_ROTATE_LEFT': {
       value: 'rotate-left',
       writable: false
@@ -99,6 +103,10 @@
     },
     'MESSAGE_GAME_OVER': {
       value: 'update-vehicle-drop',
+      writable: false
+    },
+    'SET_NAME': {
+      value: 'set-name',
       writable: false
     },
   });

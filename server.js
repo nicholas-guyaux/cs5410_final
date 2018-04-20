@@ -57,7 +57,8 @@ function handleRequest(req, res) {
 }
 
 let server = http.createServer(handleRequest);
-var port = process.env.PORT || 3000;
+
+const port = process.env.PORT || 3000;
 server.listen(port, function() {
   Users.load();
 
