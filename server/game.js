@@ -474,7 +474,7 @@ function updateClients(elapsedTime) {
           updateWindow: props.lastUpdate,
           isDropped: client.state.player.isDropped,
           ammo: client.state.player.ammo.current,
-          gun: client.state.player.gun
+          gun: client.state.player.gun,
           items: buffs
         },
         shield: {
