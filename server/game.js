@@ -528,6 +528,7 @@ function updateClients(elapsedTime) {
   
   for (let clientId in GameState.gameClients) {
     let client = GameState.gameClients[clientId];
+    client.state.player.reportUpdate = true;
     let buffs = itemTree.search({
       minX: client.state.player.position.x - Coords.viewport.width,
       minY: client.state.player.position.y - Coords.viewport.height,
