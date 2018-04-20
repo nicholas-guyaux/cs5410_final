@@ -133,7 +133,7 @@ const GameView = (function() {
       }
 
       let R_2 = Coords.viewport.width / 2;
-      let E_2 = Math.PI / 2;
+      let E_2 = Math.PI;
       let slope = (R_2 - R_1) / (E_2 - E_1);
 
       return ((currentRadius - R_1) / slope) + E_1;
