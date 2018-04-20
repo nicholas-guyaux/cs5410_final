@@ -18,6 +18,9 @@ function API (req, res) {
   router.get('/api/user/', handleError, async (err, req, res) => {
       try {
         client_user = await Token.check_auth(req.query.token);
+        if(!Users.userExists(client_user.name)) {
+          throw new Error('User in token does not exist');
+        }
         res.status(200);
         res.json({
           user: client_user,

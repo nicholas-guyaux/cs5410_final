@@ -60,6 +60,10 @@ function saveKeyboard(commandKeys, user) {
   write();
 }
 
+function userExists (name) {
+  return !!users.find(user => user.client.name === name);
+}
+
 async function createUser (user) {
   if(!user.name) throw new Error(Errors.InvalidUser)
   if(!user.password) throw new Error(Errors.InvalidUser)
@@ -199,6 +203,7 @@ module.exports = {
     return users;
   },
   loginUser: loginUser,
+  userExists: userExists,
   createUser: createUser,
   Errors: Errors,
   write: write,
