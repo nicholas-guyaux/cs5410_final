@@ -13,8 +13,11 @@ const Errors = {
 var users = [];
 var sortedUsers = {
   byWins: {},
+  byWinRate: {},
   byKills: {},
+  byKillsPerGame: {},
   byDamage: {},
+  byDamagePerGame: {},
   byAccuracy: {}
 }
 
@@ -144,14 +147,33 @@ function setHighScores() {
   }).map(function(user){
     return user.stats;
   });
+
+  sortedUsers.byWinRate = users.sort(function(a,b){
+    return b.stats.totalWins / b.stats.totalGames - a.stats.totalWins / a.stats.totalGames;
+  }).map(function(user){
+    return user.stats;
+  });
+
   sortedUsers.byKills = users.sort(function(a,b){
     return b.stats.totalKills - a.stats.totalKills;
   }).map(function(user){
     return user.stats;
   });
 
+  sortedUsers.byKillsPerGame = users.sort(function(a,b){
+    return b.stats.totalKills / b.stats.totalGames - a.stats.totalKills / a.stats.totalGames;
+  }).map(function(user){
+    return user.stats;
+  });
+
   sortedUsers.byDamage = users.sort(function(a,b){
     return b.stats.totalDamageDealt - a.stats.totalDamageDealt;
+  }).map(function(user){
+    return user.stats;
+  });
+
+  sortedUsers.byDamagePerGame = users.sort(function(a,b){
+    return b.stats.totalDamageDealt / b.stats.totalGames - a.stats.totalDamageDealt / a.stats.totalGames;
   }).map(function(user){
     return user.stats;
   });

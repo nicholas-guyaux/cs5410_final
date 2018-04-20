@@ -87,55 +87,10 @@ function API (req, res) {
     }
   });
 
-  router.get('/api/highscore/byKills', handleError, async(err, req, res) =>{
+  router.get('/api/highscore/sortedUsers', handleError, async(err, req, res) =>{
     try{
       let users;
-      users = Users.sorted.byKills;
-      res.status(200);
-      res.json({
-        users: users,
-        code: 200
-      });
-    } catch(e) {
-      handleError(e, req, res);
-      return;
-    }
-  });
-
-  router.get('/api/highscore/byWins', handleError, async(err, req, res) =>{
-    try{
-      let users;
-      users = Users.sorted.byWins;
-      res.status(200);
-      res.json({
-        users: users,
-        code: 200
-      });
-    } catch(e) {
-      handleError(e, req, res);
-      return;
-    }
-  });
-
-  router.get('/api/highscore/byDamage', handleError, async(err, req, res) =>{
-    try{
-      let users;
-      users = Users.sorted.byDamage;
-      res.status(200);
-      res.json({
-        users: users,
-        code: 200
-      });
-    } catch(e) {
-      handleError(e, req, res);
-      return;
-    }
-  });
-
-  router.get('/api/highscore/byAccuracy', handleError, async(err, req, res) =>{
-    try{
-      let users;
-      users = Users.sorted.byAccuracy;
+      users = Users.sorted;
       res.status(200);
       res.json({
         users: users,
