@@ -319,15 +319,16 @@ function checkPlayerVsBuffCollision(state, client){
   }
   //if hit, pick up buff if not already obtained
 }
-function checkPlayerVsDeathCircleCollision(player, clientId){
+function checkPlayerVsDeathCircleCollision(state, clientId){
   //If outside circle, take damage
+  let player = state.player;
   if(player.isDropped && !GameState.shield.containsPoint(Geometry.Point(player.center.x, player.center.y))) {
     if(player.health.current > 0) {
       player.health.current--;
       if(player.health.current <= 0) {
         processDeath(player);
         hits.push({
-          hitClientId: otherPlayers[i].client,
+          hitClientId: clientId,
           sourceClientId: clientId,
           bulletId: clientId,
           position: {
@@ -341,7 +342,7 @@ function checkPlayerVsDeathCircleCollision(player, clientId){
           if (GameState.gameClients[gamer].socket.id !== clientId) {
             GameState.gameClients[gamer].socket.emit(GameNetIds.GAME_UPDATE_MESSAGE, {
               // they are not subtracted yet from the alive players so this is their position.
-              message: state.username + ' was eliminated by ' + results[i].username
+              message: state.username + ' was eliminated by the shield'
             });
           }
         }
