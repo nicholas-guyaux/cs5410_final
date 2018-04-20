@@ -83,8 +83,16 @@ async function createUser (user) {
         MOVE_FORWARD: 38,
         MOVE_BACKWARD: 40,
         FIRE: 32,
-        TURBO: 84
-      }
+        TURBO: 16
+      },
+      keyNames: {
+        ROTATE_RIGHT: 'ArrowRight',
+        ROTATE_LEFT: 'ArrowLeft',
+        MOVE_FORWARD: 'ArrowUp',
+        MOVE_BACKWARD: 'ArrowDown',
+        FIRE: 'Space',
+        TURBO: 'Shift',
+      },
     },
     stats: {
       name: user.name,
