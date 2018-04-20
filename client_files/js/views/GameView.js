@@ -7,69 +7,146 @@ let maxEnergy = 100;
 //
 // Contains client-side game loop and client-side game state data
 const GameView = (function() {
-  var vehicle = null;
-  let keyboard = KeyboardHandler(false, 'keyCode');
-  let receivedMessages = Queue.create();
-  var itemImages = {
-    'ammo': MyGame.assets['ammo'],
-    'health': MyGame.assets['health'],
-    'dmg': MyGame.assets['dmg'],
-    'speed': MyGame.assets['speed'],
-    'gun': MyGame.assets['gun'],
-    'gunSpd': MyGame.assets['gunSpd']
+
+  const PARTICLE_PERIOD = 400;
+
+  // declare variables here and initialize in reset() which is called at the
+  // beggining of render.
+  let vehicle,
+      shield,
+      keyboard,
+      receivedMessages,
+      itemImages,
+      boatTextureSet,
+      opposingBoatTextureSet,
+      messageHistory,
+      playerSelf,
+      playerOthers,
+      particleManager,
+      bullets,
+      explosions,
+      props;
+
+  function reset () {
+    playerCount = 0;
+    maxHealth = 100;
+    maxAmmo = 50;
+    maxEnergy = 100;
+    vehicle = null;
+    shield = null;
+    keyboard = KeyboardHandler(false, 'keyCode');
+    receivedMessages = Queue.create();
+    itemImages = {
+      'ammo': MyGame.assets['ammo'],
+      'health': MyGame.assets['health'],
+      'dmg': MyGame.assets['dmg'],
+      'speed': MyGame.assets['speed'],
+      'gun': MyGame.assets['gun'],
+      'gunSpd': MyGame.assets['gunSpd']
+    }
+    boatTextureSet = {
+      water: {
+        spriteSet: MyGame.assets['water_units'],
+        animation: [
+          MyGame.assets['water_units_mapping'].frames["water_ripple_small_000.png"],
+          MyGame.assets['water_units_mapping'].frames["water_ripple_small_001.png"],
+          MyGame.assets['water_units_mapping'].frames["water_ripple_small_002.png"],
+          MyGame.assets['water_units_mapping'].frames["water_ripple_small_003.png"],
+          MyGame.assets['water_units_mapping'].frames["water_ripple_small_004.png"],
+        ],
+      },
+      ship: {
+        spriteSet: MyGame.assets['water_units'],
+        normal: MyGame.assets['water_units_mapping'].frames["ship_small_body.png"],
+        damaged: MyGame.assets['water_units_mapping'].frames["ship_small_body_destroyed.png"]
+      },
+      gun: {
+        spriteSet: MyGame.assets['water_units'],
+        normal: undefined
+      }
+    };
+    opposingBoatTextureSet = Object.assign({},boatTextureSet, {
+      ship: {
+        spriteSet: MyGame.assets['water_units'],
+        normal: MyGame.assets['water_units_mapping'].frames["ship_small_b_body.png"],
+        damaged: MyGame.assets['water_units_mapping'].frames["ship_small_body_b_destroyed.png"]
+      }
+    });
+    messageHistory = Queue.create();
+    playerSelf = {
+      model: Player(maxHealth, maxAmmo, maxEnergy),
+      textureSet: boatTextureSet,
+    };
+    playerOthers = {};
+    bullets = {};
+    explosions = {};
+
+    props = {
+      quit: false,
+      lastTimeStamp: performance.now(),
+      messageId: 1,
+      commandKeys: null,
+      nextExplosionId: 1,
+      FOVDistance: 0.15,
+      FOVWidth: 0.15,
+      accumulatingParticlePeriod: 0
+    };
+
+    particleManager = ParticleManager(Graphics);
   }
+
   let waitingGameMessage = false;
   let gameMessage = '';
-  var boatTextureSet = {
-    water: {
-      spriteSet: MyGame.assets['water_units'],
-      animation: [
-        MyGame.assets['water_units_mapping'].frames["water_ripple_small_000.png"],
-        MyGame.assets['water_units_mapping'].frames["water_ripple_small_001.png"],
-        MyGame.assets['water_units_mapping'].frames["water_ripple_small_002.png"],
-        MyGame.assets['water_units_mapping'].frames["water_ripple_small_003.png"],
-        MyGame.assets['water_units_mapping'].frames["water_ripple_small_004.png"],
-      ],
-    },
-    ship: {
-      spriteSet: MyGame.assets['water_units'],
-      normal: MyGame.assets['water_units_mapping'].frames["ship_small_body.png"],
-      damaged: MyGame.assets['water_units_mapping'].frames["ship_small_body_destroyed.png"]
-    },
-    gun: {
-      spriteSet: MyGame.assets['water_units'],
-      normal: undefined
-    }
-  };
-  var opposingBoatTextureSet = Object.assign({},boatTextureSet, {
-    ship: {
-      spriteSet: MyGame.assets['water_units'],
-      normal: MyGame.assets['water_units_mapping'].frames["ship_small_b_body.png"],
-      damaged: MyGame.assets['water_units_mapping'].frames["ship_small_body_b_destroyed.png"]
-    }
-  });
-  let messageHistory = Queue.create();
-  let playerSelf = {
-    model: Player(maxHealth, maxAmmo, maxEnergy),
-    textureSet: boatTextureSet,
-  };
-  let playerOthers = {};
-  let bullets = {};
-  let explosions = {};
+  
 
-  let props = {
-    quit: false,
-    lastTimeStamp: performance.now(),
-    messageId: 1,
-    commandKeys: null,
-    nextExplosionId: 1,
-    FOVDistance: 0.15,
-    FOVWidth: 0.15
+  let shieldProps = {
+    get distanceToShieldCenter() {
+      let viewCenter = {
+        x: Coords.viewport.x + (Coords.viewport.width / 2),
+        y: Coords.viewport.y + (Coords.viewport.height / 2)
+      };
+
+      // yDiff will be squared, so adding a negative wouldn't matter
+      let yDiff = viewCenter.y - shield.y;
+      let xDiff = viewCenter.x - shield.x;
+      return Math.sqrt((xDiff * xDiff) + (yDiff * yDiff));
+    }, 
+    get isClose() {
+      return ((shield.radius - this.distanceToShieldCenter) < Coords.viewport.width);
+    },
+    get viewAngle() {
+      let viewCenter = {
+        x: Coords.viewport.x + (Coords.viewport.width / 2),
+        y: Coords.viewport.y + (Coords.viewport.height / 2)
+      };
+
+      // Negate yDiff to account for canvas's coordinate system
+      let yDiff = (-(viewCenter.y - shield.y));
+      let xDiff = viewCenter.x - shield.x;
+
+      return (-(Math.atan2(xDiff, yDiff) - (Math.PI / 2)));
+    },
+    get epsilon() {
+      let currentRadius = shield.radius;
+      let R_1 = 0.5; // Half the world
+      let E_1 = 0.2; // Minimum epsilon
+
+      if (currentRadius >= R_1) {
+        return E_1;
+      }
+
+      let R_2 = Coords.viewport.width / 2;
+      let E_2 = Math.PI;
+      let slope = (R_2 - R_1) / (E_2 - E_1);
+
+      return ((currentRadius - R_1) / slope) + E_1;
+    }
   };
 
   //
   // Render to initially setup and show the GameView
   function render() {
+    reset();
     props.quit = false;
     vehicle = Vehicle();
     Graphics.resizeCanvas();
@@ -160,6 +237,17 @@ const GameView = (function() {
       messageHistory.enqueue(message);
       playerSelf.model.move(elapsedTime);
     });
+
+    keyboard.addAction(props.commandKeys.MOVE_BACKWARD, elapsedTime => {
+      let message = {
+        id: props.messageId++,
+        elapsedTime: elapsedTime,
+        type: GameNetIds.INPUT_MOVE_BACKWARD
+      };
+      socket.emit(GameNetIds.INPUT, message);
+      messageHistory.enqueue(message);
+      playerSelf.model.reverse(elapsedTime);
+    })
 
     Events.on($('#game-canvas'), 'click', function (e) {
       var x = e.pageX - this.offsetLeft;
@@ -291,6 +379,8 @@ const GameView = (function() {
     playerSelf.model.energy = data.player.energy;
     playerSelf.model.useTurbo = data.player.useTurbo;
     playerSelf.model.isDropped = data.player.isDropped;
+
+    shield = Shield(data.shield.x, data.shield.y, data.shield.radius);
     
     playerSelf.model.localItems = data.player.items;
     playerSelf.model.ammo = data.player.ammo;
@@ -466,6 +556,27 @@ const GameView = (function() {
         delete explosions[id];
       }
     }
+
+    particleManager.update(elapsedTime);
+
+    props.accumulatingParticlePeriod += elapsedTime;
+    if ((shield !== null) && shieldProps.isClose
+        && (props.accumulatingParticlePeriod >= PARTICLE_PERIOD)) {
+      particleManager.createEffect({
+        image:  MyGame.assets['violetlight'],
+        size: { mean: .003, stdDev: .0005 },
+        lifetime: { mean: 600, stdDev: 300 },
+        speed: { mean: .00001, stdDev: .000005 },
+        circleSegment: {
+          center: {x: shield.x, y: shield.y },
+          radius: shield.radius,
+          viewAngle: shieldProps.viewAngle,
+          epsilon: shieldProps.epsilon
+        }
+      });
+
+      props.accumulatingParticlePeriod = 0;
+    }
   }
 
   // This function was written by Dr. Dean Mathias
@@ -509,8 +620,15 @@ const GameView = (function() {
     // Graphics.enableClipping(FOVPolygon); // clipping for objects forbidden outside FOV
 
     GameMap.draw();
-    
+   
+
+    // for (let id in explosions) {
+    //   renderer.AnimatedSprite.render(explosions[id]);
+    // }
     Renderer.renderPlayer(playerSelf.model, playerSelf.textureSet, totalTime);
+    
+    particleManager.render();
+
     let playerPos = {x: playerSelf.model.position.x + playerSelf.model.size.width / 2, y: playerSelf.model.position.y + playerSelf.model.size.height / 2};
     let FOVPoint1 = {x: (playerPos.x + props.FOVDistance), y: playerPos.y - (props.FOVWidth / 2)};
     let FOVPoint2 = {x: (playerPos.x + props.FOVDistance), y: playerPos.y + (props.FOVWidth / 2)};
@@ -519,6 +637,7 @@ const GameView = (function() {
     FOVPoint2 = rotatePointAboutPoint(playerPos, FOVPoint2, playerSelf.model.direction);
     FOVPolygon = [playerPos, FOVPoint1, FOVPoint2];
     FOVPolygon2 = FOVPolygon.map(obj => Object.assign({}, obj));
+    Renderer.renderShield(shield);
 
     Graphics.enableClipping(FOVPolygon); // clipping for objects forbidden outside FOV
     // Render other players, items, etc. here (things only visible inside FOV)
@@ -541,7 +660,7 @@ const GameView = (function() {
     for (let id in explosions) {
       Renderer.renderExplosion(explosions[id]);
     }
-    Renderer.minimap();
+    Renderer.minimap(shield, playerSelf.model.center);
 
     Renderer.renderAmmo(playerSelf.model.gun, playerSelf.model.ammo);
 
@@ -582,6 +701,6 @@ const GameView = (function() {
     unrender,
     init,
     name: "GameView",
-    playerOthers
+    playerOthers,
   };
 }());

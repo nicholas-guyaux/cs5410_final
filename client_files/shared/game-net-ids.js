@@ -21,6 +21,10 @@
       value: 'move-forward',
       writable: false
     },
+    'INPUT_MOVE_BACKWARD': {
+      value: 'move-backward',
+      writable: false
+    },
     'INPUT_ROTATE_LEFT': {
       value: 'rotate-left',
       writable: false

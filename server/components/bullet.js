@@ -14,7 +14,7 @@ let Coords = require ('../../client_files/shared/Coords');
 //------------------------------------------------------------------
 function createBullet(spec) {
     let that = {};
-    let radius = 0.0025 * Coords.viewport.width;
+    let radius = 0.005 * Coords.viewport.width;
     let speed = spec.speed + 0.00005;    // unit distance per millisecond
     let timeRemaining = 1500;   // milliseconds
     let currentFireRateWait = 0;

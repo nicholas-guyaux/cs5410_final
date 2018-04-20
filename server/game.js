@@ -1,13 +1,13 @@
-// This code was adapted from code originally written by Dr. Dean Mathias
-
 const present = require('present');
 const GameState = require('./gamestate');
 const rbush = require('rbush');
+const Coords = require('../client_files/shared/Coords');
+const Geometry = require('../client_files/shared/Geometry');
 const Player = require('./components/player');
 const Bullet = require('./components/bullet');
 const GameNetIds = require('../client_files/shared/game-net-ids');
 const Queue = require('../client_files/shared/queue.js');
-const GameMap = require ('./components/gamemap.js');
+const GameMap = require ('./components/gameMap.js');
 const Token = require('../Token');
 const config = require('./config');
 const Users = require('../models/Users');
@@ -15,7 +15,7 @@ const Users = require('../models/Users');
 var waitingForPlayers = false;
 
 const SIMULATION_UPDATE_RATE_MS = 16;
-const STATE_UPDATE_LAG = 100;
+// const STATE_UPDATE_LAG = 0;
 
 let inputQueue = Queue.create();
 let islandMap = GameMap.getGridMap();
@@ -25,8 +25,6 @@ var playerTree = rbush();
 let activeBullets = [];
 let hits = [];
 var bulletTree = rbush();
-// The following is used to visually see the entity interpolation in action
-const DEMONSTRATION_STATE_UPDATE_LAG = 100;
 
 let props = {
   quit: false,
@@ -78,6 +76,9 @@ function processInput(elapsedTime, totalTime) {
     switch (input.message.type) {
       case GameNetIds.INPUT_MOVE_FORWARD:
         client.state.player.move(input.message.elapsedTime);
+        break;
+      case GameNetIds.INPUT_MOVE_BACKWARD:
+        client.state.player.reverse(input.message.elapsedTime);
         break;
       case GameNetIds.INPUT_ROTATE_LEFT:
         client.state.player.rotateLeft(input.message.elapsedTime);
@@ -261,6 +262,14 @@ function checkPlayerVsBuffCollision(state){
 }
 function checkPlayerVsDeathCircleCollision(player){
   //If outside circle, take damage
+  if(player.isDropped && !GameState.shield.containsPoint(Geometry.Point(player.center.x, player.center.y))) {
+    if(player.health.current > 0) {
+      player.health.current--;
+      if(player.health.current <= 0) {
+        processDeath(player);
+      }
+    }
+  }
 }
 
 function checkDeath(player){
@@ -321,7 +330,7 @@ function update(elapsedTime, currentTime, totalTime) {
         });
       }
     }
-    GameState.inProgress = false;
+    terminate();
   }
   activeBullets = bulletTree.all();
   for (let i = 0; i < newBullets.length; i++) {
@@ -404,9 +413,9 @@ function updateClients(elapsedTime) {
   props.lastUpdate += elapsedTime;
 
 
-  if (props.lastUpdate < STATE_UPDATE_LAG) {
-      return;
-  }
+  // if (props.lastUpdate < STATE_UPDATE_LAG) {
+  //     return;
+  // }
 
   //
   // Build the bullet messages one time, then reuse inside the loop
@@ -442,10 +451,10 @@ function updateClients(elapsedTime) {
   for (let clientId in GameState.gameClients) {
     let client = GameState.gameClients[clientId];
     let buffs = itemTree.search({
-      minX: client.state.player.position.x - .15,
-      minY: client.state.player.position.y - .15,
-      maxX: client.state.player.position.x + .15,
-      maxY: client.state.player.position.y + .15
+      minX: client.state.player.position.x - Coords.viewport.width,
+      minY: client.state.player.position.y - Coords.viewport.height,
+      maxX: client.state.player.position.x + Coords.viewport.width,
+      maxY: client.state.player.position.y + Coords.viewport.height
     });
     //let buffs = itemTree.all();
     
@@ -460,9 +469,14 @@ function updateClients(elapsedTime) {
           useTurbo: client.state.player.useTurbo,
           updateWindow: props.lastUpdate,
           isDropped: client.state.player.isDropped,
-          items: buffs,
           ammo: client.state.player.ammo.current,
           gun: client.state.player.gun
+          items: buffs
+        },
+        shield: {
+          x: GameState.shield.x,
+          y: GameState.shield.y,
+          radius: GameState.shield.radius,
         }        
     };
 
@@ -481,13 +495,13 @@ function updateClients(elapsedTime) {
     if (client.state.player.reportUpdate) {
       client.socket.emit(GameNetIds.UPDATE_SELF, update);
       let otherPlayers = playerTree.search({
-        minX: client.state.player.center.x - .15,
-        minY: client.state.player.center.y - .15,
-        maxX: client.state.player.center.x + .15,
-        maxY: client.state.player.center.y + .15
+        minX: client.state.player.center.x - Coords.viewport.width,
+        minY: client.state.player.center.y - Coords.viewport.height,
+        maxX: client.state.player.center.x + Coords.viewport.width,
+        maxY: client.state.player.center.y + Coords.viewport.height
       });
       for (let i = 0; i < otherPlayers.length; i++) {
-        if (otherPlayers[i].cliend !== client) {
+        if (otherPlayers[i].client !== client) {
           otherPlayers[i].client.socket.emit(GameNetIds.UPDATE_OTHER, update);
         }
       }
@@ -551,11 +565,15 @@ function updateStats(){
       }
     }
   }
+  Users.setHighScores();
   Users.write();
 }
 
 
 var timeout = (ms) => new Promise(res => setTimeout(res, ms));
+function terminate () {
+  GameState.inProgress = false;
+}
 //------------------------------------------------------------------
 //
 // Get the socket.io server up and running so it can begin
@@ -567,11 +585,15 @@ async function initialize() {
     itemTree = rbush();
     itemTree.load(GameState.newGame());
     // wait for atleast two players to come in
-    for(var i = 0; i < 100; ++i) {
+    for(var i = 0; i < 50; ++i) {
       await timeout(100);
       if(GameState.alivePlayers.length >= 2) {
         break;
       }
+    }
+    if(GameState.alivePlayers.length === 0) {
+      terminate();
+      return;
     }
     GameState.startTime = present();
     gameLoop(present(), 0);
@@ -644,8 +666,6 @@ function initializeSocketIO(io) {
           playerId: playerId.name,  
           message: "Has left the game"      
         });
-      } else {
-        client.state.player.dead = true;
       }
     }
   }
@@ -655,7 +675,7 @@ function initializeSocketIO(io) {
   io.on('connection', function(socket) {
     console.log('Connection established: ', socket.id);
 
-    let newPlayer = Player.create(GameState.maxHealth, GameState.maxEnergy, GameState.maxAmmo);
+    let newPlayer = Player.create(GameState.maxHealth, GameState.maxEnergy, GameState.maxAmmo, GameState.depletionRate);
     let newClient = {
       lastMessageId: null,
       socket: socket,
@@ -743,6 +763,7 @@ function initializeSocketIO(io) {
         id: socket.id,
         name: GameState.gameClients[socket.id].state.player.name
       }
+      GameState.gameClients[socket.id].state.player.dead = true;;
       delete GameState.gameClients[socket.id];
       notifyDisconnect(obj);
     });

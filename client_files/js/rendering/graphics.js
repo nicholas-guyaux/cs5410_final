@@ -4,8 +4,19 @@ const Graphics = (function() {
   let onScreenCanvas = document.getElementById('game-canvas');
   let onScreenContext = onScreenCanvas.getContext('2d');
 
+  let maskingCanvas = document.createElement('canvas');
+  let maskingContext = maskingCanvas.getContext('2d');
+  maskingCanvas.width = Coords.world.width;
+  maskingCanvas.height = Coords.world.height;
+
   let canvas = document.createElement('canvas');
   let context = canvas.getContext('2d');
+
+  let minimapCanvas = document.createElement('canvas');
+  let minimapContext = minimapCanvas.getContext('2d');
+
+  minimapCanvas.width = Coords.world.width;
+  minimapCanvas.height = Coords.world.height;
 
   var viewport = Coords.viewport;
   var world = Coords.world;
@@ -43,6 +54,7 @@ const Graphics = (function() {
 
     canvas.width = wRatio;
     canvas.height = hRatio;
+    
     onScreenCanvas.width = wRatio;
     onScreenCanvas.height = hRatio;
 
@@ -113,7 +125,7 @@ const Graphics = (function() {
   CanvasRenderingContext2D.prototype.clear = function() {
       this.save();
       this.setTransform(1,0,0,1,0,0);
-      this.clearRect(0,0, canvas.width, canvas.height);
+      this.clearRect(0,0, this.canvas.width, this.canvas.height);
       this.restore();
   }
 
@@ -125,15 +137,18 @@ const Graphics = (function() {
     }
   }
   
-  function clear() { context.clear(); }
+  function clear() {
+    maskingContext.clearRect(0, 0, maskingCanvas.width, maskingCanvas.height);
+    context.clear();
+  }
 
   function saveContext() { context.save(); }
 
   function restoreContext() { context.restore(); }
 
-  function translateToViewport () {
+  function translateToViewport (myContext=context) {
     resetTransform();
-    context.translate(-viewport.world.x, -viewport.world.y);
+    myContext.translate(-viewport.world.x, -viewport.world.y);
   }
 
   function rotateCanvas(center, rotation) {
@@ -203,7 +218,7 @@ const Graphics = (function() {
   function drawCircle(fillStyle, center, radius, alpha=1, ctx=context) {
     ctx.beginPath();
     ctx.arc(center.x * Coords.world.width,
-        center.y * Coords.world.width, 2 * radius * Coords.world.width,
+        center.y * Coords.world.width, radius * Coords.world.width,
         2 * Math.PI, false);
     ctx.closePath();
     ctx.fillStyle = fillStyle;
@@ -214,7 +229,7 @@ const Graphics = (function() {
   function drawStrokedCircle(strokeStyle, center, radius) {
     context.beginPath();
     context.arc(center.x * Coords.world.width,
-        center.y * Coords.world.width, 2 * radius * Coords.world.width,
+        center.y * Coords.world.width, radius * Coords.world.width,
         2 * Math.PI, false);
     context.closePath();
     context.strokeStyle = strokeStyle;
@@ -240,6 +255,14 @@ const Graphics = (function() {
     context.fillRect(coords.x, coords.y, size.width * canvas.width, size.height * canvas.height);
   }
 
+  function drawLine (color, a, b) {
+    context.beginPath();
+    context.strokeColor = color;
+    context.moveTo(a.x*Coords.world.width, a.y*Coords.world.height);
+    context.moveTo(b.x*Coords.world.width, b.y*Coords.world.height);
+    context.stroke();
+  }
+
   function enableClipping(polygon) {
     // Convert polygon to true coordinates       
     for (let point of polygon) {
@@ -261,11 +284,85 @@ const Graphics = (function() {
     }
   }
 
+  function enableShieldClipping(shieldCircle, color='rgba(255,0,255,0.7)') {
+
+    // The other way of doing this:
+    // context.fillStyle = color;
+    // context.fillRect(Coords.viewport.world.x, Coords.viewport.world.y, Coords.viewport.world.width, Coords.viewport.world.height);
+
+    // context.globalCompositeOperation = 'destination-out';
+    // drawCircle('black', circle, circle.radius, 1, context);
+    // context.globalCompositeOperation = 'source-over';
+
+    maskingContext.save();
+
+    let circle = {
+      x: shieldCircle.x * Coords.world.width,
+      y: shieldCircle.y * Coords.world.height,
+      radius: shieldCircle.radius * Coords.world.width,
+    };
+
+    const CUSHION = 2 * Coords.world.width;
+    maskingContext.beginPath();
+    maskingContext.moveTo(-CUSHION, -CUSHION);
+    maskingContext.lineTo(circle.x, circle.y - circle.radius);
+    maskingContext.arc(circle.x, circle.y, circle.radius, 1.5 * Math.PI, 3.5 * Math.PI);
+    maskingContext.lineTo(-CUSHION, -CUSHION);
+    maskingContext.lineTo(-CUSHION, Coords.world.height + CUSHION);
+    maskingContext.lineTo(Coords.world.width + CUSHION, Coords.world.height + CUSHION);
+    maskingContext.lineTo(Coords.world.width + CUSHION, -CUSHION);
+    maskingContext.closePath();
+    maskingContext.clip();
+
+    maskingContext.fillStyle = color;
+    maskingContext.globalAlpha = 0.7;
+
+    maskingContext.fillRect(
+      Coords.viewport.world.x,
+      Coords.viewport.world.y,
+      Coords.viewport.world.width,
+      Coords.viewport.world.height
+    );
+
+    context.drawImage(
+      maskingCanvas,
+      Coords.viewport.world.x,
+      Coords.viewport.world.y,
+      Coords.viewport.world.width,
+      Coords.viewport.world.height,
+      Coords.viewport.world.x,
+      Coords.viewport.world.y,
+      Coords.viewport.world.width,
+      Coords.viewport.world.height
+    );
+
+    maskingContext.restore();
+  }
+
+  // function disableShieldClipping() {
+  //   if (props.shieldClippingEnabled) {
+  //     context.restore();
+  //     props.shieldClippingEnabled = false;
+  //   }
+  // }
+
+  // function minimapShieldMask (circle, color='rgba(255,0,255,0.7)', destCanvas=minimapCanvas) {
+  //   maskingCanvas.width = destCanvas.width;
+  //   maskingCanvas.height = destCanvas.height;
+  //   let context = maskingCanvas.getContext('2d');
+  //   context.save();
+  //   context.fillStyle = color;
+  //   context.fillRect(0, 0, maskingCanvas.width, maskingCanvas.height);
+  //   context.globalCompositeOperation = 'destination-out';
+  //   drawCircle('rgba(0,0,0,0)', circle, circle.radius, 1, context);
+  //   context.restore();
+  //   destCanvas.getContext('2d').drawImage(maskingCanvas, Coords.viewport.x, Coords.viewport.y, Coords.viewport.width, Coords.viewport.height);
+  // }
+
   function disableClipping() {
     if (props.clippingEnabled) {
       context.restore();
       props.clippingEnabled = false;
-      props.fogClippingEnabled = false;
     }
   }
 
@@ -397,6 +494,8 @@ const Graphics = (function() {
     setFullMapCanvas: setFullMapCanvas,
     drawText: drawText,
     addGameMessage: addGameMessage,
+    enableShieldClipping,
+    drawLine: drawLine,
     get viewport () {
       return viewport;
     },

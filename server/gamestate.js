@@ -2,9 +2,10 @@
 const Vehicle = require('./components/vehicle');
 const Dropper = require('./components/dropper');
 const present = require('present');
+const Shield = require('./components/shield');
 
 const random = require ('./utils/random');
-const GameMap = require ('./components/gamemap.js')
+const GameMap = require ('./components/gameMap.js')
 
 let lobbyClients = {};
 let gameClients = {};
@@ -19,6 +20,7 @@ const maxEnergy = 200;
 const defaultBulletDamage = 5;
 const fireRate = 300;
 const upgradedFireRate = 150;
+const depletionRate = 15;
 const healthPP = 5;
 const ammoPP = 5;
 const gunsPP = 5;
@@ -33,6 +35,7 @@ var GameState = {
   newGame: newGame,
   lobbyClients: lobbyClients,
   gameClients: gameClients,
+  shield: null,
   maxHealth: maxHealth,
   maxEnergy: maxEnergy,
   maxAmmo: maxAmmo,
@@ -44,7 +47,8 @@ var GameState = {
   inProgress: false,
   defaultBulletDamage: defaultBulletDamage,
   fireRate: fireRate,
-  upgradedFireRate: upgradedFireRate
+  upgradedFireRate: upgradedFireRate,
+  depletionRate: depletionRate
 };
 
 // TODO: Wipes and preps the gamestate for a new game
@@ -52,6 +56,7 @@ function newGame() {
   //set number of players and reset item array and alivePlayer array
   itemArray = [];
   islandMap = GameMap.getGridMap();
+  GameState.shield = Shield(5*60*1000);
   GameState.playerCount = Object.keys(gameClients).length;
   GameState.itemArray = [];
   // GameState.alivePlayers = Object.values(gameClients).map(client => client.state.player);
@@ -278,6 +283,7 @@ function update (elapsed, currentTime, totalTime) {
   GameState.vehicle.update(elapsed, totalTime);
   const clientStates = Object.values(GameState.gameClients).map(client => client.state);
   GameState.dropper.update(currentTime, clientStates);
+  GameState.shield.update(totalTime);
   for (let clientId in GameState.gameClients) {
     GameState.gameClients[clientId].state.player.update(elapsed);
   }

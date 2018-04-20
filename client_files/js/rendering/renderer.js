@@ -102,11 +102,11 @@ const Renderer = (function(graphics) {
     }
   }
 
-  function minimap () {
+  function minimap (shield, playerPosition) {
     var minimap = {
       width: Coords.viewport.width*.2,
       height: Coords.viewport.height*.2,
-    }
+    };
     minimap.x = Coords.viewport.x;
     minimap.y = Coords.viewport.y + Coords.viewport.height - minimap.height;
     minimap.center = {
@@ -123,7 +123,15 @@ const Renderer = (function(graphics) {
     graphics.setOpacity(0.7);
     graphics.drawImage(MyGame.assets['minimap'], minimap.center, minimap);
     graphics.restoreContext();
+    shield = ({
+      x: lerp(minimap.x, minimap.x + minimap.width, shield.x),
+      y: lerp(minimap.y, minimap.y + minimap.height, shield.y),
+      radius: lerp(0, minimap.width, shield.radius),
+    });
+    // renderShield(shield);
+    Graphics.drawStrokedCircle('purple', shield, shield.radius);
     graphics.drawRectangle('yellow', viewport.x, viewport.y, viewport.width, viewport.height);
+    Graphics.drawLine('white', shield, playerPosition);
   }
 
   function renderAmmo(gun,ammo) {
@@ -170,7 +178,9 @@ const Renderer = (function(graphics) {
     Graphics.addGameMessage(message);
   }
 
-  
+  function renderShield (shield) {
+    Graphics.enableShieldClipping(shield);
+  }
 
   // function renderRemotePlayer(model, textureSet, elapsed) {
   //   return renderPlayer(model, textureSet, elapsed);
@@ -186,6 +196,7 @@ const Renderer = (function(graphics) {
     renderItems,
     renderAmmo,
     renderMessages,
+    renderShield,
     // renderRemotePlayer
   };
 }(Graphics));
