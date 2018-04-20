@@ -50,18 +50,20 @@ function isPasswordCorrect(savedHash, savedSalt, savedIterations, passwordAttemp
   });
 }
 
-function saveKeyboard(commandKeys, user) {
-  var user = users.find(u => user.name === u.name);
+function saveKeyboard(commandKeys, keyNames, user) {
+  var user = users.find(u => user.name === u.client.name);
 
   // TODO: filter input - use a list of valid keys
   if (user) {
     user.commandKeys = commandKeys;
+    user.keyNames = keyNames;
   }
   write();
+  return user;
 }
 
 function userExists (name) {
-  return !!users.find(user => user.client.name === name);
+  return users.some(u => u.client.name === name);
 }
 
 async function createUser (user) {
@@ -207,6 +209,7 @@ module.exports = {
   createUser: createUser,
   Errors: Errors,
   write: write,
+  saveKeyboard: saveKeyboard, 
   get sorted(){
     return sortedUsers;
   },

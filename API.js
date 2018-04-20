@@ -64,6 +64,33 @@ function API (req, res) {
     }
   });
 
+  router.post('/api/user/keyConfig', handleError, async (err, req, res) => {
+    try {
+      let user;
+      try {
+        body = JSON.parse(req.body);
+      } catch (e) {
+        handleError(e, req, res);
+        return;
+      }
+      client_user = await Token.check_auth(req.query.token);
+      var user = Users.saveKeyboard(body.commandKeys, body.keyNames, client_user);
+      res.status(200);
+      res.json({
+        user: user.client,
+        token: Token.signUserToken(user.client),
+        code: 200,
+      });
+    } catch (e) {
+      console.error(e);
+      res.status(400);
+      res.json({
+        msg: e.message,
+        code: 400,
+      })
+    }
+  });
+
   router.post('/api/user/login', handleError, async (err, req, res) => {
     try {
       let user;
