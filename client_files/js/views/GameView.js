@@ -126,7 +126,7 @@ const GameView = (function() {
     get epsilon() {
       let currentRadius = shield.radius;
       let R_1 = 0.5; // Half the world
-      let E_1 = 0.3; // Minimum epsilon
+      let E_1 = 0.2; // Minimum epsilon
 
       if (currentRadius >= R_1) {
         return E_1;
