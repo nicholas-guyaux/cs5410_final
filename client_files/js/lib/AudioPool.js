@@ -2,6 +2,7 @@ const AudioPool = (function (AudioAsset, throttle) {
   
   const music = new Map();
   const sfx = new Map();
+  const loopSfx = new Map();
   var activeMusic = null;
   var musicVolume = 0.5;
   var sfxVolume = 0.7;
@@ -21,11 +22,14 @@ const AudioPool = (function (AudioAsset, throttle) {
   }
 
   function addLoopSFX (nickname, srcs) {
-    music.set(nickname, AudioAsset({
-      loop: true,
-      volume: musicVolume,
-      src,
-    }));
+    loopSfx.set(nickname, {
+      currentId: 0,
+      audio: AudioAsset({
+        loop: true,
+        volume: musicVolume,
+        src,
+      })
+    });
   }
 
   function addSFX (nickname, src) {
