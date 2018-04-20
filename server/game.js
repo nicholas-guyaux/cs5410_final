@@ -179,8 +179,8 @@ function checkPlayerVsBulletCollisions(state, clientId){
           bulletId: results[i].id,
 
           position: {
-            x: player.center.x,
-            y: player.center.y,
+            x: state.player.center.x,
+            y: state.player.center.y,
           }
         });
         GameState.gameClients[results[i].clientId].state.player.bulletShots.hit++;
