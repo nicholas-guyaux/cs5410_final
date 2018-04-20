@@ -154,7 +154,7 @@ const GameView = (function() {
     props.commandKeys = client.user.commandKeys;
     keyboard.activate();
     if (socket === null) {
-      socket = io('/game');
+      socket = io('/game', {transports: ['websocket']});
     }
 
     socket.on(GameNetIds.CONNECT_ACK, data => {
@@ -306,6 +306,7 @@ const GameView = (function() {
   }
 
   function unrender() {
+    AudioPool.pauseAllLoopSFX();
     props.quit = true;
     socket.disconnect();
     socket = null;
@@ -380,6 +381,11 @@ const GameView = (function() {
     playerSelf.model.isDropped = data.player.isDropped;
 
     shield = Shield(data.shield.x, data.shield.y, data.shield.radius);
+    if(shield.radius <= Geometry.LineSegment(shield, playerSelf.model.center).distance + Math.sqrt(2*Math.pow(Coords.viewport.width,2))) {
+      AudioPool.playLoopSFX('shield');
+    } else {
+      AudioPool.pauseLoopSFX('shield');
+    }
     
     playerSelf.model.localItems = data.player.items;
     playerSelf.model.ammo = data.player.ammo;
@@ -451,6 +457,7 @@ const GameView = (function() {
   }
 
   function bulletNew(data) {
+    AudioPool.playSFX('shoot');
     bullets[data.id] = Bullet({
       id: data.id,
       radius: data.radius,
@@ -466,6 +473,7 @@ const GameView = (function() {
   }
 
   function bulletHit(data) {
+    AudioPool.playSFXSet('explosion');
     explosions[props.nextExplosionId] = AnimatedSprite({
       id: props.nextExplosionId++,
       spriteSheet: MyGame.assets['explosion'],

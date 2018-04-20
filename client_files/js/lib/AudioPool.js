@@ -2,16 +2,19 @@ const AudioPool = (function (AudioAsset, throttle) {
   
   const music = new Map();
   const sfx = new Map();
+  const SfxSet = new Map();
+  const loopSfx = new Map();
   var activeMusic = null;
   var musicVolume = 0.5;
   var sfxVolume = 0.7;
 
   function addMusic (nickname, src) {
-    music.set(nickname, AudioAsset({
+    var _music = AudioAsset({
       loop: true,
       volume: musicVolume,
       src,
-    }));
+    });
+    music.set(nickname, _music);
   }
 
   function addAllMusic (...music) {
@@ -20,19 +23,37 @@ const AudioPool = (function (AudioAsset, throttle) {
     }
   }
 
-  function addLoopSFX (nickname, srcs) {
-    music.set(nickname, AudioAsset({
-      loop: true,
+  function addSFXSet (nickname, srcs) {
+    if(!Array.isArray(srcs)) {
+      throw new Error("you must pass an array of sources to addLoopSFX");
+    }
+    var sfxs = srcs.map(src => AudioAsset({
+      loop: false,
       volume: musicVolume,
       src,
     }));
+    SfxSet.set(nickname, {
+      idx: 0,
+      audioAssets: sfxs,
+    });
   }
 
   function addSFX (nickname, src) {
-    sfx.set(nickname, AudioAsset({
+    var _sfx = AudioAsset({
+      loop: false,
       src,
       volume: sfxVolume,
-    }));
+    });
+    sfx.set(nickname, _sfx);
+  }
+
+  function addLoopSFX (nickname, src) {
+    var _sfx = AudioAsset({
+      loop: true,
+      src,
+      volume: sfxVolume,
+    });
+    loopSfx.set(nickname, _sfx);
   }
 
   function addAllSFX (...sfx) {
@@ -79,13 +100,44 @@ const AudioPool = (function (AudioAsset, throttle) {
     fx.currentTime = 0;
     fx.volume = sfx.volume;
     fx.play();
-    // I guess it cleans up itself??? Otherwise I have
-    // no idea how to clean it up at the moment. I assume
-    // it's garbage collected when it has no references and
-    // has stopped playing.
   }
 
   const playOneSFX = throttle(copySFXPlayOnce, 1000/30);
+
+  function playSFXSet (nickname) {
+    const sound = SfxSet.get(nickname);
+    const _sfx = sound.audioAssets[sound.idx];
+    sound.idx = (sound.idx + 1) % sound.audioAssets.length;
+    if(_sfx) {
+      playOneSFX(_sfx);
+    } else {
+      console.warn(`No sound effect by name '${nickname}'.`);
+    }
+  }
+
+  function playLoopSFX (nickname) {
+    const sound = loopSfx.get(nickname);
+    if(sound) {
+      if(!sound.paused) {
+        return;
+      }
+      sound.play();
+    } else {
+      console.warn(`No sound effect by name '${nickname}'.`);
+    }
+  }
+
+  function pauseLoopSFX (nickname) {
+    const sound = loopSfx.get(nickname);
+    if(sound) {
+      if(sound.paused) {
+        return;
+      }
+      sound.pause();
+    } else {
+      console.warn(`No sound effect by name '${nickname}'.`);
+    }
+  }
 
   function playSFX (nickname) {
     var sound = sfx.get(nickname);
@@ -96,16 +148,28 @@ const AudioPool = (function (AudioAsset, throttle) {
     }
   }
 
+  function pauseAllLoopSFX () {
+    for(const nickname of loopSfx.keys()) {
+      pauseLoopSFX(nickname);
+    }
+  }
+
   var mute = false;
   var previousMusicVolume = musicVolume;
   var previousSFXVolume = sfxVolume;
   var that = {
+    addLoopSFX,
+    addSFXSet,
     addMusic,
     addAllMusic,
     addSFX,
     addAllSFX,
     playMusic,
+    playSFXSet,
+    playLoopSFX,
     playSFX,
+    pauseLoopSFX,
+    pauseAllLoopSFX,
     get musicVolume () {
       return musicVolume;
     },
