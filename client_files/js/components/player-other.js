@@ -1,3 +1,17 @@
+/**
+ * https://en.wikipedia.org/wiki/Linear_interpolation
+ * Precise method, which guarantees y = rangeEnd when x = 1.
+ * @param {Number} rangeStart 
+ * output range start
+ * @param {Number} rangeEnd 
+ * output range end
+ * @param {Float} x 
+ * a number between 0 and 1 on the input range.
+ */
+function clampLerp(rangeStart, rangeEnd, x) {
+  return Math.max(Math.min(rangeStart, rangeEnd), Math.min(Math.max(rangeStart, rangeEnd), ((1 - x) * rangeStart + x * rangeEnd)));
+}
+
 //------------------------------------------------------------------
 //
 // Model for each remote player in the game.
@@ -45,17 +59,23 @@ function PlayerRemote() {
   //
   //------------------------------------------------------------------
   that.update = function(elapsedTime) {
-    // Protect agains divide by 0 before the first update from the server has been given
+    // Protect against divide by 0 before the first update from the server has been given
     if (goal.updateWindow <= 0) return;
 
     let updateFraction = elapsedTime / goal.updateWindow;
     if (updateFraction > 0) {
       //
       // Turn first, then move.
-      state.direction -= (state.direction - goal.direction) * updateFraction;
+      state.direction = clampLerp(state.direction, goal.direction, updateFraction);
 
-      state.position.x -= (state.position.x - goal.position.x) * updateFraction;
-      state.position.y -= (state.position.y - goal.position.y) * updateFraction;
+      state.position.x = clampLerp(state.position.x, goal.position.x, updateFraction);
+      state.position.y = clampLerp(state.position.y, goal.position.y, updateFraction);
+
+      // Original way:
+      // state.direction -= (state.direction - goal.direction) * updateFraction;
+
+      // state.position.x -= (state.position.x - goal.position.x) * updateFraction;
+      // state.position.y -= (state.position.y - goal.position.y) * updateFraction;
     }
   };
 

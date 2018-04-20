@@ -315,13 +315,13 @@ const GameView = (function() {
     playerSelf.model.direction = player.direction;
     playerSelf.model.speed = player.speed;
     playerSelf.model.rotateRate = player.rotateRate;
-    updateSelfPosition();
+    updateViewportPosition();
     socket.emit(GameNetIds.SET_NAME, {
       username: client.user.name
     })
   }
 
-  function updateSelfPosition () {
+  function updateViewportPosition() {
     Graphics.viewport.playerUpdate({
       x: playerSelf.model.position.x + playerSelf.model.size.width / 2,
       y: playerSelf.model.position.y + playerSelf.model.size.height / 2,
@@ -386,13 +386,7 @@ const GameView = (function() {
         
     // Update the client simulation since this last server update, by
     // replaying the remaining inputs.
-    // let memory = Queue.create();
-    // while (!messageHistory.empty) {
-    //   let message = messageHistory.dequeue();
-    //   memory.enqueue(message);
-    // }
-    // messageHistory = memory;
-
+    let memory = Queue.create();
     while (!messageHistory.empty) {
       let message = messageHistory.dequeue();
       switch (message.type) {
@@ -406,9 +400,11 @@ const GameView = (function() {
           playerSelf.model.rotateRight(message.elapsedTime);
           break;
       }
+      memory.enqueue(message);
     }
+    messageHistory = memory;
 
-    updateSelfPosition();
+    updateViewportPosition();
   }
 
   //
@@ -599,10 +595,6 @@ const GameView = (function() {
 
     GameMap.draw();
    
-
-    // for (let id in explosions) {
-    //   renderer.AnimatedSprite.render(explosions[id]);
-    // }
     Renderer.renderPlayer(playerSelf.model, playerSelf.textureSet, totalTime);
     
     particleManager.render();
