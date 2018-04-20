@@ -112,6 +112,11 @@ function API (req, res) {
       const numRequired = parseInt(req.body.n, 10);
       config.numPlayersRequired = numRequired;
       lobby.updateNumClients();
+      res.status(200);
+      res.json({
+        message: "users updated",
+        code: 200
+      });
     } catch (e) {
       handleError(e, req, res);
       return;
