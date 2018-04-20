@@ -17,8 +17,13 @@ const client = (function () {
   }
 
   function get (url, data) {
-    let d = data.data;
+    let d = '';
+    try{
+    d = data.data;
     delete data.data;
+    } catch(e) {
+      console.warn(e);
+    }
     return fetch(`${url}${d ? "?" + d : ''}`, Object.assign({
         method: "GET",
         headers: {
@@ -96,6 +101,7 @@ const client = (function () {
     get user () {
       return user; 
     },
+    get,
     getUser,
     logout
   }
