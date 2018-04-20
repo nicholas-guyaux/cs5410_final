@@ -28,7 +28,7 @@ MyGame.loader = (function() {
       message: 'Library essentials loaded',
       onComplete: null,
     }, {
-      scripts: ['js/lib/$.js'],
+      scripts: ['js/lib/$.js', 'js/lib/Async.js'],
       message: 'Library essentials loaded',
       onComplete: null,
     }, {
@@ -249,16 +249,28 @@ MyGame.loader = (function() {
     }
 
     function mainComplete(){
+      AudioPool.addSFXSet('explosion', [
+        'assets/sound/explosion_00.wav',
+        'assets/sound/explosion_01.wav',
+        'assets/sound/explosion_02.wav',
+        'assets/sound/explosion_03.wav',
+        'assets/sound/explosion_04.wav',
+      ])
       AudioPool.addMusic('menu', 'assets/sound/09 Come and Find Me - B mix.mp3');
       AudioPool.addMusic('game', 'assets/sound/02 Underclocked (underunderclocked mix).mp3');
+      AudioPool.addSFX('win', 'assets/sound/win.wav');
+      AudioPool.addSFX('death', 'assets/sound/death.wav');
+      AudioPool.addSFX('shoot', 'assets/sound/shoot.wav');
+      AudioPool.addLoopSFX('shield', 'assets/sound/white_noise.wav');
       AudioPool.addSFX('menu_click', 'assets/sound/270324__littlerobotsoundfactory__menu-navigate-00.wav');
       AudioPool.addSFX('menu_navigate', 'assets/sound/270322__littlerobotsoundfactory__menu-navigate-02.wav');
       GameMap.load().then(function(){
         GameMap.loadImage()
-      });
-      console.log('Loading Complete');
-      //MainView.loadView(MenuView.name);
-      window.main('MenuView');
+      }).then(function () {
+        console.log('Loading Complete');
+        //MainView.loadView(MenuView.name);
+        window.main('MenuView');
+      })
     }
 
     console.log('Starting to dynamically load project assets');

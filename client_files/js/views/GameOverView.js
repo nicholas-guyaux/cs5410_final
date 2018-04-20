@@ -15,7 +15,11 @@ const GameOverView = (function GameOverView (AudioPool) {
     $('#gameover-damage')[0].innerHTML = HTML.escape(data.bulletStats.damage);
     var accuracy = isNaN(data.bulletStats.accuracy) ? 0 : data.bulletStats.accuracy*100;
     $('#gameover-accuracy')[0].innerHTML = HTML.escape(accuracy);
-
+    if(data.place === 1) {
+      AudioPool.playSFX('win');
+    } else {
+      AudioPool.playSFX('death');
+    }
 
     AudioPool.playMusic('menu');
     keyboard.activate();

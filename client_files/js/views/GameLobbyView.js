@@ -6,7 +6,7 @@ const GameLobbyView = (function GameLobbyView (AudioPool) {
   
   function render () {
     if(socket === null) {
-      socket = io('/lobby');
+      socket = io('/lobby', {transports: ['websocket']});
     }
 
     $('#chat-text')[0].focus();
