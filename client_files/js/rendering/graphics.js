@@ -184,6 +184,17 @@ const Graphics = (function() {
           Math.floor(localSize.height*scalingFactor()));
     }
   }
+
+  function drawText(text,x,y,size) {
+    context.font = size;
+    context.textBaseline = "hanging";
+    context.fillText(text, x, y);
+  }
+
+  function addGameMessage(message) {
+    var messageBox = document.getElementById('game-messages');
+    messageBox.innerHTML += '<p>' + message + '</p>';
+  }
   
   function drawRectangle(style, left, top, width, height){
     context.strokeStyle = style;
@@ -481,6 +492,8 @@ const Graphics = (function() {
     drawFromTiledCanvas: drawFromTiledCanvas,
     setOpacity: setOpacity,
     setFullMapCanvas: setFullMapCanvas,
+    drawText: drawText,
+    addGameMessage: addGameMessage,
     enableShieldClipping,
     drawLine: drawLine,
     get viewport () {

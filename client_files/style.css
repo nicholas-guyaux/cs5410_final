@@ -154,6 +154,8 @@ button.selected, button:hover, button:active {
   --remaining-width: calc(100vw - var(--menu-padding) * 2);
 }
 
+
+
 #lobby-chat-box {
   max-width: calc(var(--remaining-width)*2/3);
 }
@@ -168,7 +170,7 @@ button.selected, button:hover, button:active {
   flex: 0 0 auto;
 }
 
-#chat-messages-box, #lobby-players-box {
+#chat-messages-box, #lobby-players-box, #game-messages {
   overflow: auto;
 }
 
@@ -198,4 +200,23 @@ button.selected, button:hover, button:active {
   justify-content: center;
   align-items: center;
   background-color: #222;
+}
+
+.pseudo-canvas {
+    display: flex;
+    justify-content: flex-end;
+    align-items: flex-start;
+    position: fixed;
+    height: 100vmin;
+    width: 100vmin;
+    flex-direction: row;
+    pointer-events: none;
+}
+
+#game-messages {
+  width: calc(100vmin * .2);
+  max-height: 100vmin;
+  height: 100vmin;
+  display: flex;
+  flex-direction: column;
 }

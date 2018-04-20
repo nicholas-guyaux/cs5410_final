@@ -38,7 +38,7 @@ let props = {
 // Used to create a bullet in response to user input.
 //
 //------------------------------------------------------------------
-function createBullet(clientId, playerModel) {
+function createBullet(clientId, playerModel, username) {
   let bulletColor = playerModel.buffs.dmg ? 'red' : 'white';
   let bulletSpeedRatio = playerModel.buffs.gunRate ? 2 : 1;
   let bullet = Bullet.create({
@@ -51,7 +51,8 @@ function createBullet(clientId, playerModel) {
     direction: playerModel.direction,
     speed: playerModel.speed * bulletSpeedRatio,
     damage: GameState.defaultBulletDamage + playerModel.buffs.dmg,
-    color: bulletColor
+    color: bulletColor,
+    username: username
   });
   newBullets.push(bullet);
 }
@@ -70,7 +71,7 @@ function processInput(elapsedTime, totalTime) {
     let client = GameState.gameClients[input.clientId];
     if(!client) continue;
     client.lastMessageId = input.message.id;
-
+    client.state.player.reportUpdate = true;
     // TODO: Handle all message types from client
     switch (input.message.type) {
       case GameNetIds.INPUT_MOVE_FORWARD:
@@ -88,7 +89,7 @@ function processInput(elapsedTime, totalTime) {
       case GameNetIds.INPUT_FIRE:
         var playerFireRate = client.state.player.buffs.fireRate ? GameState.upgradedFireRate : GameState.fireRate;
         if(client.state.player.currentFireRateWait >= playerFireRate && client.state.player.ammo.current > 0 && client.state.player.gun){
-          createBullet(input.clientId, client.state.player);
+          createBullet(input.clientId, client.state.player, client.state.username);
           client.state.player.currentFireRateWait = 0;
           client.state.player.ammo.current--;
           client.state.player.bulletShots.total++;
@@ -110,38 +111,61 @@ function collided(obj1, obj2) {
   return distance <= radii;
 }
 
-function checkCollisions(player, clientId){
+function checkCollisions(state, clientId, client){
   //Note: Player Vs Wall Collision done in player.move();
-  checkPlayerVsPlayerCollisions(player, clientId);
-  checkPlayerVsBulletCollisions(player,clientId);
-  checkPlayerVsBuffCollision(player);
-  checkPlayerVsDeathCircleCollision(player);
+  checkPlayerVsPlayerCollisions(state, clientId);
+  checkPlayerVsBulletCollisions(state,clientId);
+  checkPlayerVsBuffCollision(state,client);
+  checkPlayerVsDeathCircleCollision(state);
 }
 
-function checkPlayerVsPlayerCollisions(player, clientId){
+function checkPlayerVsPlayerCollisions(state, clientId){
   //if hit, take damage to other
-  if (player.useTurbo) {
+  if (state.player.useTurbo) {
     let collisionSquare = {
-      minX: player.center.x - player.size.width/2,
-      minY: player.center.y - player.size.height/2,
-      maxX: player.center.x + player.size.width/2,
-      maxY: player.center.y + player.size.height/2
+      minX: state.player.center.x - state.player.size.width/2,
+      minY: state.player.center.y - state.player.size.height/2,
+      maxX: state.player.center.x + state.player.size.width/2,
+      maxY: state.player.center.y + state.player.size.height/2
     }
     let otherPlayers = playerTree.search(collisionSquare);
     for (let i = 0; i < otherPlayers.length; i++) {
       if (clientId !== otherPlayers[i].client.socket.id) {
         if (otherPlayers[i].player.health.current > 0) {
           otherPlayers[i].player.health.current--;
-          player.damageDealt++;
+          state.player.damageDealt++;
           otherPlayers[i].player.reportUpdate = true;
-          if (otherPlayers[i].player.health.current <= 0) {
-            player.killCount++;
-            // hits.push({
-            //   hitClientId: otherPlayers[i].client,
-            //   sourceClientId: clientId,
-            //   bulletId: clientId,
-            //   position: player.center
-            // });
+          if (otherPlayers[i].player.health.current <= 0 && !otherPlayers[i].player.dead) {
+            otherPlayers[i].player.dead = true;
+            state.player.killCount++;
+            for (gamer in GameState.gameClients) {
+              if (GameState.gameClients[gamer].socket.id !== clientId) {
+                GameState.gameClients[gamer].socket.emit(GameNetIds.GAME_UPDATE_MESSAGE, {
+                  // they are not subtracted yet from the alive players so this is their position.
+                  message: otherPlayers[i].client.username + ' was eliminated by ' + state.username
+                });
+              }
+            }
+            hits.push({
+              hitClientId: otherPlayers[i].client,
+              sourceClientId: clientId,
+              bulletId: clientId,
+              position: {
+                x: state.player.center.x,
+                y: state.player.center.y
+              },
+              width: state.player.size.width,
+              height: state.player.size.height
+            });
+
+            for (gamer in GameState.gameClients) {
+              if (GameState.gameClients[gamer].socket.id !== otherPlayers[i].clientId) {
+                GameState.gameClients[gamer].socket.emit(GameNetIds.GAME_UPDATE_MESSAGE, {
+                  // they are not subtracted yet from the alive players so this is their position.
+                  message: otherPlayers[i].client.username + ' was eliminated by ' + state.username
+                });
+              }
+            }
           }
         }              
       }
@@ -149,14 +173,14 @@ function checkPlayerVsPlayerCollisions(player, clientId){
   }
   
 }
-function checkPlayerVsBulletCollisions(player, clientId){
+function checkPlayerVsBulletCollisions(state, clientId){
   //if hit, take damage to self
 
   let searchArea = {
-    minX: player.position.x + player.size.width/2 - Math.max(player.size.width, player.size.height)/2,
-    minY: player.position.y + player.size.height/2 - Math.max(player.size.width, player.size.height)/2,
-    maxX: player.position.x + Math.max(player.size.width,player.size.height),
-    maxY: player.position.y + Math.max(player.size.width, player.size.height) };
+    minX: state.player.position.x + state.player.size.width/2 - Math.max(state.player.size.width, state.player.size.height)/2,
+    minY: state.player.position.y + state.player.size.height/2 - Math.max(state.player.size.width, state.player.size.height)/2,
+    maxX: state.player.position.x + Math.max(state.player.size.width, state.player.size.height),
+    maxY: state.player.position.y + Math.max(state.player.size.width, state.player.size.height) };
   if (bulletTree.collides(searchArea)) {
     var results = bulletTree.search(searchArea);
     for (let i = 0; i < results.length; i++) {
@@ -167,71 +191,127 @@ function checkPlayerVsBulletCollisions(player, clientId){
           hitClientId: clientId,
           sourceClientId: results[i].clientId,
           bulletId: results[i].id,
-          position: player.position
+          position: {
+            x: state.player.center.x,
+            y: state.player.center.y,
+          },
+          width: 0.01,
+          height: 0.01
         });
         GameState.gameClients[results[i].clientId].state.player.bulletShots.hit++;
         GameState.gameClients[results[i].clientId].state.player.damageDealt += results[i].damage;
-        player.health.current -= results[i].damage;
-        if (player.health.current <= 0) {
+        state.player.health.current -= results[i].damage;
+        if (state.player.health.current <= 0 && !state.player.dead) {
+          state.player.dead = true;
           GameState.gameClients[results[i].clientId].state.player.killCount++;
+          hits.push({
+            hitClientId: results[i].client,
+            sourceClientId: clientId,
+            bulletId: clientId,
+            position: {
+              x: state.player.center.x,
+              y: state.player.center.y
+            },
+            width: state.player.size.width,
+            height: state.player.size.height
+          });
+          for (gamer in GameState.gameClients) {
+            if (GameState.gameClients[gamer].socket.id !== clientId) {
+              GameState.gameClients[gamer].socket.emit(GameNetIds.GAME_UPDATE_MESSAGE, {
+                // they are not subtracted yet from the alive players so this is their position.
+                message: state.username + ' was eliminated by ' + results[i].username
+              });
+            }
+          }
+
         }
-        player.reportUpdate = true;
+        state.player.reportUpdate = true;
         bulletTree.remove(results[i]);
       }
     }
   }
 }
-function checkPlayerVsBuffCollision(player){
-  if(itemTree.collides({minX:player.position.x, minY: player.position.y, maxX:Math.max(player.size.height, player.size.width) + player.position.x, maxY:Math.max(player.size.height, player.size.width) + player.position.y})) {
-    var result = itemTree.search({
-      minX: player.position.x,
-      minY: player.position.y,
-      maxX: Math.max(player.size.height, player.size.width) + player.position.x,
-      maxY: Math.max(player.size.height, player.size.width) + player.position.y
-    });
+function checkPlayerVsBuffCollision(state, client){
+  let searchArea = {
+    minX: state.player.position.x,
+    minY: state.player.position.y,
+    maxX: Math.max(state.player.size.height, state.player.size.width) + state.player.position.x,
+    maxY: Math.max(state.player.size.height, state.player.size.width) + state.player.position.y
+  };
+  if(itemTree.collides(searchArea)) {
+    var result = itemTree.search(searchArea);
+    
     for (let i = 0; i < result.length; i++) {
       switch(result[i].type){
         case 'ammo':
-          if (player.ammo.current < player.ammo.max) {
-            player.ammo.current += 20;
-            player.ammo.current = Math.min(player.ammo.current, player.ammo.max);
+          if (state.player.ammo.current < state.player.ammo.max) {
+            state.player.ammo.current += 20;
+            state.player.ammo.current = Math.min(state.player.ammo.current, state.player.ammo.max);
             itemTree.remove(result[i]);
+            client.socket.emit(GameNetIds.GAME_UPDATE_MESSAGE, {
+              // they are not subtracted yet from the alive players so this is their position.
+              message: 'Picked up ammo'
+            });
           }
           break;
         case 'health':
-          if (player.health.current < player.health.max) {
-            player.health.current += 20;
-            player.health.current = Math.min(player.health.current, player.health.max);
+          if (state.player.health.current < state.player.health.max) {
+            state.player.health.current += 20;
+            state.player.health.current = Math.min(state.player.health.current, state.player.health.max);
             itemTree.remove(result[i]);
+            client.socket.emit(GameNetIds.GAME_UPDATE_MESSAGE, {
+              // they are not subtracted yet from the alive players so this is their position.
+              message: 'Picked up health'
+            });
           }
           break;
         case 'speed':
-          if (!player.buffs.speed) {
-            player.buffs.speed = true;
-            player.energy.current = player.energy.max;
+          if (!state.player.buffs.speed) {
+            state.player.buffs.speed = true;
+            state.player.energy.current = state.player.energy.max;
             itemTree.remove(result[i]);
-          } else if(player.energy.current < player.energy.max){
-            player.energy.current = player.energy.max
+            client.socket.emit(GameNetIds.GAME_UPDATE_MESSAGE, {
+              // they are not subtracted yet from the alive players so this is their position.
+              message: 'Picked up speed boost buff'
+            });
+          } else if(state.player.energy.current < state.player.energy.max){
+            state.player.energy.current = state.player.energy.max
             itemTree.remove(result[i]);
+            client.socket.emit(GameNetIds.GAME_UPDATE_MESSAGE, {
+              // they are not subtracted yet from the alive players so this is their position.
+              message: 'Picked up speed boost refill'
+            });
           }
           break;
         case 'gun':
-          if (!player.gun) {
-            player.gun = true;
-            player.ammo.current = player.ammo.max;
+          if (!state.player.gun) {
+            state.player.gun = true;
+            state.player.ammo.current = state.player.ammo.max;
+            client.socket.emit(GameNetIds.GAME_UPDATE_MESSAGE, {
+              // they are not subtracted yet from the alive players so this is their position.
+              message: 'Picked up a gun'
+            });
             itemTree.remove(result[i]);
           }
           break;
         case 'gunSpd':
-          if (!player.buffs.fireRate) {
-            player.buffs.fireRate = true;
+          if (!state.player.buffs.fireRate) {
+            state.player.buffs.fireRate = true;
             itemTree.remove(result[i]);
+            client.socket.emit(GameNetIds.GAME_UPDATE_MESSAGE, {
+              // they are not subtracted yet from the alive players so this is their position.
+              message: 'Picked up gun speed boost'
+            });
           }
           break;
         case 'dmg':
-          if (player.buffs.dmg === 0) {
-            player.buffs.dmg = 5;
+          if (state.player.buffs.dmg === 0) {
+            state.player.buffs.dmg = 5;
             itemTree.remove(result[i]);
+            client.socket.emit(GameNetIds.GAME_UPDATE_MESSAGE, {
+              // they are not subtracted yet from the alive players so this is their position.
+              message: 'Picked up damage boost'
+            });
           }
           break;
       }
@@ -239,13 +319,32 @@ function checkPlayerVsBuffCollision(player){
   }
   //if hit, pick up buff if not already obtained
 }
-function checkPlayerVsDeathCircleCollision(player){
+function checkPlayerVsDeathCircleCollision(player, clientId){
   //If outside circle, take damage
   if(player.isDropped && !GameState.shield.containsPoint(Geometry.Point(player.center.x, player.center.y))) {
     if(player.health.current > 0) {
       player.health.current--;
       if(player.health.current <= 0) {
         processDeath(player);
+        hits.push({
+          hitClientId: otherPlayers[i].client,
+          sourceClientId: clientId,
+          bulletId: clientId,
+          position: {
+            x: player.center.x,
+            y: player.center.y
+          },
+          width: player.size.width,
+          height: player.size.height
+        });
+        for (gamer in GameState.gameClients) {
+          if (GameState.gameClients[gamer].socket.id !== clientId) {
+            GameState.gameClients[gamer].socket.emit(GameNetIds.GAME_UPDATE_MESSAGE, {
+              // they are not subtracted yet from the alive players so this is their position.
+              message: state.username + ' was eliminated by ' + results[i].username
+            });
+          }
+        }
       }
     }
   }
@@ -272,7 +371,7 @@ function update(elapsedTime, currentTime, totalTime) {
   bulletTree.clear();
   bulletTree.load(activeBullets);
   for (let clientId in GameState.gameClients) {
-    checkCollisions(GameState.gameClients[clientId].state.player, GameState.gameClients[clientId].socket.id);
+    checkCollisions(GameState.gameClients[clientId].state, GameState.gameClients[clientId].socket.id, GameState.gameClients[clientId]);
     if(checkDeath(GameState.gameClients[clientId].state.player)) {
       processDeath(GameState.gameClients[clientId].state.player);
       GameState.gameClients[clientId].socket.emit(GameNetIds.MESSAGE_GAME_OVER, {
@@ -429,6 +528,7 @@ function updateClients(elapsedTime) {
   
   for (let clientId in GameState.gameClients) {
     let client = GameState.gameClients[clientId];
+    client.state.player.reportUpdate = true;
     let buffs = itemTree.search({
       minX: client.state.player.position.x - Coords.viewport.width,
       minY: client.state.player.position.y - Coords.viewport.height,
@@ -448,6 +548,8 @@ function updateClients(elapsedTime) {
           useTurbo: client.state.player.useTurbo,
           updateWindow: props.lastUpdate,
           isDropped: client.state.player.isDropped,
+          ammo: client.state.player.ammo.current,
+          gun: client.state.player.gun,
           items: buffs
         },
         shield: {

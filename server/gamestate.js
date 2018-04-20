@@ -54,6 +54,7 @@ var GameState = {
 // TODO: Wipes and preps the gamestate for a new game
 function newGame() {
   //set number of players and reset item array and alivePlayer array
+  itemArray = [];
   islandMap = GameMap.getGridMap();
   GameState.shield = Shield(5*60*1000);
   GameState.playerCount = Object.keys(gameClients).length;

@@ -144,7 +144,12 @@
   </div>
   <div class="hidden" data-view="GameView" id="game">
     <canvas id="game-canvas"></canvas>
+    <div class="pseudo-canvas">
+      <div id="game-messages" class="game-deaths">
+      </div>
   </div>
+  </div>
+  
   <!-- Start Scripts -->
   <script src="/socket.io/socket.io.js"></script>
   <script data-main = "loader" src = "require.js"></script>

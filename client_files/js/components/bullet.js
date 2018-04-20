@@ -22,7 +22,11 @@ function Bullet(spec) {
 
   Object.defineProperty(that, 'color', {
     get: () => spec.color
-  })
+  });
+
+  Object.defineProperty(that, 'username', {
+    get: () => spec.username
+  });
 
   //------------------------------------------------------------------
   //
