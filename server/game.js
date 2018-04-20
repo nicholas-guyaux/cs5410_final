@@ -1,5 +1,3 @@
-// This code was adapted from code originally written by Dr. Dean Mathias
-
 const present = require('present');
 const GameState = require('./gamestate');
 const rbush = require('rbush');
