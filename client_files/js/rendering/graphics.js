@@ -6,6 +6,7 @@ const Graphics = (function() {
 
   let maskingCanvas = document.createElement('canvas');
   let maskingContext = maskingCanvas.getContext('2d');
+  let messageBox = document.getElementById('game-messages');
   maskingCanvas.width = Coords.world.width;
   maskingCanvas.height = Coords.world.height;
 
@@ -183,6 +184,17 @@ const Graphics = (function() {
           Math.floor(localSize.width*scalingFactor()),
           Math.floor(localSize.height*scalingFactor()));
     }
+  }
+
+  function drawText(text,x,y,size) {
+    context.font = size;
+    context.textBaseline = "hanging";
+    context.fillText(text, x, y);
+  }
+
+  function addGameMessage(message) {
+    messageBox.innerHTML += '<p>' + message + '</p>';
+    messageBox.scrollTop = messageBox.scrollHeight;
   }
   
   function drawRectangle(style, left, top, width, height){
@@ -481,6 +493,8 @@ const Graphics = (function() {
     drawFromTiledCanvas: drawFromTiledCanvas,
     setOpacity: setOpacity,
     setFullMapCanvas: setFullMapCanvas,
+    drawText: drawText,
+    addGameMessage: addGameMessage,
     enableShieldClipping,
     drawLine: drawLine,
     get viewport () {

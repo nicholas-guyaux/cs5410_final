@@ -134,6 +134,16 @@ const Renderer = (function(graphics) {
     Graphics.drawLine('white', shield, playerPosition);
   }
 
+  function renderAmmo(gun,ammo) {
+    // + (Coords.viewport.width*.9) 
+    //  + (Coords.viewport.height*.95)
+    if (gun) {
+      Graphics.drawText('Ammo: ' + ammo.toString(), Math.floor(Coords.viewport.x * Coords.world.width), Math.floor(Coords.viewport.y * Coords.world.height) + 1, Math.floor((Coords.viewport.height * Coords.world.height * .03)).toString() + 'px serif');
+    } else {
+      Graphics.drawText('Ammo: ' + 'No Gun', Math.floor(Coords.viewport.x * Coords.world.width), Math.floor(Coords.viewport.y * Coords.world.height) + 1, Math.floor((Coords.viewport.height * Coords.world.height * .03)).toString() + 'px serif');
+    }
+  }
+
   var clipping = TiledImageClipping({
     width: MyGame.assets['plane'].width / 4,
     height: MyGame.assets['plane'].height
@@ -164,6 +174,10 @@ const Renderer = (function(graphics) {
     Graphics.drawCircle(model.color, model.position, model.radius);
   }
 
+  function renderMessages(message) {
+    Graphics.addGameMessage(message);
+  }
+
   function renderShield (shield) {
     Graphics.enableShieldClipping(shield);
   }
@@ -180,6 +194,8 @@ const Renderer = (function(graphics) {
     renderGameStart,
     renderExplosion,
     renderItems,
+    renderAmmo,
+    renderMessages,
     renderShield,
     // renderRemotePlayer
   };
