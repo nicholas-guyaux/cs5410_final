@@ -17,6 +17,7 @@ MyGame.components.Player = function() {
   let direction = 0;
   let rotateRate = 0;
   let speed = 0;
+  that.dead = false;
 
   Object.defineProperty(that, 'direction', {
       get: () => direction,

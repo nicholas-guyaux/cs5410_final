@@ -146,17 +146,17 @@ function checkPlayerVsPlayerCollisions(state, clientId){
                 });
               }
             }
-            hits.push({
-              hitClientId: otherPlayers[i].client,
-              sourceClientId: clientId,
-              bulletId: clientId,
-              position: {
-                x: state.player.center.x,
-                y: state.player.center.y
-              },
-              width: state.player.size.width,
-              height: state.player.size.height
-            });
+            // hits.push({
+            //   hitClientId: otherPlayers[i].client,
+            //   sourceClientId: clientId,
+            //   bulletId: clientId,
+            //   position: {
+            //     x: state.player.center.x,
+            //     y: state.player.center.y
+            //   },
+            //   width: state.player.size.width,
+            //   height: state.player.size.height
+            // });
 
             for (gamer in GameState.gameClients) {
               if (GameState.gameClients[gamer].socket.id !== otherPlayers[i].clientId) {
@@ -167,7 +167,7 @@ function checkPlayerVsPlayerCollisions(state, clientId){
               }
             }
           }
-        }              
+        }
       }
     }
   }
@@ -551,7 +551,8 @@ function updateClients(elapsedTime) {
           isDropped: client.state.player.isDropped,
           ammo: client.state.player.ammo.current,
           gun: client.state.player.gun,
-          items: buffs
+          items: buffs,
+          isDead: client.state.player.dead
         },
         shield: {
           x: GameState.shield.x,

@@ -196,6 +196,10 @@ const Graphics = (function() {
     messageBox.innerHTML += '<p>' + message + '</p>';
     messageBox.scrollTop = messageBox.scrollHeight;
   }
+
+  function clearGameMessageBox(){
+    messageBox.innerHTML = '';
+  }
   
   function drawRectangle(style, left, top, width, height){
     context.strokeStyle = style;
@@ -497,6 +501,7 @@ const Graphics = (function() {
     addGameMessage: addGameMessage,
     enableShieldClipping,
     drawLine: drawLine,
+    clearGameMessageBox: clearGameMessageBox,
     get viewport () {
       return viewport;
     },
