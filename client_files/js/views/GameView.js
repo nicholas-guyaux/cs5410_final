@@ -399,6 +399,9 @@ const GameView = (function() {
         case GameNetIds.INPUT_ROTATE_RIGHT:
           playerSelf.model.rotateRight(message.elapsedTime);
           break;
+        case GameNetIds.MOVE_BACKWARD:
+          playerSelf.model.reverse(message.elapsedTime);
+          break;
       }
       memory.enqueue(message);
     }
