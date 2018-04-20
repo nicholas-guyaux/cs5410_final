@@ -20,6 +20,14 @@ const AudioPool = (function (AudioAsset, throttle) {
     }
   }
 
+  function addLoopSFX (nickname, srcs) {
+    music.set(nickname, AudioAsset({
+      loop: true,
+      volume: musicVolume,
+      src,
+    }));
+  }
+
   function addSFX (nickname, src) {
     sfx.set(nickname, AudioAsset({
       src,
@@ -43,7 +51,12 @@ const AudioPool = (function (AudioAsset, throttle) {
         activeMusic.pause();
       }
       activeMusic = newMusic;
-      newMusic.play();
+      var p = newMusic.play();
+      if(p) {
+        p.catch(e => {
+          // do nothing
+        })
+      }
       newMusic.currentTime = 0;
     } else {
       console.warn(`No music by name '${nickname}'.`);
