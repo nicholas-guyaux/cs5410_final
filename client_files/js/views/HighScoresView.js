@@ -1,8 +1,14 @@
 const HighScoresView = (function HighScoresView (AudioPool) {
   var buttonMenu = null;
+  var byKills = {};
+  var byWins = {};
+  var byDamage = {};
+  var byAccuracy = {};
 
   function render(data) {
-    console.log(Users.users[0]);
+    getHighScores().then(([byKills, byWins, byDamage, byAccuracy]) => {
+
+    }).catch(e => { console.error(e); });
   }
 
   function unrender(data) {
@@ -17,6 +23,17 @@ const HighScoresView = (function HighScoresView (AudioPool) {
     });
 
     buttonMenu = ButtonMenu($('#highscore-menu')[0]);
+  }
+
+  function getHighScores(){
+    return Promise.all(
+      [
+        client.get('/api/highscore/byKills'),
+        client.get('/api/highscore/byWins'),
+        client.get('/api/highscore/byDamage'),
+        client.get('/api/highscore/byAccuracy')
+      ]
+    )
   }
 
   return {
