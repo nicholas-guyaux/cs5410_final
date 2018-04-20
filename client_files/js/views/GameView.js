@@ -155,7 +155,7 @@ const GameView = (function() {
     props.commandKeys = client.user.commandKeys;
     keyboard.activate();
     if (socket === null) {
-      socket = io('/game', {transports: ['websocket']});
+      socket = io('/game');
     }
 
     socket.on(GameNetIds.CONNECT_ACK, data => {
