@@ -309,7 +309,7 @@ function update(elapsedTime, currentTime, totalTime) {
         });
       }
     }
-    GameState.inProgress = false;
+    terminate();
   }
   activeBullets = bulletTree.all();
   for (let i = 0; i < newBullets.length; i++) {
@@ -547,6 +547,9 @@ function updateStats(){
 
 
 var timeout = (ms) => new Promise(res => setTimeout(res, ms));
+function terminate () {
+  GameState.inProgress = false;
+}
 //------------------------------------------------------------------
 //
 // Get the socket.io server up and running so it can begin
@@ -558,11 +561,15 @@ async function initialize() {
     itemTree = rbush();
     itemTree.load(GameState.newGame());
     // wait for atleast two players to come in
-    for(var i = 0; i < 100; ++i) {
+    for(var i = 0; i < 50; ++i) {
       await timeout(100);
       if(GameState.alivePlayers.length >= 2) {
         break;
       }
+    }
+    if(GameState.alivePlayers.length === 0) {
+      terminate();
+      return;
     }
     GameState.startTime = present();
     gameLoop(present(), 0);
