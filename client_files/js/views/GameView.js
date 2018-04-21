@@ -371,10 +371,6 @@ const GameView = (function() {
   function updatePlayerSelf(data) {
     playerSelf.model.position.x = data.player.position.x;
     playerSelf.model.position.y = data.player.position.y;
-    //if(data.player.health.current < playerSelf.model.health.current)
-    //add damage particle effect
-    //else if(data.player.health.current > playerSelf.model.health.current)
-    //add healing particle effect
     playerSelf.model.health = data.player.health;
     playerSelf.model.direction = data.player.direction;
     playerSelf.model.energy = data.player.energy;
@@ -393,7 +389,6 @@ const GameView = (function() {
     playerSelf.model.gun = data.player.gun;
     playerSelf.model.dead = data.player.isDead;
 
-    //console.log(playerSelf.model.localItems);
     // Remove messages from the queue up through the last one identified
     // by the server as having been processed.
     let done = false;
@@ -404,7 +399,6 @@ const GameView = (function() {
       messageHistory.dequeue();
     }
 
-        
     // Update the client simulation since this last server update, by
     // replaying the remaining inputs.
     let memory = Queue.create();
@@ -440,6 +434,8 @@ const GameView = (function() {
       playerOthers[data.clientId].model.goal.position.x = data.player.position.x;
       playerOthers[data.clientId].model.goal.position.y = data.player.position.y;
       playerOthers[data.clientId].model.goal.direction = data.player.direction;
+      playerOthers[data.clientId].model.recentlyUpdated = true;
+      playerOthers[data.clientId].model.renderLimit = 1000;
     }
   }
 
@@ -650,8 +646,9 @@ const GameView = (function() {
     }
     for (let id in playerOthers) {
       let player = playerOthers[id];
-      if(!player.dead)
+      if(player.model.renderLimit >= 0){
         Renderer.renderPlayer(player.model, player.textureSet, totalTime);
+      }
     }
     Renderer.renderItems(playerSelf.model.localItems, itemImages);
     
