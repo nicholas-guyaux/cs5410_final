@@ -39,6 +39,7 @@ function PlayerRemote() {
     },
     updateWindow: 0      // Server reported time elapsed since last update
   };
+  let renderLimit = 0;
 
   Object.defineProperty(that, 'state', {
     get: () => state
@@ -52,6 +53,11 @@ function PlayerRemote() {
     get: () => size
   });
 
+  Object.defineProperty(that, 'renderLimit', {
+    get: () => renderLimit,
+    set: value => { renderLimit = value; }
+  })
+
   //------------------------------------------------------------------
   //
   // Update of the remote player is a simple linear progression/interpolation
@@ -61,6 +67,9 @@ function PlayerRemote() {
   that.update = function(elapsedTime) {
     // Protect against divide by 0 before the first update from the server has been given
     if (goal.updateWindow <= 0) return;
+
+    if(renderLimit > 0)
+      renderLimit -= elapsedTime;
 
     let updateFraction = elapsedTime / goal.updateWindow;
     if (updateFraction > 0) {
