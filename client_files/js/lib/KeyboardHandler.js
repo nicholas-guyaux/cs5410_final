@@ -3,6 +3,7 @@ function KeyboardHandler (immediateHandle=false, type="key") {
   var active = false;
   var actions = new Map();
   var onceActions = new Map();
+  var upActions = new Map();
   var queuedActions = new Set();
   var addedOnceActions = new Set();
   var keyMappings = [
@@ -29,7 +30,7 @@ function KeyboardHandler (immediateHandle=false, type="key") {
       queuedActions.add(action);
     }
     if(immediateHandle) {
-      handle();
+      handle(e);
     }
   });
 
@@ -49,19 +50,24 @@ function KeyboardHandler (immediateHandle=false, type="key") {
     if(addedOnceActions.has(action)) {
       addedOnceActions.delete(action)
     }
+    var action = getKeys(upActions, e[type]);
+    if(action) {
+      queuedActions.add(action);
+    }
     if(immediateHandle) {
-      handle();
+      handle(e);
     }
   });
 
-  function handle (elapsed, gameState) {
+  function handle (event) {
     if(!active) return;
     for(var action of queuedActions) {
-      action(elapsed, gameState);
+      action(event);
       if(addedOnceActions.has(action)) {
         queuedActions.delete(action);
       }
     }
+    queuedActions = new Set();
   };
 
   function addAction (key, action) {
@@ -72,6 +78,10 @@ function KeyboardHandler (immediateHandle=false, type="key") {
     onceActions.set(key, action);
   }
 
+  function addUpAction (key, action) {
+    upActions.set(key,action);
+  }
+
   function removeAction (key) {
     actions.remove(key);
   }
@@ -80,6 +90,7 @@ function KeyboardHandler (immediateHandle=false, type="key") {
     handle,
     addAction,
     addOnceAction,
+    addUpAction,
     removeAction,
     activate () {
       queuedActions.clear();

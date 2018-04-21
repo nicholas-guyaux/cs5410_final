@@ -103,11 +103,11 @@ button.selected, button:hover, button:active {
   outline: none;
 }
 
-#game-menu, noscript, #credits-menu, #options-menu, #highscore-menu, #login-menu, #signup-menu, #splash-screen, #game-over-menu {
+#game-menu, noscript, #credits-menu, #options-menu, #highscore-menu, #login-menu, #signup-menu, #splash-screen, #game-over-menu, #controls-menu {
   display: flex;
   align-items: center;
   justify-content: center;
-  height: 100vh;
+  min-height: 100vh;
   padding: var(--menu-padding);
   box-sizing: border-box;
   flex-direction: column;

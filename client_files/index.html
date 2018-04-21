@@ -116,8 +116,20 @@
     <table id="highscore-table"></table>
     <button data-view-transition="MenuView">Main Menu</button>
   </div>
+  <div class="hidden" data-view="ControlsView" id="controls-menu">
+      <h2>Controls</h2>
+      <p>
+        Press Enter to begin listening for a new key.
+      </p>
+      <h5>Currently: <span id="control-config-listening">not listening</span></h5>
+      <div id="controls-setter"></div>
+      <!--See ButtonMenu.js implementation for controls-->
+      <button data-view-transition="MenuView">Main Menu</button>
+    </div>
   <div class="hidden" data-view="OptionsView" id="options-menu">
     <h2>Options</h2>
+    <div id="controls-setter"></div>
+    <button data-view-transition="ControlsView">Controls</button>
     <!--See ButtonMenu.js implementation for controls-->
     <button data-view-transition="MenuView">Main Menu</button>
   </div>

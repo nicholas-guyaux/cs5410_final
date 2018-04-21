@@ -50,18 +50,24 @@ function isPasswordCorrect(savedHash, savedSalt, savedIterations, passwordAttemp
   });
 }
 
-function saveKeyboard(commandKeys, user) {
-  var user = users.find(u => user.name === u.name);
+function saveKeyboard(commandKeys, keyNames, user) {
+  var user = users.find(u => user.name === u.client.name);
 
   // TODO: filter input - use a list of valid keys
   if (user) {
-    user.commandKeys = commandKeys;
+    user.client.commandKeys = commandKeys;
+    user.client.keyNames = keyNames;
   }
   write();
+  return user;
 }
 
 function userExists (name) {
-  return !!users.find(user => user.client.name === name);
+  return users.some(u => u.client.name === name);
+}
+
+function findUser (name) {
+  return users.find(u => u.client.name === name);
 }
 
 async function createUser (user) {
@@ -81,14 +87,23 @@ async function createUser (user) {
     client: {
       name: user.name,
       email: user.email,
+      // command keys should have a keyname too.
       commandKeys: {
         ROTATE_RIGHT: 39,
         ROTATE_LEFT: 37,
         MOVE_FORWARD: 38,
         MOVE_BACKWARD: 40,
         FIRE: 32,
-        TURBO: 84
-      }
+        TURBO: 16
+      },
+      keyNames: {
+        ROTATE_RIGHT: 'ArrowRight',
+        ROTATE_LEFT: 'ArrowLeft',
+        MOVE_FORWARD: 'ArrowUp',
+        MOVE_BACKWARD: 'ArrowDown',
+        FIRE: ' ',
+        TURBO: 'Shift',
+      },
     },
     stats: {
       name: user.name,
@@ -196,9 +211,11 @@ module.exports = {
   },
   loginUser: loginUser,
   userExists: userExists,
+  findUser: findUser,
   createUser: createUser,
   Errors: Errors,
   write: write,
+  saveKeyboard: saveKeyboard, 
   get sorted(){
     return sortedUsers;
   },
