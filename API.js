@@ -18,14 +18,15 @@ function API (req, res) {
   router.get('/api/user/', handleError, async (err, req, res) => {
       try {
         client_user = await Token.check_auth(req.query.token);
-        if(!Users.userExists(client_user.name)) {
+        var user = Users.findUser(client_user.name);
+        if(!user) {
           throw new Error('User in token does not exist');
         }
         res.status(200);
         res.json({
-          user: client_user,
+          user: user.client,
           code: 200,
-          token: Token.signUserToken(client_user),
+          token: Token.signUserToken(user.client),
         });
       } catch (e) {
         console.error(e);
@@ -66,15 +67,15 @@ function API (req, res) {
 
   router.post('/api/user/keyConfig', handleError, async (err, req, res) => {
     try {
-      let user;
       try {
-        body = JSON.parse(req.body);
+        commandKeys = JSON.parse(req.body.commandKeys);
+        keyNames = JSON.parse(req.body.keyNames);
       } catch (e) {
         handleError(e, req, res);
         return;
       }
-      client_user = await Token.check_auth(req.query.token);
-      var user = Users.saveKeyboard(body.commandKeys, body.keyNames, client_user);
+      client_user = await Token.check_auth(req.body.token);
+      let user = Users.saveKeyboard(commandKeys, keyNames, client_user);
       res.status(200);
       res.json({
         user: user.client,

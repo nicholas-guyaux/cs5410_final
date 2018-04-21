@@ -2,16 +2,21 @@ function ButtonMenu (el) {
   let active = false;
 
   let shiftIdx = (shiftAmount, length) => (2*length + (shiftAmount % length)) % length;
-  
-  let buttons = $$('button', el);
-  if(!buttons[0]) {
-    throw new Error('You need buttons inside this element for ButtonMenu to work!')
-;  }
-  let selectedIdx = buttons.findIndex(el => el.classList.contains('selected'));
-  if(selectedIdx === -1) {
-    selectedIdx = 0
+
+  let buttons;
+  let selectedIdx;
+  function reset () {
+    buttons = $$('button', el);
+    if(!buttons[0]) {
+      throw new Error('You need buttons inside this element for ButtonMenu to work!')
+  ;  }
+    selectedIdx = 0;
+    for(var button of buttons) {
+      button.classList.remove('selected');
+    }
     buttons[selectedIdx].classList.add('selected');
   }
+  reset();
 
   function select (idx) {
     if (idx instanceof Element) {
@@ -47,10 +52,10 @@ function ButtonMenu (el) {
     AudioPool.playSFX('menu_navigate');
   });
 
-  keyboard.addOnceAction('Enter', () => {
-    setTimeout(()=>{
-      buttons[selectedIdx].dispatchEvent(new Event('click'));
-    }, 0);
+  keyboard.addUpAction('Enter', (e) => {
+    buttons[selectedIdx].dispatchEvent(new Event('click'));
+    e.stopImmediatePropagation();
+    e.stopPropagation();
   });
 
   // document.addEventListener('keyup', (e) => {
@@ -78,8 +83,11 @@ function ButtonMenu (el) {
   return {
     shiftSelected,
     select,
-    activate () {
-      select(buttons[0]);
+    reset,
+    activate (dontReselect=false) {
+      if(!dontReselect) {
+        select(buttons[0]);
+      }
       active = true;
       keyboard.activate();
     },

@@ -32,7 +32,7 @@ MyGame.loader = (function() {
       message: 'Library essentials loaded',
       onComplete: null,
     }, {
-      scripts: ['js/lib/AudioAsset'],
+      scripts: ['js/lib/AudioAsset', 'js/lib/ControlsSetter'],
       message: 'AudioAsset',
       onComplete: null,
     }, {
@@ -126,6 +126,7 @@ MyGame.loader = (function() {
         'js/views/SignupView',
         'js/views/SplashView',
         'js/views/HighScoresView',
+        'js/views/ControlsView',
         'js/components/gameMap',
         'js/components/vehicle',
         'js/components/shield',

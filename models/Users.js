@@ -55,8 +55,8 @@ function saveKeyboard(commandKeys, keyNames, user) {
 
   // TODO: filter input - use a list of valid keys
   if (user) {
-    user.commandKeys = commandKeys;
-    user.keyNames = keyNames;
+    user.client.commandKeys = commandKeys;
+    user.client.keyNames = keyNames;
   }
   write();
   return user;
@@ -64,6 +64,10 @@ function saveKeyboard(commandKeys, keyNames, user) {
 
 function userExists (name) {
   return users.some(u => u.client.name === name);
+}
+
+function findUser (name) {
+  return users.find(u => u.client.name === name);
 }
 
 async function createUser (user) {
@@ -83,6 +87,7 @@ async function createUser (user) {
     client: {
       name: user.name,
       email: user.email,
+      // command keys should have a keyname too.
       commandKeys: {
         ROTATE_RIGHT: 39,
         ROTATE_LEFT: 37,
@@ -96,7 +101,7 @@ async function createUser (user) {
         ROTATE_LEFT: 'ArrowLeft',
         MOVE_FORWARD: 'ArrowUp',
         MOVE_BACKWARD: 'ArrowDown',
-        FIRE: 'Space',
+        FIRE: ' ',
         TURBO: 'Shift',
       },
     },
@@ -206,6 +211,7 @@ module.exports = {
   },
   loginUser: loginUser,
   userExists: userExists,
+  findUser: findUser,
   createUser: createUser,
   Errors: Errors,
   write: write,

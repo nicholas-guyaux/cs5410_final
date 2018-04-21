@@ -18,10 +18,12 @@ const HighScoresView = (function HighScoresView (AudioPool) {
       orderByKills();
     }).catch(e => { console.error(e); });
     keyboard.activate();
+    buttonMenu.activate();
   }
 
   function unrender(data) {
     keyboard.deactivate();
+    buttonMenu.deactivate();
   }
 
   function init() {

@@ -48,6 +48,16 @@ const client = (function () {
     }).then(saveToken).then(saveUser);
   }
 
+  function saveKeys (commandKeys, keyNames) {
+    return formPost('/api/user/keyConfig', {
+      data: getSearchParams({
+        commandKeys: JSON.stringify(commandKeys),
+        keyNames: JSON.stringify(keyNames),
+        token: user_token,
+      })
+    }).then(saveToken).then(saveUser);
+  }
+
   function loginUser (user) {
     return formPost('/api/user/login', {
       data: getSearchParams({
@@ -103,6 +113,7 @@ const client = (function () {
     },
     get,
     getUser,
-    logout
+    logout,
+    saveKeys,
   }
 })();
