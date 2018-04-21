@@ -41,7 +41,7 @@ const ControlsView = (function () {
         if(ControlsSetter.listening) {
           return;
         }
-        MainView
+        MainView.loadView(MenuView.name)
         AudioPool.playSFX('menu_click');
       });
     },

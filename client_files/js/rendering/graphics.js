@@ -186,8 +186,9 @@ const Graphics = (function() {
     }
   }
 
+  const fontStyle = `'Press Start 2P', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif`;
   function drawText(text,x,y,size) {
-    context.font = size;
+    context.font = `${size}px ${fontStyle}`;
     context.textBaseline = "hanging";
     context.fillText(text, x, y);
   }

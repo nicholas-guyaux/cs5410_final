@@ -50,9 +50,9 @@ function KeyboardHandler (immediateHandle=false, type="key") {
     if(addedOnceActions.has(action)) {
       addedOnceActions.delete(action)
     }
-    var action = getKeys(upActions, e[type]);
-    if(action) {
-      queuedActions.add(action);
+    var upAction = getKeys(upActions, e[type]);
+    if(upAction) {
+      queuedActions.add(upAction);
     }
     if(immediateHandle) {
       handle(e);
@@ -67,7 +67,6 @@ function KeyboardHandler (immediateHandle=false, type="key") {
         queuedActions.delete(action);
       }
     }
-    queuedActions = new Set();
   };
 
   function addAction (key, action) {
