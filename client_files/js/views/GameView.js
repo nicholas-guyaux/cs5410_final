@@ -34,6 +34,7 @@ const GameView = (function() {
     maxEnergy = 100;
     vehicle = null;
     shield = null;
+    Graphics.clearGameMessageBox();
     keyboard = KeyboardHandler(false, 'keyCode');
     receivedMessages = Queue.create();
     itemImages = {
@@ -88,7 +89,7 @@ const GameView = (function() {
       commandKeys: null,
       nextExplosionId: 1,
       FOVDistance: 0.15,
-      FOVWidth: 0.15,
+      FOVWidth: 0.25,
       accumulatingParticlePeriod: 0
     };
 
@@ -154,7 +155,7 @@ const GameView = (function() {
     props.commandKeys = client.user.commandKeys;
     keyboard.activate();
     if (socket === null) {
-      socket = io('/game', {transports: ['websocket']});
+      socket = io('/game');
     }
 
     socket.on(GameNetIds.CONNECT_ACK, data => {
@@ -390,6 +391,7 @@ const GameView = (function() {
     playerSelf.model.localItems = data.player.items;
     playerSelf.model.ammo = data.player.ammo;
     playerSelf.model.gun = data.player.gun;
+    playerSelf.model.dead = data.player.isDead;
 
     //console.log(playerSelf.model.localItems);
     // Remove messages from the queue up through the last one identified
@@ -648,13 +650,10 @@ const GameView = (function() {
     }
     for (let id in playerOthers) {
       let player = playerOthers[id];
-      Renderer.renderPlayer(player.model, player.textureSet, totalTime);
+      if(!player.dead)
+        Renderer.renderPlayer(player.model, player.textureSet, totalTime);
     }
-    Renderer.renderItems(playerSelf.model.localItems, itemImages);   
-    for (let id in playerOthers) {
-      let player = playerOthers[id];
-      Renderer.renderPlayer(player.model, player.textureSet, totalTime);
-    } 
+    Renderer.renderItems(playerSelf.model.localItems, itemImages);
     
     Graphics.disableClipping();
     Graphics.createFogEffect(FOVPolygon2, props.FOVDistance);

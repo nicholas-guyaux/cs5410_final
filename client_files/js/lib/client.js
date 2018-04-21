@@ -40,6 +40,14 @@ const client = (function () {
     return searchParams;
   }
 
+  function changeNumRequiredPlayers (n) {
+    return formPost('api/game/numPlayersRequired', {
+      data: getSearchParams({
+        n: n
+      })
+    })
+  }
+
   function createUser (user) {
     return formPost('/api/user/create', {
       data: getSearchParams({
@@ -115,5 +123,6 @@ const client = (function () {
     getUser,
     logout,
     saveKeys,
+    changeNumRequiredPlayers,
   }
 })();

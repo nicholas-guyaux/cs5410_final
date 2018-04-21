@@ -77,7 +77,6 @@
     <button data-view-transition="OptionsView">Options</button>
     <button data-view-transition="CreditsView">Credits</button>
     <button id="logout" class="js-logout">Sign out</button>
-    <button data-view-transition="GameView">Test Game</button>
   </div>
   <div class="hidden" data-view="GameLobbyView" id="game-lobby">
     <h2>Pre-game Lobby</h2>
@@ -113,7 +112,7 @@
   </div>
   <div class="hidden" data-view="HighScoresView" id="highscore-menu">
     <h2>High Scores</h2>
-    <h3><div onclick="HighScoresView.orderByWins()">Totals</div><div onclick="HighScoresView.orderByWinRate()">Per Game</div></h3>
+    <h3><div class="highscore-hoverable" onclick="HighScoresView.orderByWins()">Totals</div><div class="highscore-hoverable" onclick="HighScoresView.orderByWinRate()">Per Game</div></h3>
     <table id="highscore-table"></table>
     <button data-view-transition="MenuView">Main Menu</button>
   </div>

@@ -1,6 +1,8 @@
 let { Router } = require('./Router');
 let Token = require('./Token');
 let Users = require('./models/Users');
+const config = require('./server/config');
+const lobby = require('./server/lobby');
 
 function handleError(err, req, res, next) {
   if(err) {
@@ -128,6 +130,22 @@ function API (req, res) {
         code: 200
       });
     } catch(e) {
+      handleError(e, req, res);
+      return;
+    }
+  });
+
+  router.post('/api/game/numPlayersRequired', handleError, function () {
+    try {
+      const numRequired = parseInt(req.body.n, 10);
+      config.numPlayersRequired = numRequired;
+      lobby.updateNumClients();
+      res.status(200);
+      res.json({
+        message: "users updated",
+        code: 200
+      });
+    } catch (e) {
       handleError(e, req, res);
       return;
     }
