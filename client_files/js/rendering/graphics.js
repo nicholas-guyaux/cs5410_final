@@ -146,9 +146,9 @@ const Graphics = (function() {
   }
 
   const fontStyle = `'Press Start 2P', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif`;
-  function drawText(text,x,y,size) {
+  function drawText(text,x,y,size, baseline) {
     context.font = `${size}px ${fontStyle}`;
-    context.textBaseline = "hanging";
+    context.textBaseline = baseline;
     context.fillText(text, x, y);
   }
 
@@ -224,7 +224,7 @@ const Graphics = (function() {
     context.beginPath();
     context.strokeColor = color;
     context.moveTo(a.x*Coords.world.width, a.y*Coords.world.height);
-    context.moveTo(b.x*Coords.world.width, b.y*Coords.world.height);
+    context.lineTo(b.x*Coords.world.width, b.y*Coords.world.height);
     context.stroke();
   }
 

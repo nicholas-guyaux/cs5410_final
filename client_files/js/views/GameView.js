@@ -305,12 +305,12 @@ const GameView = (function() {
   }
 
   function unrender() {
-    AudioPool.pauseAllLoopSFX();
     props.quit = true;
     socket.disconnect();
     socket = null;
     keyboard.deactivate();
     props.quit = true;
+    AudioPool.pauseAllLoopSFX();
   }
 
   function connectPlayerSelf(data) {
@@ -374,6 +374,7 @@ const GameView = (function() {
     playerSelf.model.energy = data.player.energy;
     playerSelf.model.useTurbo = data.player.useTurbo;
     playerSelf.model.isDropped = data.player.isDropped;
+    playerSelf.model.remainingPlayers = data.player.remainingPlayers;
 
     shield = Shield(data.shield.x, data.shield.y, data.shield.radius);
     if(shield.radius <= Geometry.LineSegment(shield, playerSelf.model.center).distance + Math.sqrt(2*Math.pow(Coords.viewport.width,2))) {
@@ -610,9 +611,7 @@ const GameView = (function() {
     Graphics.clear();
     Graphics.translateToViewport();
     GameMap.draw();
-   
-    Renderer.renderPlayer(playerSelf.model, playerSelf.textureSet, totalTime);
-    
+       
     particleManager.render();
 
     let playerPos = {x: playerSelf.model.position.x + playerSelf.model.size.width / 2, y: playerSelf.model.position.y + playerSelf.model.size.height / 2};
@@ -648,6 +647,8 @@ const GameView = (function() {
 
     Renderer.renderAmmo(playerSelf.model.gun, playerSelf.model.ammo);
 
+    Renderer.renderRemPlayers(playerSelf.model.remainingPlayers);
+
     if (waitingGameMessage) {
       waitingGameMessage = false;
       Renderer.renderMessages(gameMessage);
@@ -673,6 +674,8 @@ const GameView = (function() {
 
     if (!props.quit) {
       requestAnimationFrame(gameLoop);
+    } else {
+      AudioPool.pauseAllLoopSFX();
     }
   }
 

@@ -128,17 +128,26 @@ const Renderer = (function(graphics) {
       radius: lerp(0, minimap.width, shield.radius),
     });
 
+    const playerPosMinimap = ({
+      x: lerp(minimap.x, minimap.x + minimap.width, playerPosition.x),
+      y: lerp(minimap.y, minimap.y + minimap.height, playerPosition.y)
+    });
+    // renderShield(shield);
     Graphics.drawStrokedCircle('purple', shield, shield.radius);
-    graphics.drawRectangle('yellow', viewport.sx, viewport.y, viewport.width, viewport.height);
-    Graphics.drawLine('white', shield, playerPosition);
+    graphics.drawRectangle('yellow', viewport.x, viewport.y, viewport.width, viewport.height);
+    Graphics.drawLine('white', shield, playerPosMinimap);
   }
 
   function renderAmmo(gun,ammo) {
     if (gun) {
-      Graphics.drawText('Ammo: ' + ammo.toString(), Math.floor(Coords.viewport.x * Coords.world.width), Math.floor(Coords.viewport.y * Coords.world.height) + 1, Math.floor((Coords.viewport.height * Coords.world.height * .03)).toString());
+      Graphics.drawText('Ammo: ' + ammo.toString(), Math.floor(Coords.viewport.x * Coords.world.width), Math.floor(Coords.viewport.y * Coords.world.height), Math.floor((Coords.viewport.height * Coords.world.height * .02)).toString(), 'top');
     } else {
-      Graphics.drawText('Ammo: ' + 'No Gun', Math.floor(Coords.viewport.x * Coords.world.width), Math.floor(Coords.viewport.y * Coords.world.height) + 1, Math.floor((Coords.viewport.height * Coords.world.height * .03)).toString());
+      Graphics.drawText('Ammo: ' + 'No Gun', Math.floor(Coords.viewport.x * Coords.world.width), Math.floor(Coords.viewport.y * Coords.world.height), Math.floor((Coords.viewport.height * Coords.world.height * .02)).toString(), 'top');
     }
+  }
+
+  function renderRemPlayers(numPlayers) {
+    Graphics.drawText('Remaining Players: ' + numPlayers, Math.floor((Coords.viewport.x + Coords.viewport.width * .6) * Coords.world.width), Math.floor((Coords.viewport.y  + Coords.viewport.height ) * Coords.world.height), Math.floor((Coords.viewport.height * Coords.world.height * .02)).toString(), 'bottom');
   }
 
   var clipping = TiledImageClipping({
@@ -190,5 +199,6 @@ const Renderer = (function(graphics) {
     renderAmmo,
     renderMessages,
     renderShield,
+    renderRemPlayers,
   };
 }(Graphics));

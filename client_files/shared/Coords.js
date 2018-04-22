@@ -88,7 +88,7 @@
     viewport.playerUpdate = function (playerCenter) {
       var box = getCenteredBox({
         rect: viewport, 
-        scale: 0.25,
+        scale: 0.15,
       });
       if(box.left > playerCenter.x) {
         box.x -= Math.abs(playerCenter.x - box.left);

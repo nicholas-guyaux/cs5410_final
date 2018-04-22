@@ -257,7 +257,7 @@ function createPlayer(maxHealth, maxEnergy, maxAmmo, depletionRate) {
       energy.rate += elapsedTime;
       if(energy.rate > depletionRate){
         if(useTurbo){
-          var rate = buffs.speed ? 10 : 20;
+          var rate = buffs.speed ? 5 : 10;
           energy.current -= rate;
           reportUpdate = true;
           if(energy.current <= 0){
