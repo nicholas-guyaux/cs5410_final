@@ -161,7 +161,6 @@ function checkPlayerVsPlayerCollisions(state, clientId){
       }
     }
   }
-  
 }
 function checkPlayerVsBulletCollisions(state, clientId){
   //if hit, take damage to self
@@ -177,9 +176,6 @@ function checkPlayerVsBulletCollisions(state, clientId){
       // Don't allow a bullet to hit the player it was fired from.
       if (clientId !== results[i].clientId) {
         hits.push({
-          hitClientId: clientId,
-          sourceClientId: results[i].clientId,
-          bulletId: results[i].id,
           position: {
             x: state.player.center.x,
             y: state.player.center.y,
@@ -187,8 +183,10 @@ function checkPlayerVsBulletCollisions(state, clientId){
           width: 0.01,
           height: 0.01
         });
-        GameState.gameClients[results[i].clientId].state.player.bulletShots.hit++;
-        GameState.gameClients[results[i].clientId].state.player.damageDealt += results[i].damage;
+        if (typeof GameState.gameClients[results[i].clientId] !== 'undefined') {
+          GameState.gameClients[results[i].clientId].state.player.bulletShots.hit++;
+          GameState.gameClients[results[i].clientId].state.player.damageDealt += results[i].damage;
+        }        
         state.player.health.current -= results[i].damage;
         if (checkDeath(state.player) && !state.player.dead) {
           processDeath(state.player);
@@ -326,8 +324,8 @@ function checkDeath(player){
 
 function processDeath(player){
   hits.push({
-    width: player.size.width,
-    height: player.size.height,
+    width: player.size.width * 10,
+    height: player.size.height * 10,
     position: {
       x: player.center.x,
       y: player.center.y
