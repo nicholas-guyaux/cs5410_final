@@ -624,9 +624,7 @@ const GameView = (function() {
     // Graphics.enableClipping(FOVPolygon); // clipping for objects forbidden outside FOV
 
     GameMap.draw();
-   
-    Renderer.renderPlayer(playerSelf.model, playerSelf.textureSet, totalTime);
-    
+       
     particleManager.render();
 
     let playerPos = {x: playerSelf.model.position.x + playerSelf.model.size.width / 2, y: playerSelf.model.position.y + playerSelf.model.size.height / 2};

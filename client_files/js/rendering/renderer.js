@@ -130,7 +130,7 @@ const Renderer = (function(graphics) {
     });
     // renderShield(shield);
     Graphics.drawStrokedCircle('purple', shield, shield.radius);
-    graphics.drawRectangle('yellow', viewport.sx, viewport.y, viewport.width, viewport.height);
+    graphics.drawRectangle('yellow', viewport.x, viewport.y, viewport.width, viewport.height);
     Graphics.drawLine('white', shield, playerPosition);
   }
 
@@ -138,9 +138,9 @@ const Renderer = (function(graphics) {
     // + (Coords.viewport.width*.9) 
     //  + (Coords.viewport.height*.95)
     if (gun) {
-      Graphics.drawText('Ammo: ' + ammo.toString(), Math.floor(Coords.viewport.x * Coords.world.width), Math.floor(Coords.viewport.y * Coords.world.height) + 1, Math.floor((Coords.viewport.height * Coords.world.height * .03)).toString());
+      Graphics.drawText('Ammo: ' + ammo.toString(), Math.floor(Coords.viewport.x * Coords.world.width), Math.floor(Coords.viewport.y * Coords.world.height) + 5, Math.floor((Coords.viewport.height * Coords.world.height * .02)).toString());
     } else {
-      Graphics.drawText('Ammo: ' + 'No Gun', Math.floor(Coords.viewport.x * Coords.world.width), Math.floor(Coords.viewport.y * Coords.world.height) + 1, Math.floor((Coords.viewport.height * Coords.world.height * .03)).toString());
+      Graphics.drawText('Ammo: ' + 'No Gun', Math.floor(Coords.viewport.x * Coords.world.width), Math.floor(Coords.viewport.y * Coords.world.height) + 5, Math.floor((Coords.viewport.height * Coords.world.height * .02)).toString());
     }
   }
 

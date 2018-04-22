@@ -14,8 +14,9 @@ const Users = require('../models/Users');
 
 var waitingForPlayers = false;
 
-const SIMULATION_UPDATE_RATE_MS = 100;
+const SIMULATION_UPDATE_RATE_MS = 33;
 // const STATE_UPDATE_LAG = 0;
+const CLIENT_UPDATE_PERIOD = 100;
 
 let inputQueue = Queue.create();
 let islandMap = GameMap.getGridMap();
@@ -29,7 +30,8 @@ var bulletTree = rbush();
 let props = {
   quit: false,
   lastUpdate: 0,
-  nextBulletId: 1
+  nextBulletId: 1,
+  accumulatingUpdatePeriod: 0
 };
 
 
@@ -146,18 +148,6 @@ function checkPlayerVsPlayerCollisions(state, clientId){
                 });
               }
             }
-            // hits.push({
-            //   hitClientId: otherPlayers[i].client,
-            //   sourceClientId: clientId,
-            //   bulletId: clientId,
-            //   position: {
-            //     x: state.player.center.x,
-            //     y: state.player.center.y
-            //   },
-            //   width: state.player.size.width,
-            //   height: state.player.size.height
-            // });
-
             for (gamer in GameState.gameClients) {
               if (GameState.gameClients[gamer].socket.id !== otherPlayers[i].clientId) {
                 GameState.gameClients[gamer].socket.emit(GameNetIds.GAME_UPDATE_MESSAGE, {
@@ -171,11 +161,9 @@ function checkPlayerVsPlayerCollisions(state, clientId){
       }
     }
   }
-  
 }
 function checkPlayerVsBulletCollisions(state, clientId){
   //if hit, take damage to self
-
   let searchArea = {
     minX: state.player.position.x + state.player.size.width/2 - Math.max(state.player.size.width, state.player.size.height)/2,
     minY: state.player.position.y + state.player.size.height/2 - Math.max(state.player.size.width, state.player.size.height)/2,
@@ -188,9 +176,6 @@ function checkPlayerVsBulletCollisions(state, clientId){
       // Don't allow a bullet to hit the player it was fired from.
       if (clientId !== results[i].clientId) {
         hits.push({
-          hitClientId: clientId,
-          sourceClientId: results[i].clientId,
-          bulletId: results[i].id,
           position: {
             x: state.player.center.x,
             y: state.player.center.y,
@@ -198,32 +183,23 @@ function checkPlayerVsBulletCollisions(state, clientId){
           width: 0.01,
           height: 0.01
         });
-        GameState.gameClients[results[i].clientId].state.player.bulletShots.hit++;
-        GameState.gameClients[results[i].clientId].state.player.damageDealt += results[i].damage;
+        if (typeof GameState.gameClients[results[i].clientId] !== 'undefined') {
+          GameState.gameClients[results[i].clientId].state.player.bulletShots.hit++;
+          GameState.gameClients[results[i].clientId].state.player.damageDealt += results[i].damage;
+        }        
         state.player.health.current -= results[i].damage;
-        if (state.player.health.current <= 0 && !state.player.dead) {
-          state.player.dead = true;
+        if (checkDeath(state.player) && !state.player.dead) {
+          processDeath(state.player);
           GameState.gameClients[results[i].clientId].state.player.killCount++;
-          hits.push({
-            hitClientId: results[i].client,
-            sourceClientId: clientId,
-            bulletId: clientId,
-            position: {
-              x: state.player.center.x,
-              y: state.player.center.y
-            },
-            width: state.player.size.width,
-            height: state.player.size.height
-          });
+          
           for (gamer in GameState.gameClients) {
             if (GameState.gameClients[gamer].socket.id !== clientId) {
               GameState.gameClients[gamer].socket.emit(GameNetIds.GAME_UPDATE_MESSAGE, {
                 // they are not subtracted yet from the alive players so this is their position.
-                message: state.username + ' was eliminated by ' + results[i].username
+                message: state.username + ' was eliminated by ' + GameState.gameClients[results[i].clientId].state.username
               });
             }
           }
-
         }
         state.player.reportUpdate = true;
         bulletTree.remove(results[i]);
@@ -327,17 +303,6 @@ function checkPlayerVsDeathCircleCollision(state, clientId){
       player.health.current--;
       if(player.health.current <= 0) {
         processDeath(player);
-        hits.push({
-          hitClientId: clientId,
-          sourceClientId: clientId,
-          bulletId: clientId,
-          position: {
-            x: player.center.x,
-            y: player.center.y
-          },
-          width: player.size.width,
-          height: player.size.height
-        });
         for (gamer in GameState.gameClients) {
           if (GameState.gameClients[gamer].socket.id !== clientId) {
             GameState.gameClients[gamer].socket.emit(GameNetIds.GAME_UPDATE_MESSAGE, {
@@ -358,6 +323,14 @@ function checkDeath(player){
 }
 
 function processDeath(player){
+  hits.push({
+    width: player.size.width * 10,
+    height: player.size.height * 10,
+    position: {
+      x: player.center.x,
+      y: player.center.y
+    }
+  });
   //PlayerCount--
   //Update to player = death
   //Update to others = otherDeath
@@ -455,9 +428,8 @@ function update(elapsedTime, currentTime, totalTime) {
               y: (2*j + 1)/200
             } 
             hits.push({
-              hitClientId: badBullets[z].clientId,
-              sourceClientId: badBullets[z].clientId,
-              bulletId: badBullets[z].id,
+              width: 0.01,
+              height: 0.01,
               position: location
             });
             bulletTree.remove(badBullets[z]);
@@ -490,7 +462,6 @@ function updatePlayerTree() {
 function updateClients(elapsedTime) {
 
   props.lastUpdate += elapsedTime;
-
 
   // if (props.lastUpdate < STATE_UPDATE_LAG) {
   //     return;
@@ -560,6 +531,15 @@ function updateClients(elapsedTime) {
           radius: GameState.shield.radius,
         }        
     };
+    
+    let updateOther = {
+      clientId : update.clientId,
+      player: {
+        direction: update.player.direction,
+        position: update.player.position,
+        updateWindow: update.player.updateWindow
+      }
+    };
 
     if(!client.state.player.isDropped) {
       client.socket.emit(GameNetIds.UPDATE_VEHICLE, {
@@ -583,7 +563,7 @@ function updateClients(elapsedTime) {
       });
       for (let i = 0; i < otherPlayers.length; i++) {
         if (otherPlayers[i].client !== client) {
-          otherPlayers[i].client.socket.emit(GameNetIds.UPDATE_OTHER, update);
+          otherPlayers[i].client.socket.emit(GameNetIds.UPDATE_OTHER, updateOther);
         }
       }
     }
@@ -620,8 +600,11 @@ function gameLoop(currentTime, elapsedTime) {
   processInput(elapsedTime, currentTime - GameState.startTime);
   updatePlayerTree();
   update(elapsedTime, currentTime, currentTime - GameState.startTime);
-  updateClients(elapsedTime);
-
+  if (props.accumulatingUpdatePeriod > CLIENT_UPDATE_PERIOD) {
+    updateClients(elapsedTime);
+    props.accumulatingUpdatePeriod = 0;
+  }
+  props.accumulatingUpdatePeriod += elapsedTime;
   if (GameState.inProgress) {
     setTimeout(() => {
       let now = present();
