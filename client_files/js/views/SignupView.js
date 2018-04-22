@@ -49,7 +49,6 @@ const SignupView = (function SignupView (AudioPool) {
   }
 
   function init () {
-    // nothing to do
     keyboard = KeyboardHandler(true);
     keyboard.addOnceAction('Enter', submitSignup);
     Events.on($('#signup-button'), 'click', submitSignup);

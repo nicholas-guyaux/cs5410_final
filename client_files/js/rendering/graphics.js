@@ -61,28 +61,6 @@ const Graphics = (function() {
 
     viewport.canvas.width = canvas.width;
     viewport.canvas.height = canvas.height;
-
-    //
-    // Have to figure out where the upper left corner of the unit world is
-    // based on whether the width or height is the largest dimension.
-    // if (canvas.width < canvas.height) {
-    //   smallestSize = canvas.width;
-    //   world.size = smallestSize * 0.9;
-    //   world.x = Math.floor(canvas.width * 0.05);
-    //   world.y = (canvas.height - world.size) / 2;
-    // } else {
-    //   smallestSize = canvas.height;
-    //   world.size = smallestSize * 0.9;
-    //   world.y = Math.floor(canvas.height * 0.05);
-    //   world.x = (canvas.width - world.size) / 2;
-    // }
-    // GameMap.viewRect.w = world.size;
-    // GameMap.viewRect.h = world.size;
-    // //
-    // // Notify interested parties of the canvas resize event.
-    // for (handler in resizeHandlers) {
-    //   resizeHandlers[handler](true);
-    // }
   }
 
   function notifyResize(handler) { resizeHandlers.push(handler); }
@@ -102,25 +80,6 @@ const Graphics = (function() {
 		// Force the canvas to resize to the window first time in, otherwise
 		// the canvas is a default we don't want.
 		resizeCanvas();
-  }
-  
-  // var isFullMap = false;
-  function setFullMapCanvas (fullMapIsScreenVal) {
-    // const fullScreenVal = !!fullMapIsScreenVal;
-    // if(isFullMap !== fullScreenVal) {
-    //   isFullMap = fullScreenVal; 
-    //   if(isFullMap) {
-    //     canvas.width = Coords.world.width;
-    //     canvas.height = Coords.world.height;
-    //     onScreenCanvas.width = Coords.world.width;
-    //     onScreenCanvas.height = Coords.world.height;
-
-    //     // viewport.canvas.width = canvas.width;
-    //     // viewport.canvas.height = canvas.height;
-    //   } else {
-    //     resizeCanvas();
-    //   }
-    // }
   }
 
   CanvasRenderingContext2D.prototype.clear = function() {
@@ -243,7 +202,7 @@ const Graphics = (function() {
   }
 
   function scalingFactor () {
-    return 1;//canvas.width / (Coords.world.width * Coords.viewport.width);
+    return 1;
   }
 
   function drawTiledImage(image, leftEdge, topEdge, tileSizeX, tileSizeY, worldX, worldY){
@@ -270,7 +229,7 @@ const Graphics = (function() {
   }
 
   function enableClipping(polygon) {
-    // Convert polygon to true coordinates       
+    // Convert polygon to true coordinates
     for (let point of polygon) {
       point.x *= Coords.world.width;
       point.y *= Coords.world.height;
@@ -291,15 +250,6 @@ const Graphics = (function() {
   }
 
   function enableShieldClipping(shieldCircle, color='rgba(255,0,255,0.7)') {
-
-    // The other way of doing this:
-    // context.fillStyle = color;
-    // context.fillRect(Coords.viewport.world.x, Coords.viewport.world.y, Coords.viewport.world.width, Coords.viewport.world.height);
-
-    // context.globalCompositeOperation = 'destination-out';
-    // drawCircle('black', circle, circle.radius, 1, context);
-    // context.globalCompositeOperation = 'source-over';
-
     maskingContext.save();
 
     let circle = {
@@ -344,26 +294,6 @@ const Graphics = (function() {
 
     maskingContext.restore();
   }
-
-  // function disableShieldClipping() {
-  //   if (props.shieldClippingEnabled) {
-  //     context.restore();
-  //     props.shieldClippingEnabled = false;
-  //   }
-  // }
-
-  // function minimapShieldMask (circle, color='rgba(255,0,255,0.7)', destCanvas=minimapCanvas) {
-  //   maskingCanvas.width = destCanvas.width;
-  //   maskingCanvas.height = destCanvas.height;
-  //   let context = maskingCanvas.getContext('2d');
-  //   context.save();
-  //   context.fillStyle = color;
-  //   context.fillRect(0, 0, maskingCanvas.width, maskingCanvas.height);
-  //   context.globalCompositeOperation = 'destination-out';
-  //   drawCircle('rgba(0,0,0,0)', circle, circle.radius, 1, context);
-  //   context.restore();
-  //   destCanvas.getContext('2d').drawImage(maskingCanvas, Coords.viewport.x, Coords.viewport.y, Coords.viewport.width, Coords.viewport.height);
-  // }
 
   function disableClipping() {
     if (props.clippingEnabled) {
@@ -468,7 +398,7 @@ const Graphics = (function() {
         height: size.height * Coords.world.height
     };
     context.drawImage(spriteSheet,
-        sprite * spriteSize.width, 0,                 // which sprite to render
+        sprite * spriteSize.width, 0,           // which sprite to render
         spriteSize.width, spriteSize.height,    // size in the spritesheet
         localCenter.x - localSize.width / 2,
         localCenter.y - localSize.height / 2,
@@ -497,7 +427,6 @@ const Graphics = (function() {
     createFogEffect: createFogEffect,
     drawFromTiledCanvas: drawFromTiledCanvas,
     setOpacity: setOpacity,
-    setFullMapCanvas: setFullMapCanvas,
     drawText: drawText,
     addGameMessage: addGameMessage,
     enableShieldClipping,

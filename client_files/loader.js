@@ -40,8 +40,6 @@ MyGame.loader = (function() {
       message: 'ButtonMenu',
       onComplete: null,
     }, {
-      scripts: ['js/components/viewport.js']
-    }, {
       scripts: ['shared/Geometry'],
       message: 'Geometry loaded',
       onComplete: null,
@@ -91,15 +89,10 @@ MyGame.loader = (function() {
       scripts: [
         'js/lib/AudioPool',
         'js/lib/random'
-        // 'js/lib/ImageAsset'                //We haven't included this yet
       ],
       message: 'Librarys loaded',
       onComplete: null,
     }, {
-    //   scripts: ['input'],                  //INPUTS
-    //   message: 'Input loaded',
-    //   onComplete: null,
-    // }, {
       scripts: [ //Components / Player Models
         'js/components/player',
         'js/components/player-other',
@@ -113,10 +106,6 @@ MyGame.loader = (function() {
       message: 'Renderer loaded',
       onComplete: null,
     }, {
-    //   scripts: [''],                       //Game
-    //   message: 'Gameplay model loaded',
-    //   onComplete: null,
-    // }, {
       scripts: [
         'js/views/MenuView',
         'js/views/GameLobbyView',
@@ -269,7 +258,6 @@ MyGame.loader = (function() {
         GameMap.loadImage()
       }).then(function () {
         console.log('Loading Complete');
-        //MainView.loadView(MenuView.name);
         window.main('MenuView');
       })
     }

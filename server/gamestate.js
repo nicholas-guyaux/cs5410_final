@@ -26,8 +26,6 @@ const healthPP = 5;
 let ammoPP, gunsPP, speedPP, dmgPP, gunSpdPP;
 const vehicleStartTime = 12 * 1000;
 
-// TODO: Wipes and preps the gamestate for a new game
-// we are adding other things to GameState in newGame
 var GameState = {
   newGame: newGame,
   lobbyClients: lobbyClients,
@@ -48,7 +46,6 @@ var GameState = {
   depletionRate: depletionRate
 };
 
-// TODO: Wipes and preps the gamestate for a new game
 function newGame() {
   //set number of players and reset item array and alivePlayer array
   itemArray = [];
@@ -61,7 +58,6 @@ function newGame() {
   GameState.shield = Shield(5*60*1000);
   GameState.playerCount = Object.keys(gameClients).length;
   GameState.itemArray = [];
-  // GameState.alivePlayers = Object.values(gameClients).map(client => client.state.player);
   GameState.inProgress = true;
   GameState.startTime = present();
   GameState.vehicle = Vehicle(vehicleStartTime);

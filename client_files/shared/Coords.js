@@ -103,11 +103,6 @@
       viewport.x = Math.min(1-viewport.width, Math.max(0, box.center.x - viewport.width / 2));
       viewport.y = Math.min(1-viewport.height, Math.max(0, box.center.y - viewport.height / 2));
 
-
-      // viewport.x = Math.min(1-viewport.width, Math.max(0, boxCenter.x));
-      // viewport.y = Math.min(1-viewport.height, Math.max(0, boxCenter.y));
-      
-      
       if(typeof Graphics !== "undefined") {
         Graphics.translateToViewport()
       }

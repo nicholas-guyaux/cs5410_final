@@ -122,8 +122,6 @@ const GameLobbyView = (function GameLobbyView (AudioPool) {
         Events.simulateClick($('#chat-submit-button')[0]);
       }
     });
-
-    //buttonMenu = ButtonMenu($('#game-menu')[0]);
   }
 
   function sendMessage() {

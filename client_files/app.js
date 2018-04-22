@@ -1,11 +1,4 @@
 (function (ViewSwitcher, MenuView) {
-  
-  // function onScoreUpdate () {
-  //   $$('.js-scoreboard-here').forEach(el => {
-  //     scoreboard.render(el);
-  //   });
-  // }
-
   function miscSetup () {
     Events.on($('#volume-toggle'), 'click', function () {
       if(AudioPool.mute) {
@@ -46,8 +39,4 @@
       }
     });
   })
-
-  // will call main when the DOM has been fully loaded
-  //window.addEventListener('load', main);
-
 })(ViewSwitcher, MenuView);
