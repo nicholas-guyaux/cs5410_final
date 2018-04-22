@@ -28,6 +28,7 @@ function Player(maxHealth, maxEnergy, maxAmmo) {
   let killCount = 0;
   let buffs = { dmg: 0, speed: false, fireRate: false};
   let localItems = [];
+  let remainingPlayers = 0;
 
   Object.defineProperty(that, 'direction', {
       get: () => direction,
@@ -107,10 +108,16 @@ function Player(maxHealth, maxEnergy, maxAmmo) {
 
   Object.defineProperty(center,'y', {
     get: () => position.y + size.height / 2
-  })
+  });
+
   Object.defineProperty(that, 'center', {
     get: () => center
-  })
+  });
+
+  Object.defineProperty(that, 'remainingPlayers', {
+    get: () => remainingPlayers,
+    set: (value) => { remainingPlayers = value }
+  });
 
   //------------------------------------------------------------------
   //

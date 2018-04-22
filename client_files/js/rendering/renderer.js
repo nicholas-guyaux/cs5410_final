@@ -138,10 +138,14 @@ const Renderer = (function(graphics) {
     // + (Coords.viewport.width*.9) 
     //  + (Coords.viewport.height*.95)
     if (gun) {
-      Graphics.drawText('Ammo: ' + ammo.toString(), Math.floor(Coords.viewport.x * Coords.world.width), Math.floor(Coords.viewport.y * Coords.world.height) + 5, Math.floor((Coords.viewport.height * Coords.world.height * .02)).toString());
+      Graphics.drawText('Ammo: ' + ammo.toString(), Math.floor(Coords.viewport.x * Coords.world.width), Math.floor(Coords.viewport.y * Coords.world.height), Math.floor((Coords.viewport.height * Coords.world.height * .02)).toString(), 'top');
     } else {
-      Graphics.drawText('Ammo: ' + 'No Gun', Math.floor(Coords.viewport.x * Coords.world.width), Math.floor(Coords.viewport.y * Coords.world.height) + 5, Math.floor((Coords.viewport.height * Coords.world.height * .02)).toString());
+      Graphics.drawText('Ammo: ' + 'No Gun', Math.floor(Coords.viewport.x * Coords.world.width), Math.floor(Coords.viewport.y * Coords.world.height), Math.floor((Coords.viewport.height * Coords.world.height * .02)).toString(), 'top');
     }
+  }
+
+  function renderRemPlayers(numPlayers) {
+    Graphics.drawText('Remaining Players: ' + numPlayers, Math.floor((Coords.viewport.x + Coords.viewport.width * .6) * Coords.world.width), Math.floor((Coords.viewport.y  + Coords.viewport.height ) * Coords.world.height), Math.floor((Coords.viewport.height * Coords.world.height * .02)).toString(), 'bottom');
   }
 
   var clipping = TiledImageClipping({
@@ -197,6 +201,7 @@ const Renderer = (function(graphics) {
     renderAmmo,
     renderMessages,
     renderShield,
+    renderRemPlayers,
     // renderRemotePlayer
   };
 }(Graphics));
