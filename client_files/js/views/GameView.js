@@ -376,6 +376,7 @@ const GameView = (function() {
     playerSelf.model.energy = data.player.energy;
     playerSelf.model.useTurbo = data.player.useTurbo;
     playerSelf.model.isDropped = data.player.isDropped;
+    playerSelf.model.remainingPlayers = data.player.remainingPlayers;
 
     shield = Shield(data.shield.x, data.shield.y, data.shield.radius);
     if(shield.radius <= Geometry.LineSegment(shield, playerSelf.model.center).distance + Math.sqrt(2*Math.pow(Coords.viewport.width,2))) {
@@ -659,6 +660,8 @@ const GameView = (function() {
     Renderer.minimap(shield, playerSelf.model.center);
 
     Renderer.renderAmmo(playerSelf.model.gun, playerSelf.model.ammo);
+
+    Renderer.renderRemPlayers(playerSelf.model.remainingPlayers);
 
     if (waitingGameMessage) {
       waitingGameMessage = false;

@@ -176,6 +176,7 @@ function checkPlayerVsBulletCollisions(state, clientId){
       // Don't allow a bullet to hit the player it was fired from.
       if (clientId !== results[i].clientId) {
         hits.push({
+          bulletId: results[i].id,
           position: {
             x: state.player.center.x,
             y: state.player.center.y,
@@ -190,7 +191,9 @@ function checkPlayerVsBulletCollisions(state, clientId){
         state.player.health.current -= results[i].damage;
         if (checkDeath(state.player) && !state.player.dead) {
           processDeath(state.player);
-          GameState.gameClients[results[i].clientId].state.player.killCount++;
+          if (typeof GameState.gameClients[results[i].clientId] !== 'undefined') {
+            GameState.gameClients[results[i].clientId].state.player.killCount++;
+          }
           
           for (gamer in GameState.gameClients) {
             if (GameState.gameClients[gamer].socket.id !== clientId) {
@@ -428,6 +431,7 @@ function update(elapsedTime, currentTime, totalTime) {
               y: (2*j + 1)/200
             } 
             hits.push({
+              bulletId: badBullets[z].id,
               width: 0.01,
               height: 0.01,
               position: location
@@ -523,7 +527,8 @@ function updateClients(elapsedTime) {
           ammo: client.state.player.ammo.current,
           gun: client.state.player.gun,
           items: buffs,
-          isDead: client.state.player.dead
+          isDead: client.state.player.dead,
+          remainingPlayers: GameState.alivePlayers.length
         },
         shield: {
           x: GameState.shield.x,
