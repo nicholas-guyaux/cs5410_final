@@ -265,7 +265,7 @@ const Graphics = (function() {
     context.beginPath();
     context.strokeColor = color;
     context.moveTo(a.x*Coords.world.width, a.y*Coords.world.height);
-    context.moveTo(b.x*Coords.world.width, b.y*Coords.world.height);
+    context.lineTo(b.x*Coords.world.width, b.y*Coords.world.height);
     context.stroke();
   }
 

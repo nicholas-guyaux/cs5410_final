@@ -307,12 +307,12 @@ const GameView = (function() {
   }
 
   function unrender() {
-    AudioPool.pauseAllLoopSFX();
     props.quit = true;
     socket.disconnect();
     socket = null;
     keyboard.deactivate();
     props.quit = true;
+    AudioPool.pauseAllLoopSFX();
   }
 
   function connectPlayerSelf(data) {
@@ -688,6 +688,8 @@ const GameView = (function() {
 
     if (!props.quit) {
       requestAnimationFrame(gameLoop);
+    } else {
+      AudioPool.pauseAllLoopSFX();
     }
   }
 

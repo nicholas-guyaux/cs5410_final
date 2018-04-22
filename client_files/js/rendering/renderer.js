@@ -128,10 +128,15 @@ const Renderer = (function(graphics) {
       y: lerp(minimap.y, minimap.y + minimap.height, shield.y),
       radius: lerp(0, minimap.width, shield.radius),
     });
+
+    const playerPosMinimap = ({
+      x: lerp(minimap.x, minimap.x + minimap.width, playerPosition.x),
+      y: lerp(minimap.y, minimap.y + minimap.height, playerPosition.y)
+    });
     // renderShield(shield);
     Graphics.drawStrokedCircle('purple', shield, shield.radius);
     graphics.drawRectangle('yellow', viewport.x, viewport.y, viewport.width, viewport.height);
-    Graphics.drawLine('white', shield, playerPosition);
+    Graphics.drawLine('white', shield, playerPosMinimap);
   }
 
   function renderAmmo(gun,ammo) {
