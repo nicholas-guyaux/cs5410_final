@@ -7,7 +7,6 @@
 (function(exports) {
   'use strict';
 
-  // TODO: add/change this so that we have all our needed Game Network Ids
   Object.defineProperties(exports, {
     'INPUT': {
       value: 'a',

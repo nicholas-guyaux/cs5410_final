@@ -74,7 +74,6 @@ function processInput(elapsedTime, totalTime) {
     if(!client) continue;
     client.lastMessageId = input.message.id;
     client.state.player.reportUpdate = true;
-    // TODO: Handle all message types from client
     switch (input.message.type) {
       case GameNetIds.INPUT_MOVE_FORWARD:
         client.state.player.move(input.message.elapsedTime);
@@ -296,7 +295,6 @@ function checkPlayerVsBuffCollision(state, client){
       }
     }
   }
-  //if hit, pick up buff if not already obtained
 }
 function checkPlayerVsDeathCircleCollision(state, clientId){
   //If outside circle, take damage
@@ -334,17 +332,11 @@ function processDeath(player){
       y: player.center.y
     }
   });
-  //PlayerCount--
-  //Update to player = death
-  //Update to others = otherDeath
   player.dead = true;
-  return;
 }
 
 function update(elapsedTime, currentTime, totalTime) {
-  GameState.update(elapsedTime, currentTime, totalTime);  
-  //for bullet in bullets
-  //update bullet (bullets die on hitting player or land)
+  GameState.update(elapsedTime, currentTime, totalTime);
   bulletTree.clear();
   bulletTree.load(activeBullets);
   for (let clientId in GameState.gameClients) {
@@ -367,10 +359,6 @@ function update(elapsedTime, currentTime, totalTime) {
   GameState.alivePlayers = GameState.alivePlayers.filter(player => !player.dead);
 
   if(GameState.alivePlayers.length <= 1){
-    // endGame
-    // tell the player they won;
-    // endGame
-    // tell the player they won;
     for (let clientId in GameState.gameClients) {
       if(!GameState.gameClients[clientId].state.player.dead) {
         GameState.gameClients[clientId].socket.emit(GameNetIds.MESSAGE_GAME_OVER, {
@@ -391,7 +379,6 @@ function update(elapsedTime, currentTime, totalTime) {
   for (let i = 0; i < newBullets.length; i++) {
     newBullets[i].update(elapsedTime);
   }
-  //let keepBullets = [];
   bulletTree.clear();
   for (let i = 0; i < activeBullets.length; i++) {
     //
@@ -401,15 +388,9 @@ function update(elapsedTime, currentTime, totalTime) {
       bulletTree.insert(activeBullets[i]);
     }
   }
-  //bulletTree.load(keepBullets);
   
   //
   // Check to see if any bullets collide with any players (no friendly fire)
-
-  // TODO: CHANGE so that for every player we only check that player's bullets
-  // in that player's firing radius
-  
-   
   for (let j = 1; j < islandMap.length-1; j++) {
     for (let k = 1; k < islandMap[j].length-1; k++) {
       if (islandMap[j][k] !== 0) {
@@ -466,11 +447,6 @@ function updatePlayerTree() {
 function updateClients(elapsedTime) {
 
   props.lastUpdate += elapsedTime;
-
-  // if (props.lastUpdate < STATE_UPDATE_LAG) {
-  //     return;
-  // }
-
   //
   // Build the bullet messages one time, then reuse inside the loop
   let bulletMessages = [];
@@ -496,12 +472,10 @@ function updateClients(elapsedTime) {
     activeBullets.push(newBullets[i]);
   }
   newBullets.length = 0;
-  // updateBulletTree(activeBullets);
 
   // For each game client create an update message with the client's data and elapsedTime
   // Then, if the player is to report the update, then emit an UPDATE_SELF and an UPDATE_OTHER 
   // to all other clients
-  
   for (let clientId in GameState.gameClients) {
     let client = GameState.gameClients[clientId];
     client.state.player.reportUpdate = true;
@@ -511,7 +485,6 @@ function updateClients(elapsedTime) {
       maxX: client.state.player.position.x + Coords.viewport.width,
       maxY: client.state.player.position.y + Coords.viewport.height
     });
-    //let buffs = itemTree.all();
     
     let update = {
         clientId: clientId,
@@ -692,7 +665,6 @@ function initializeSocketIO(io) {
       if (newClient.socket.id !== clientId) {
         existingClient.socket.emit(GameNetIds.CONNECT_OTHER, {
           clientId: newClient.socket.id,
-          // player: null,
           player: {
             direction: newPlayer.direction,
             position: newPlayer.position,

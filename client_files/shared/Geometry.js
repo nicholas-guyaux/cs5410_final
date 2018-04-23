@@ -335,9 +335,6 @@
           return false;
         }
       },
-      // get edges () {
-      //   return [that]
-      // },
     };
     
     return that;

@@ -38,12 +38,10 @@ function initializeSocketIO(io) {
 
       if (newClient.socket.id !== clientId) {
         existingClient.socket.emit(LobbyNetIds.CONNECT_OTHER, {
-          // TODO: Include all the data needed from a client on notify
           clientId: newClient.socket.id,
           player: newClient.state.player
         });
         newClient.socket.emit(LobbyNetIds.CONNECT_OTHER, {
-          // TODO: Include all the data needed from a client on notify
           clientId: existingClient.socket.id,
           player: existingClient.state.player
         });
@@ -80,7 +78,6 @@ function initializeSocketIO(io) {
   io.on('connection', function(socket) {
     console.log('Connection established: ', socket.id);
 
-    // let newPlayer = Player.create();
     let newClient = {
       socket: socket,
       state: {
@@ -94,7 +91,6 @@ function initializeSocketIO(io) {
     socket.emit(LobbyNetIds.CONNECT_ACK, {
       clientId: socket.id,
       numPlayers: config.numPlayersRequired
-      // player: newPlayer
     });
 
     socket.on(LobbyNetIds.PLAYER_JOIN_LOBBY, async data => {
@@ -102,7 +98,6 @@ function initializeSocketIO(io) {
         // asynchronous token checking
         const user = await Token.check_auth(data.token);
         newClient.state.player = user;
-        //console.log(data.player);
         
         for (let clientId in GameState.lobbyClients) {
           if (!GameState.lobbyClients.hasOwnProperty(clientId)) {
@@ -117,7 +112,6 @@ function initializeSocketIO(io) {
               playerId: newClient.state.player.name,  
               message: "Has entered the lobby"      
             });
-            //console.log(newClient.state.player);
           }
         }
       } catch (e) {
@@ -197,7 +191,6 @@ function updateNumClients () {
     client.socket.emit(LobbyNetIds.CONNECT_ACK, {
       clientId: client.socket.id,
       numPlayers: config.numPlayersRequired
-      // player: newPlayer
     });
   }
   checkGameStart();

@@ -7,7 +7,6 @@
 (function(exports) {
   'use strict';
 
-  // TODO: add/change this so that we have all our needed Lobby Network Ids
   Object.defineProperties(exports, {
     'PLAYER_JOIN_LOBBY': {
       value: 'player-join-lobby',
