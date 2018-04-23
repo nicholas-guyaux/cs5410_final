@@ -579,7 +579,7 @@ function gameLoop(currentTime, elapsedTime) {
   updatePlayerTree();
   update(elapsedTime, currentTime, currentTime - GameState.startTime);
   if (props.accumulatingUpdatePeriod > CLIENT_UPDATE_PERIOD) {
-    updateClients(elapsedTime);
+    updateClients(props.accumulatingUpdatePeriod);
     props.accumulatingUpdatePeriod = 0;
   }
   props.accumulatingUpdatePeriod += elapsedTime;
