@@ -2,6 +2,8 @@
 
 [battleboatsbrawl.com](http://www.battleboatsbrawl.com)
 
+[github repo](https://github.com/nicholas-guyaux/cs5410_final)
+
 Andrew Aposhian  
 Sam Christiansen  
 Nicholas Guyaux  
