@@ -1,5 +1,5 @@
 // ------------------------------------------------------------------
-// Written by Dr. Dean Mathias
+// Modified from code originally written by Dr. Dean Mathias
 //
 // Nodejs module that represents the model for a player.
 //

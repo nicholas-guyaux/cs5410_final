@@ -1,4 +1,5 @@
 // ------------------------------------------------------------------
+// Code originally written by Dr. Dean Mathias
 //
 // Provides some utility functions to generate different kinds of random numbers.
 //
