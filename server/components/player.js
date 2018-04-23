@@ -42,10 +42,10 @@ function createPlayer(maxHealth, maxEnergy, maxAmmo, depletionRate) {
         // height is used to compute the radius.
         radius: boatImg.sourceSize.h / Coords.world.height / 2 * settings.waterUnitScale,
     };
-    let direction = random.nextDouble() * 2 * Math.PI;    // Angle in radians
-    let rotateRate = Math.PI / 1000;    // radians per millisecond
-    let speed = 0.0002*Coords.viewport.width;                 // unit distance per millisecond
-    let reportUpdate = false;    // Indicates if this model was updated during the last update
+    let direction = random.nextDouble() * 2 * Math.PI;  // Angle in radians
+    let rotateRate = Math.PI / 1000;                    // radians per millisecond
+    let speed = 0.0002*Coords.viewport.width;           // unit distance per millisecond
+    let reportUpdate = false;                           // Indicates if this model was updated during the last update
     
     let health = {current: maxHealth, max: maxHealth, rate: 0};
     let energy = {current: maxEnergy, max: maxEnergy, rate: 0};

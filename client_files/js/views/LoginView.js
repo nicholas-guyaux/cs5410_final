@@ -23,12 +23,6 @@ const LoginView = (function LoginView (AudioPool) {
     $("#login-username")[0].focus();
     AudioPool.playMusic('menu');
     keyboard.activate();
-    // // should use token stored in local storage and get the user
-    // client.getUser().then(function (d) {
-    //   if(client.user) {
-    //     MainView.loadView(MenuView.name);
-    //   }
-    // });
   }
 
   function unrender () {
@@ -36,7 +30,6 @@ const LoginView = (function LoginView (AudioPool) {
   }
 
   function init () {
-    // nothing to do
     keyboard = KeyboardHandler(true);
     keyboard.addOnceAction('Enter', submitLogin);
     Events.on($('#login-button'), 'click', submitLogin);

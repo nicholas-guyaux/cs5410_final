@@ -71,7 +71,6 @@ const Renderer = (function(graphics) {
         model.size.width * (Math.max(0,model.health.current) / model.health.max), (model.size.height * .05)
       );
     }
-    //graphics.drawFilledRectangle('red',model.position.x, model.position.y, .1, .10);
   }
 
   function renderExplosion(sprite) {
@@ -140,8 +139,6 @@ const Renderer = (function(graphics) {
   }
 
   function renderAmmo(gun,ammo) {
-    // + (Coords.viewport.width*.9) 
-    //  + (Coords.viewport.height*.95)
     if (gun) {
       Graphics.drawText('Ammo: ' + ammo.toString(), Math.floor(Coords.viewport.x * Coords.world.width), Math.floor(Coords.viewport.y * Coords.world.height), Math.floor((Coords.viewport.height * Coords.world.height * .02)).toString(), 'top');
     } else {
@@ -191,10 +188,6 @@ const Renderer = (function(graphics) {
     Graphics.enableShieldClipping(shield);
   }
 
-  // function renderRemotePlayer(model, textureSet, elapsed) {
-  //   return renderPlayer(model, textureSet, elapsed);
-  // }
-
   return {
     renderPlayer,
     renderBullet,
@@ -207,6 +200,5 @@ const Renderer = (function(graphics) {
     renderMessages,
     renderShield,
     renderRemPlayers,
-    // renderRemotePlayer
   };
 }(Graphics));

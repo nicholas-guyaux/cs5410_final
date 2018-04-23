@@ -33,7 +33,6 @@ function Vehicle () {
           vehicle.x = clampLerp(vehicle.x, goal.x, updateFraction);
           vehicle.y = clampLerp(vehicle.y, goal.y, updateFraction);
         }
-        // goal.updateWindow -= elapsedTime;
       }
     },
     getRectInViewport () {

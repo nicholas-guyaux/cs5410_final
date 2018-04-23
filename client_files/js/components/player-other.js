@@ -79,12 +79,6 @@ function PlayerRemote() {
 
       state.position.x = clampLerp(state.position.x, goal.position.x, updateFraction);
       state.position.y = clampLerp(state.position.y, goal.position.y, updateFraction);
-
-      // Original way:
-      // state.direction -= (state.direction - goal.direction) * updateFraction;
-
-      // state.position.x -= (state.position.x - goal.position.x) * updateFraction;
-      // state.position.y -= (state.position.y - goal.position.y) * updateFraction;
     }
   };
 

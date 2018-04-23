@@ -72,12 +72,6 @@ function ParticleManager(graphics) {
         let positionX = center.x + Math.cos(angle) * radius;
         let positionY = center.y - Math.sin(angle) * radius;
 
-        // // This is hacky - fix this later
-        // if (spec.circleSegment.underCenter) {
-        //   positionY = positionY + center.y;
-        // }
-
-
         let p = {
           position: { x: positionX, y: positionY },
           direction: Random.nextCircleVector(),

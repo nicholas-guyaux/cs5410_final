@@ -1,5 +1,3 @@
-// const AnimatedSprite = require('./components/animated-sprite');
-
 let playerCount = 0;
 let maxHealth = 100;
 let maxAmmo = 50;
@@ -607,23 +605,11 @@ const GameView = (function() {
   function renderFrame() {
     totalTime = props.lastTimeStamp;
     if(!playerSelf.model.isDropped) {
-      Graphics.setFullMapCanvas(true);
       Renderer.renderGameStart(totalTime, vehicle);
       return;
     }
-    Graphics.setFullMapCanvas(false);
     Graphics.clear();
     Graphics.translateToViewport();
-    
-    // let playerPos = {x: playerSelf.model.position.x, y: playerSelf.model.position.y};
-    // let FOVPoint1 = {x: (playerPos.x + props.FOVDistance), y: playerPos.y - (props.FOVWidth / 2)};
-    // let FOVPoint2 = {x: (playerPos.x + props.FOVDistance), y: playerPos.y + (props.FOVWidth / 2)};
-
-    // FOVPoint1 = rotatePointAboutPoint(playerPos, FOVPoint1, playerSelf.model.direction);
-    // FOVPoint2 = rotatePointAboutPoint(playerPos, FOVPoint2, playerSelf.model.direction);
-    // FOVPolygon = [playerPos, FOVPoint1, FOVPoint2];
-    // Graphics.enableClipping(FOVPolygon); // clipping for objects forbidden outside FOV
-
     GameMap.draw();
        
     particleManager.render();

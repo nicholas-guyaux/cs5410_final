@@ -1,29 +1,7 @@
-// const GameMap = (function(){
-//   var map = {};
-// fetch('assets/data/map.json').then(stream => stream.json()).then(function(data){
-//   Object.assign(map, data);
-//   map.numXTiles = map.width;
-//   map.numYTiles = map.height;
-//   map.tileSize = {};
-//   map.tileSize.x = map.tilewidth;
-//   map.tileSize.y = map.tileheight;
-//   map.pixelSize = {};
-//   map.pixelSize.x = map.numXTiles * map.tileSize.x;
-//   map.pixelSize.y = map.numYTiles * map.tileSize.y;
-// });
-//   return map;
-// }());
-
 (function(exports){
   var map = ({
     currMapData: null,
     tileSets: new Array(),
-    // viewRect: {
-    //   "x": 0,
-    //   "y": 0,
-    //   "w": 1000,
-    //   "h": 1000
-    // },
     numXTiles: 100,
     numYTiles: 100,
     tileSize: {
@@ -43,15 +21,10 @@
       return fetch('assets/data/islands.json').then(stream => stream.json()).then(function(data){
         GameMap.parseMapJSON(data);
       });
-    //xhrGet(map, false,function(data)
-    // {
-    // 	GameMap.parseMapJSON(data.response);
-    // });
     },
-    //---------------------------
     _tempInput:null,
     loadImage:function(){
-      var map = this.currMapData;      
+      var map = this.currMapData;
       var GameMap = this;
       for (var i = 0; i < map.tilesets.length; i++){
         var img = new Image();
@@ -95,9 +68,6 @@
         x++;
       }
     }
-    
-      //load our tilesets if we are a client.
-    
     },
     //---------------------------
     getTilePacket: function (tileIndex) {
@@ -165,20 +135,8 @@
             || (worldY + this.tileSize.y) < Graphics.viewport.world.y 
             || worldX > Graphics.viewport.world.x + Graphics.viewport.canvas.width 
             || worldY > Graphics.viewport.world.y + Graphics.viewport.canvas.height) continue;
-  
-          //adjust all the visible tiles to draw at canvas origin.
-          // worldX += Graphics.viewport.x;
-          // worldY += Graphics.viewport.y;
-  
-          // Nine arguments: the element, source (x,y) coordinates, source width and 
-          // height (for cropping), destination (x,y) coordinates, and destination width 
-          // and height (resize).
-          
-          // Graphics.drawTiledImage(tPKT.img, tPKT.px, tPKT.py, this.tileSize.x, this.tileSize.y, worldX, worldY);
+
           Graphics.drawFromTiledCanvas("map-tiled-imageset", tPKT.img, tPKT.px, tPKT.py, this.tileSize.x, this.tileSize.y, worldX, worldY);
-          
-          //ctx.drawImage(tPKT.img, tPKT.px, tPKT.py, this.tileSize.x, this.tileSize.y, worldX, worldY, this.tileSize.x, this.tileSize.y);
-  
         }
       }
     },
