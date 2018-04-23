@@ -10,107 +10,107 @@
   // TODO: add/change this so that we have all our needed Game Network Ids
   Object.defineProperties(exports, {
     'INPUT': {
-      value: 'input',
+      value: 'a',
       writable: false
     },
     'INPUT_DROP': {
-      value: 'drop-self',
+      value: 'b',
       writable: false
     },
     'INPUT_MOVE_FORWARD': {
-      value: 'move-forward',
+      value: 'c',
       writable: false
     },
     'INPUT_MOVE_BACKWARD': {
-      value: 'move-backward',
+      value: 'd',
       writable: false
     },
     'INPUT_ROTATE_LEFT': {
-      value: 'rotate-left',
+      value: 'e',
       writable: false
     },
     'INPUT_ROTATE_RIGHT': {
-      value: 'rotate-right',
+      value: 'f',
       writable: false
     },
     'INPUT_FIRE': {
-      value: 'fire',
+      value: 'g',
       writable: false
     },
     'BULLET_HIT': {
-      value: 'bullet-hit',
+      value: 'h',
       writable: false
     },
     'BULLET_NEW': {
-      value: 'bullet-new',
+      value: 'i',
       writable: false
     },
     "INPUT_TURBO": {
-      value: 'turbo',
+      value: 'j',
       writable: false
     },
     'PLAYER_JOIN_GAME': {
-      value: 'player-join-game',
+      value: 'k',
       writable: false
     },
     'PLAYER_JOIN_GAME_ACK': {
-      value: 'player-join-game-ack',
+      value: 'l',
       writable: false
     },
     'PLAYER_LEAVE': {
-      value:'player-leave', 
+      value:'m', 
       writeable: false
     },
     'GAME_MSG': {
-      value: 'game-msg',
+      value: 'n',
       writable: false
     },
     'GAME_SETUP': {
-      value: 'game-init',
+      value: 'o',
       writable: false
     },
     'CONNECT_ACK': {
-      value: 'connect-ack',
+      value: 'p',
       writable: false
     },
     'CONNECT_OTHER': {
-      value: 'connect-other',
+      value: 'q',
       writable: false
     },
     'DISCONNECT_OTHER': {
-      value: 'disconnect-other',
+      value: 'r',
       writable: false
     },
     'UPDATE_SELF': {
-      value: 'update-self',
+      value: 's',
       writable: false
     },
     'UPDATE_OTHER': {
-      value: 'update-other',
+      value: 't',
       writable: false
     },
     'UPDATE_VEHICLE_DROP': {
-      value: 'update-vehicle-drop',
+      value: 'u',
       writable: false
     },
     'UPDATE_VEHICLE': {
-      value: 'update-vehicle',
+      value: 'v',
       writable: false,
     },
     "GAME_KICK": {
-      value: 'game-kick',
+      value: 'w',
       writable: false,
     },
     'MESSAGE_GAME_OVER': {
-      value: 'message-game-over',
+      value: 'x',
       writable: false
     },
     'SET_NAME': {
-      value: 'set-name',
+      value: 'y',
       writable: false
     },
     'GAME_UPDATE_MESSAGE': {
-      value: 'game-update-message',
+      value: 'z',
       writable: false
     },
   });
