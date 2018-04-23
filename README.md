@@ -4,6 +4,11 @@
 
 [github repo](https://github.com/nicholas-guyaux/cs5410_final)
 
+Requirements:
+
+Node.js version with async/await.  
+I believe this means you need Node.js 8 or greater.
+
 Andrew Aposhian  
 Sam Christiansen  
 Nicholas Guyaux  
