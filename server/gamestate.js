@@ -21,7 +21,7 @@ const maxEnergy = 200;
 const defaultBulletDamage = 5;
 const fireRate = 300;
 const upgradedFireRate = 150;
-const depletionRate = 20;
+const depletionRate = 200;
 const healthPP = 5;
 let ammoPP, gunsPP, speedPP, dmgPP, gunSpdPP;
 const vehicleStartTime = 12 * 1000;

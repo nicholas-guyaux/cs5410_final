@@ -140,10 +140,14 @@ const HighScoresView = (function HighScoresView (AudioPool) {
   }
 
   function getNumberWithCorrectDecimal(a,b){
+    if(b === 0)
+      return 0;
     return Math.round(a / b * 100)/100;
   }
 
   function getNumberForPercent(a,b){
+    if(b === 0)
+      return 0;
     return Math.round(a / b * 100).toString() + '%';
   }
 
