@@ -16,7 +16,7 @@ var waitingForPlayers = false;
 
 const SIMULATION_UPDATE_RATE_MS = 33;
 // const STATE_UPDATE_LAG = 0;
-const CLIENT_UPDATE_PERIOD = 100;
+const CLIENT_UPDATE_PERIOD = 200;
 
 let inputQueue = Queue.create();
 let islandMap = GameMap.getGridMap();
