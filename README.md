@@ -1,6 +1,6 @@
 # Battle Boats Brawl
 
-[battleboatsbrawl.com](http://www.battleboatsbrawl.com)
+[battleboatsbrawl.com](http://battleboatsbrawl.com)
 
 [github repo](https://github.com/nicholas-guyaux/cs5410_final)
 
